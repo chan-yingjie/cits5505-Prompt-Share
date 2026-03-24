@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Prompt - Prompt Battle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+    <h1>Prompt Battle</h1>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="feed.html">Feed</a></li>
+        <li><a href="submit-prompt.html">Submit</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="login.html">Login</a></li>
+    </ul>
+
+    <!-- Page Description -->
+    <section>
+        <h3>Page Description</h3>
+        <p>
+            This page allows users to submit a new prompt to the platform.
+            It is designed as the main content contribution page of the application.
+        </p>
+    </section>
+
+    <!-- Submit Prompt Form -->
+    <section>
+        <h2>Submit a New Prompt</h2>
+        <form>
+            <label for="title">Prompt Title:</label><br>
+            <input type="text" id="title" name="title"><br><br>
+
+            <label for="category">Category:</label><br>
+            <input type="text" id="category" name="category"><br><br>
+
+            <label for="prompt">Prompt Content:</label><br>
+            <textarea id="prompt" name="prompt" rows="6" cols="50"></textarea><br><br>
+
+            <label for="output">Example Output:</label><br>
+            <textarea id="output" name="output" rows="6" cols="50"></textarea><br><br>
+
+            <button type="submit">Submit Prompt</button>
+        </form>
+    </section>
+
+</body>
+</html>
