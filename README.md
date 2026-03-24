@@ -8,20 +8,31 @@ The platform aims to support collaborative learning by enabling users to refine 
 
 Overall, the application combines user interaction, evaluation, and feedback to help users develop better prompt engineering skills.
 
-## Group Members
+## Team Members
 
-| UWA ID   | Name               | GitHub Username |
-|----------|--------------------|-----------------|
-| 24771727 | Armin Islam        | (to be added)   |
-| 23864156 | Chinmai Ravindran  | (to be added)   |
-| 24262634 | Yingjie Qian       | [chan-yingjie](https://github.com/chan-yingjie) |
+| UWA ID | Name | GitHub Username |
+|--------|------|-----------------|
+| 24771727 | Armin Islam | Armin312 |
+| 23864156 | Chinmai Ravindran | chinmaiii |
+| 24262634 | Yingjie Qian | chan-yingjie |
 
-## How to Launch the Application（need adjust)
+## How to Launch the Application
 
-To run this application locally, follow the steps below:
+- Clone or download the project repository to your local machine.
 
-### 1. Clone the repository
+- Set up the required development environment, including installing the necessary runtime and dependencies.
 
+- Navigate to the project directory on your computer.
+
+- Start the application using the appropriate method for the project.
+
+- Open a web browser and access the application through the local host address provided after launching.
+
+- If required, register a new user account or log in with existing credentials.
+
+- Use the application features as intended after successful login.
+
+- If any issues occur, check that all dependencies are installed correctly and that the environment is properly configured.
 
 
 ## How to Run Tests
