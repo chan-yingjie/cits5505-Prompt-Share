@@ -28,43 +28,66 @@
             view example outputs, and see interaction options such as voting and commenting.
         </p>
     </section>
+    
 
-    <!-- Prompt Feed -->
-    <section>
-        <h2>Prompt Feed</h2>
 
-        <div>
-            <h3>Prompt 1: Summarise an article</h3>
-            <p><strong>Prompt:</strong> Summarise this news article in three short bullet points.</p>
-            <p><strong>Output Preview:</strong> The article discusses recent developments and key takeaways.</p>
-            <p><strong>Votes:</strong> 12</p>
+<section class="feed-container">
+    <h2 class="page-title">Prompt Feed</h2>
+
+    <div class="prompt-card">
+        <h3>Prompt 1: Summarise an article</h3>
+        <p><strong>Prompt:</strong> Summarise this news article in three short bullet points.</p>
+        <p><strong>Output Preview:</strong> The article discusses recent developments and key takeaways.</p>
+        <p class="votes"><strong>Votes:</strong> 12</p>
+
+        <div class="card-actions">
             <button>Upvote</button>
-            <button>Comment</button>
-            <a href="prompt-detail.html">View Details</a>
+ <button onclick="toggleComments(this)">Comment</button>
+               <a href="prompt-detail.html" class="details-link">View Details</a>
+          <div class="comments-section" style="display: none;">
+    <p><strong>user123:</strong> This is really useful!</p>
+    <p><strong>ai_learner:</strong> Maybe add more constraints.</p>
+</div>
+</div>
         </div>
+    </div>
 
-        <hr>
+    <div class="prompt-card">
+        <h3>Prompt 2: Improve email writing</h3>
+        <p><strong>Prompt:</strong> Rewrite this email to sound more professional and concise.</p>
+        <p><strong>Output Preview:</strong> The rewritten email is clearer, more polite, and easier to follow.</p>
+        <p class="votes"><strong>Votes:</strong> 8</p>
 
-        <div>
-            <h3>Prompt 2: Improve email writing</h3>
-            <p><strong>Prompt:</strong> Rewrite this email to sound more professional and concise.</p>
-            <p><strong>Output Preview:</strong> The rewritten email is clearer, more polite, and easier to follow.</p>
-            <p><strong>Votes:</strong> 8</p>
-            <button>Upvote</button>
-            <button>Comment</button>
-        </div>
-
-        <hr>
-
-        <div>
-            <h3>Prompt 3: Generate study questions</h3>
-            <p><strong>Prompt:</strong> Create five revision questions based on this lecture summary.</p>
-            <p><strong>Output Preview:</strong> The system generates a list of practice questions for review.</p>
-            <p><strong>Votes:</strong> 15</p>
+        <div class="card-actions">
             <button>Upvote</button>
             <button>Comment</button>
         </div>
-    </section>
+    </div>
 
+    <div class="prompt-card">
+        <h3>Prompt 3: Generate study questions</h3>
+        <p><strong>Prompt:</strong> Create five revision questions based on this lecture summary.</p>
+        <p><strong>Output Preview:</strong> The system generates a list of practice questions for review.</p>
+        <p class="votes"><strong>Votes:</strong> 15</p>
+
+        <div class="card-actions">
+            <button>Upvote</button>
+            <button>Comment</button>
+        </div>
+    </div>
+</section>
+
+<script>
+function toggleComments(button) {
+    const card = button.closest(".prompt-card");
+    const section = card.querySelector(".comments-section");
+
+    if (section.style.display === "none") {
+        section.style.display = "block";
+    } else {
+        section.style.display = "none";
+    }
+}
+</script>
 </body>
 </html>
