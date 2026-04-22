@@ -3,53 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Prompt Battle</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Profile | Prompt Battle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-pages/ui-pages.css">
 </head>
 <body>
+    <div class="page-shell">
+        <header class="topbar">
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="index.html">Home</a>
+                <a href="ui-pages/feed.html">Feed</a>
+                <a href="submit-prompt.html">Submit Prompt</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a class="active" href="profile.html">Profile</a>
+                <a href="login.html">Login</a>
+            </nav>
+            <a class="brand" href="index.html">Prompt Battle</a>
+        </header>
 
-    <nav>
-    <h1>Prompt Battle</h1>
-    <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="feed.html">Feed</a></li>
-        <li><a href="submit-prompt.html">Submit</a></li>
-        <li><a href="profile.html">Profile</a></li>
-        <li><a href="login.html">Login</a></li>
-    </ul>
+        <main class="layout">
+            <section class="content-block">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Profile</p>
+                        <h2 id="profileTitle">User profile</h2>
+                    </div>
+                    <div class="interaction-row" aria-label="Profile actions">
+                        <a class="button-link secondary" href="submit-prompt.html">Submit Prompt</a>
+                        <a class="button-link primary" href="ui-pages/feed.html">Explore Feed</a>
+                    </div>
+                </div>
 
-    <section>
-        <h3>Page Description</h3>
-        <p>
-            This page displays a user’s profile information, submitted prompts, and activity history.
-            It helps users track their own contributions and engagement on the platform.
-        </p>
-    </section>
+                <div class="detail-identity">
+                    <div class="detail-author-avatar author-tone-warm" id="profileAvatar" aria-hidden="true">U</div>
+                    <div class="detail-author-stack">
+                        <a class="author-link" href="profile.html" id="profileUsernameLink">
+                            <span id="profileUsername">User</span>
+                        </a>
+                        <span class="author-handle" id="profileHandle">@user</span>
+                        <p class="section-copy" id="profileBio">Loading profile…</p>
+                    </div>
+                </div>
 
-    <section>
-        <h2>User Profile</h2>
-        <p><strong>Username:</strong> demo_user</p>
-        <p><strong>Email:</strong> demo@example.com</p>
-        <p><strong>Bio:</strong> Interested in prompt engineering and AI tools.</p>
-    </section>
+                <div class="summary-grid" aria-label="User stats">
+                    <div class="stat">
+                        <strong class="stat-value" id="statTotalPrompts">—</strong>
+                        <span class="summary-label">Total prompts</span>
+                    </div>
+                    <div class="stat">
+                        <strong class="stat-value" id="statTotalLikes">—</strong>
+                        <span class="summary-label">Total likes</span>
+                    </div>
+                    <div class="stat">
+                        <strong class="stat-value" id="statTotalViews">—</strong>
+                        <span class="summary-label">Total views</span>
+                    </div>
+                    <div class="stat">
+                        <strong class="stat-value" id="statTotalFavorites">—</strong>
+                        <span class="summary-label">Total favorites</span>
+                    </div>
+                </div>
+            </section>
 
-    <section>
-        <h2>Submitted Prompts</h2>
-        <ul>
-            <li>Summarise this article in three bullet points.</li>
-            <li>Rewrite this email in a more professional tone.</li>
-            <li>Create revision questions from this lecture summary.</li>
-        </ul>
-    </section>
+            <section class="content-block">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Prompts</p>
+                        <h2>Submitted prompts</h2>
+                    </div>
+                </div>
 
-    <section>
-        <h2>Activity History</h2>
-        <ul>
-            <li>Upvoted Prompt 2</li>
-            <li>Commented on Prompt 1</li>
-            <li>Submitted a new prompt yesterday</li>
-        </ul>
-    </section>
+                <div id="userPrompts" class="prompt-grid" aria-live="polite"></div>
+            </section>
+
+            <section class="content-block">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Activity</p>
+                        <h2>Activity history</h2>
+                    </div>
+                </div>
+
+                <div class="empty-state">
+                    Activity history will appear here once the back-end is connected.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="ui-pages/prompt-data.js"></script>
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const requestedUser = (params.get("user") || "demo_user").trim();
+
+            const dataset = Array.isArray(window.promptFeedData) ? window.promptFeedData : [];
+            const userPrompts = dataset.filter(item => (item.author || "").toLowerCase() === requestedUser.toLowerCase());
+
+            const primary = userPrompts[0] || null;
+            const username = primary?.author || requestedUser || "User";
+            const handle = primary?.authorHandle || ("@" + username);
+            const bio = primary?.authorBio || "This profile will show more details once the back-end is connected.";
+
+            const avatar = document.getElementById("profileAvatar");
+            const usernameEl = document.getElementById("profileUsername");
+            const usernameLinkEl = document.getElementById("profileUsernameLink");
+            const handleEl = document.getElementById("profileHandle");
+            const bioEl = document.getElementById("profileBio");
+            const promptsEl = document.getElementById("userPrompts");
+            const profileTitleEl = document.getElementById("profileTitle");
+
+            const initials = String(username)
+                .split(/[\s._-]+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map(part => part[0].toUpperCase())
+                .join("") || "U";
+
+            avatar.textContent = initials;
+            usernameEl.textContent = username;
+            usernameLinkEl.href = `profile.html?user=${encodeURIComponent(username)}`;
+            handleEl.textContent = handle;
+            bioEl.textContent = bio;
+            profileTitleEl.textContent = `${username} profile`;
+
+            const totals = userPrompts.reduce((acc, p) => {
+                acc.prompts += 1;
+                acc.likes += Number(p.likes || 0);
+                acc.views += Number(p.viewCount || 0);
+                acc.favorites += Number(p.favorites || 0);
+                return acc;
+            }, { prompts: 0, likes: 0, views: 0, favorites: 0 });
+
+            document.getElementById("statTotalPrompts").textContent = String(totals.prompts);
+            document.getElementById("statTotalLikes").textContent = String(totals.likes);
+            document.getElementById("statTotalViews").textContent = String(totals.views);
+            document.getElementById("statTotalFavorites").textContent = String(totals.favorites);
+
+            if (!userPrompts.length) {
+                promptsEl.innerHTML = `
+                    <div class="empty-state">
+                        <strong>No prompts found for:</strong> ${escapeHtml(username)}<br>
+                        Try opening a profile from the feed, or use <code>?user=Armin312</code>.
+                    </div>
+                `;
+                return;
+            }
+
+            promptsEl.innerHTML = userPrompts.map(p => {
+                const detailHref = `prompt-detail.html?prompt=${encodeURIComponent(p.id || "")}`;
+                const category = p.category || "General";
+                const subcategory = p.subcategory || "Prompt";
+                return `
+                    <article class="prompt-card">
+                        <div class="prompt-card-header">
+                            <h3 class="card-title">
+                                <a class="card-title-link" href="${detailHref}">${escapeHtml(p.title || "Untitled prompt")}</a>
+                            </h3>
+                            <div class="card-stats">
+                                <div class="card-stat"><strong>${Number(p.viewCount || 0)}</strong> views</div>
+                                <div class="card-stat"><strong>${Number(p.likes || 0)}</strong> likes</div>
+                                <div class="card-stat"><strong>${Number(p.votes || 0)}</strong> votes</div>
+                            </div>
+                        </div>
+
+                        <p class="card-description">
+                            ${escapeHtml(truncate(p.prompt || "", 220))}
+                        </p>
+
+                        <div class="card-tags">
+                            <span class="tag-pill tag-pill-primary">${escapeHtml(category)}</span>
+                            <span class="tag-pill tag-pill-secondary">${escapeHtml(subcategory)}</span>
+                        </div>
+                    </article>
+                `;
+            }).join("");
+
+            function truncate(text, max) {
+                const t = String(text);
+                if (t.length <= max) return t;
+                return t.slice(0, Math.max(0, max - 1)).trimEnd() + "…";
+            }
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replaceAll("&", "&amp;")
+                    .replaceAll("<", "&lt;")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll('"', "&quot;")
+                    .replaceAll("'", "&#39;");
+            }
+        })();
+    </script>
 
 </body>
 </html>
