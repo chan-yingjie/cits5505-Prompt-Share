@@ -577,25 +577,8 @@ p {
     opacity: 0.86;
 }
 
-.preview-box {
-    display: grid;
-    gap: 0;
-    padding: 0;
-    border: none;
-    background: transparent;
-    justify-items: start;
-    width: 100%;
-}
 
-.card-description,
-.card-caption {
-    display: -webkit-box;
-    overflow: hidden;
-    color: #4d5561;
-    line-height: 1.7;
-    text-align: left;
-    -webkit-box-orient: vertical;
-}
+
 
 .card-description {
     -webkit-line-clamp: 3;
@@ -1358,12 +1341,6 @@ p {
     resize: none;
 }
 
-.detail-side .comment-input {
-    min-height: 10px;
-    height: 10px;
-    padding-top: 0;
-    padding-bottom: 0;
-}
 
 .icon-action-button {
     display: inline-flex;
@@ -1745,10 +1722,7 @@ p {
         position: static;
     }
 
-    .detail-comments-inline {
-        padding-bottom: 0;
-    }
-
+  
     .comment-form {
         position: static;
         box-shadow: none;
