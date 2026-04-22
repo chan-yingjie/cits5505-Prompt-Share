@@ -8,52 +8,72 @@
 </head>
 <body>
 
-    <!-- Navigation Bar -->
     <nav>
-    <h1>Prompt Battle</h1>
-    <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="feed.html">Feed</a></li>
-        <li><a href="submit-prompt.html">Submit</a></li>
-        <li><a href="profile.html">Profile</a></li>
-        <li><a href="login.html">Login</a></li>
-    </ul>
+        <h1>Prompt Battle</h1>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="feed.html">Feed</a></li>
+            <li><a href="submit-prompt.html">Submit</a></li>
+            <li><a href="leaderboard.html">Leaderboard</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
 
-    <!-- Page Description -->
     <section>
-        <h3>Page Description</h3>
+        <h2>Page Description</h2>
         <p>
-            This page shows the full details of a selected prompt, including its output,
-            comments, and feedback from other users.
+            This page shows the full content of a selected prompt, including its full output,
+            vote count, and comments from other users.
         </p>
     </section>
 
-    <!-- Prompt Content -->
     <section>
         <h2>Prompt Detail</h2>
         <p><strong>Title:</strong> Summarise an article</p>
-        <p><strong>Author:</strong> demo_user</p>
-        <p><strong>Prompt:</strong> Summarise this news article in three short bullet points.</p>
-        <p><strong>Output:</strong> The article highlights key developments, major impacts, and future implications.</p>
-        <p><strong>Votes:</strong> 12</p>
+        <p><strong>Author:</strong> Armin312</p>
+        <p><strong>Votes:</strong> 15</p>
+
+        <h3>Prompt</h3>
+        <p>
+            Summarise the following article in three concise bullet points.
+            Focus on the main issue, the cause, and the outcome.
+        </p>
+
+        <h3>Full Output</h3>
+        <p>
+            • The article discusses a recent event and its main developments.
+            • It explains the underlying reasons and contributing factors.
+            • It concludes with the outcomes and possible future implications.
+        </p>
     </section>
 
-    <!-- Comments Section -->
     <section>
         <h2>Comments</h2>
-        <ul>
-            <li><strong>user123:</strong> This prompt is clear and gives concise output.</li>
-            <li><strong>ai_learner:</strong> Maybe add a word limit for more control.</li>
-            <li><strong>promptfan:</strong> Good example of a practical summarisation prompt.</li>
-        </ul>
+
+        <div class="comment-box">
+            <p><strong>chinmaiii:</strong> This prompt is clear and gives a concise response.</p>
+        </div>
+
+        <div class="comment-box">
+            <p><strong>chan-yingjie:</strong> Maybe add a word limit to make the output even more controlled.</p>
+        </div>
+
+        <div class="comment-box">
+            <p><strong>demo_user:</strong> The bullet point format works well for summarisation tasks.</p>
+        </div>
     </section>
 
-    <!-- Feedback Section -->
     <section>
-        <h2>Feedback</h2>
-        <p>Users can evaluate the prompt by voting and leaving comments to suggest improvements.</p>
+        <h2>Interaction Summary</h2>
+        <p>This prompt has received <strong>15 votes</strong> and <strong>3 comments</strong>.</p>
+        <p>Other users can clearly see community feedback through vote counts and comments.</p>
         <button>Upvote</button>
         <button>Add Comment</button>
+    </section>
+
+    <section>
+        <a href="feed.html">← Back to Feed</a>
     </section>
 
 </body>

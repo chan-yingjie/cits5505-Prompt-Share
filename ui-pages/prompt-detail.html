@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Detail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-pages.css">
+</head>
+<body id="top">
+    <div class="page-shell">
+        <header class="topbar">
+            <a class="brand" href="../index.html">Prompt Battle</a>
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="../index.html">Home</a>
+                <a href="feed.html">Feed</a>
+                <a href="../submit-prompt.html">Submit Prompt</a>
+                <a href="../leaderboard.html">Leaderboard</a>
+                <a href="../profile.html">Profile</a>
+                <a href="../login.html">Login</a>
+            </nav>
+        </header>
+
+        <main class="layout">
+            <section class="content-block detail-header">
+                <a class="back-link" href="feed.html">&larr; Back to feed</a>
+                <div class="detail-identity">
+                    <span class="detail-author-avatar" id="detail-author-avatar" aria-hidden="true">AU</span>
+                    <div class="detail-author-stack">
+                        <div id="detail-author">Author</div>
+                    </div>
+                </div>
+                <h1 id="detail-title">Prompt title</h1>
+                <div class="detail-metrics detail-header-metrics card-stats" aria-label="Prompt interaction summary">
+                    <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-views">0</strong></span>
+                    <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-comments">0</strong></span>
+                    <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-likes">0</strong></span>
+                    <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-favorites">0</strong></span>
+                </div>
+                <div class="detail-category-pills" id="detail-category" aria-label="Prompt category">
+                    <span class="detail-category-pill">category</span>
+                </div>
+                <p class="detail-submitted meta-time" id="detail-submitted-at">Submitted time</p>
+            </section>
+
+            <section class="detail-layout">
+                <article class="content-block detail-main detail-reference">
+                    <div class="detail-section">
+                        <pre class="detail-code" id="detail-prompt"></pre>
+                    </div>
+
+                    <div class="detail-section">
+                        <p class="eyebrow">Example Output</p>
+                        <div class="output-panel detail-preview-panel" id="detail-output-preview"></div>
+                    </div>
+
+                    <div class="detail-section detail-comments-inline">
+                        <form class="form-stack comment-form" id="detail-comment-form">
+                            <div class="comment-bar">
+                                <textarea class="form-input comment-input" id="detail-comment-input" rows="1" placeholder="✎ Write a comment"></textarea>
+                                <div class="comment-actions-inline">
+                                    <button class="icon-action-button" id="comment-like-button" type="button" aria-label="Like prompt"></button>
+                                    <button class="icon-action-button" id="comment-favorite-button" type="button" aria-label="Favorite prompt"></button>
+                                    <button class="icon-action-button" id="comments-toggle-button" type="button" aria-label="View comments"></button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="comment-list is-hidden" id="comment-list" aria-live="polite"></div>
+                    </div>
+                </article>
+
+                <aside class="content-block detail-side">
+                    <div class="detail-section">
+                        <p class="eyebrow">Customize This Prompt</p>
+                        <form class="form-stack custom-editor-form" id="custom-editor-form">
+                            <div class="control-modules">
+                                <section class="control-module form-stack editor-field">
+                                    <label class="form-label" for="prompt-tone">Tone</label>
+                                    <select class="form-input" id="prompt-tone">
+                                        <option value="">Keep original tone</option>
+                                        <option value="professional">Professional</option>
+                                        <option value="friendly">Friendly</option>
+                                        <option value="persuasive">Persuasive</option>
+                                        <option value="academic">Academic</option>
+                                        <option value="playful">Playful</option>
+                                        <option value="confident">Confident</option>
+                                    </select>
+                                </section>
+                                <section class="control-module form-stack editor-field">
+                                    <label class="form-label" for="prompt-style">Style</label>
+                                    <select class="form-input" id="prompt-style">
+                                        <option value="">Keep original style</option>
+                                        <option value="concise">Concise</option>
+                                        <option value="step-by-step">Step-by-step</option>
+                                        <option value="visual">Visual</option>
+                                        <option value="formal">Formal</option>
+                                        <option value="creative">Creative</option>
+                                        <option value="data-driven">Data-driven</option>
+                                    </select>
+                                </section>
+                                <section class="control-module form-stack editor-field">
+                                    <label class="form-label" for="prompt-audience">Audience</label>
+                                    <input class="form-input" id="prompt-audience" type="text" placeholder="e.g. students, designers, marketers">
+                                </section>
+                                <section class="control-module form-stack editor-field">
+                                    <label class="form-label" for="prompt-format">Format</label>
+                                    <select class="form-input" id="prompt-format">
+                                        <option value="">Keep original format</option>
+                                        <option value="bullet list">Bullet list</option>
+                                        <option value="numbered steps">Numbered steps</option>
+                                        <option value="table">Table</option>
+                                        <option value="short paragraphs">Short paragraphs</option>
+                                        <option value="checklist">Checklist</option>
+                                        <option value="JSON">JSON</option>
+                                    </select>
+                                </section>
+                            </div>
+
+                            <section class="control-module form-stack editor-field">
+                                <label class="form-label" for="prompt-length">Output Length</label>
+                                <select class="form-input" id="prompt-length">
+                                    <option value="">Keep original length</option>
+                                    <option value="very short">Very short</option>
+                                    <option value="under 120 words">Under 120 words</option>
+                                    <option value="medium length">Medium length</option>
+                                    <option value="detailed">Detailed</option>
+                                    <option value="long-form">Long-form</option>
+                                </select>
+                            </section>
+
+                            <section class="control-module form-stack editor-field">
+                                <label class="form-label" for="custom-instructions-input">Add Your Custom Instructions</label>
+                                <textarea class="form-input form-area compact-area" id="custom-instructions-input" rows="4" placeholder="Add extra constraints, examples, or changes you want to make."></textarea>
+                            </section>
+
+                            <section class="control-module form-stack editor-field">
+                                <div class="card-actions">
+                                    <button class="button-link primary button-submit" type="button" id="apply-changes-button">Apply Changes</button>
+                                    <button class="button-link secondary button-submit" type="button" id="reset-editor-button">Reset</button>
+                                    <button class="button-link secondary button-submit" type="button" id="save-version-button">Save as My Version</button>
+                                </div>
+                            </section>
+
+                            <section class="control-module form-stack editor-field">
+                                <label class="form-label" for="my-version-preview">My Version Preview</label>
+                                <textarea class="form-input form-area" id="my-version-preview" rows="10" readonly></textarea>
+                                <p class="status-note" id="editor-status"></p>
+                            </section>
+                        </form>
+                    </div>
+
+                    <div class="detail-section">
+                        <p class="eyebrow">Reference Actions</p>
+                        <div class="interaction-row detail-actions" id="detail-actions" aria-label="Prompt actions"></div>
+                    </div>
+
+                    <div class="detail-section">
+                        <p class="eyebrow">Share Prompt</p>
+                        <form class="form-stack" id="share-form">
+                            <label class="form-label" for="share-link">Prompt Link</label>
+                            <input class="form-input" id="share-link" type="text" readonly>
+                            <label class="form-label" for="share-email">Email Address</label>
+                            <input class="form-input" id="share-email" type="email" placeholder="teammate@example.com">
+                            <div class="card-actions">
+                                <button class="button-link secondary button-submit" type="button" id="copy-link-button">Copy Link</button>
+                                <button class="button-link chatgpt-button button-submit" type="button" id="use-chatgpt-button">
+                                    <span class="chatgpt-icon" aria-hidden="true">✦</span>
+                                    <span>Use Now in ChatGPT</span>
+                                </button>
+                            </div>
+                            <p class="status-note" id="share-status"></p>
+                        </form>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
+
+    <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">
+        Top
+    </button>
+
+    <script src="prompt-data.js"></script>
+    <script src="prompt-detail.js"></script>
+    <script src="ui-common.js"></script>
+</body>
+</html>
