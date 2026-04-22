@@ -6,7 +6,7 @@
     <title>Prompt Detail</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="ui-pages.css">
 </head>
 <body id="top">
@@ -24,29 +24,36 @@
         </header>
 
         <main class="layout">
-            <section class="content-block detail-header">
-                <a class="back-link" href="feed.html">&larr; Back to feed</a>
-                <div class="detail-identity">
-                    <span class="detail-author-avatar" id="detail-author-avatar" aria-hidden="true">AU</span>
-                    <div class="detail-author-stack">
-                        <div id="detail-author">Author</div>
-                    </div>
-                </div>
-                <h1 id="detail-title">Prompt title</h1>
-                <div class="detail-metrics detail-header-metrics card-stats" aria-label="Prompt interaction summary">
-                    <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-views">0</strong></span>
-                    <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-comments">0</strong></span>
-                    <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-likes">0</strong></span>
-                    <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-favorites">0</strong></span>
-                </div>
-                <div class="detail-category-pills" id="detail-category" aria-label="Prompt category">
-                    <span class="detail-category-pill">category</span>
-                </div>
-                <p class="detail-submitted meta-time" id="detail-submitted-at">Submitted time</p>
-            </section>
-
             <section class="detail-layout">
-                <article class="content-block detail-main detail-reference">
+                <section class="detail-header">
+                    <a class="back-link" href="feed.html">&larr; Back to feed</a>
+                    <div class="detail-header-shell">
+                        <div class="prompt-card-top detail-card-top">
+                            <div class="prompt-author detail-prompt-author">
+                                <span class="prompt-author-avatar detail-author-avatar" id="detail-author-avatar" aria-hidden="true">AU</span>
+                                <div class="prompt-author-copy detail-author-copy">
+                                    <div id="detail-author">Author</div>
+                                    <p class="detail-submitted meta-time" id="detail-submitted-at">Submitted time</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="prompt-card-header detail-card-header">
+                            <h1 id="detail-title">Prompt title</h1>
+                            <div class="detail-metrics detail-header-metrics card-stats" aria-label="Prompt interaction summary">
+                                <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-views">0</strong></span>
+                                <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-comments">0</strong></span>
+                                <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-likes">0</strong></span>
+                                <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-favorites">0</strong></span>
+                            </div>
+                        </div>
+                        <div class="card-tags detail-card-tags" id="detail-category" aria-label="Prompt category">
+                            <span class="detail-category-pill">category</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="detail-primary">
+                    <article class="content-block detail-main detail-reference">
                     <div class="detail-section detail-prompt-section">
                         <p class="eyebrow">Original Prompt</p>
                         <div class="detail-prompt-frame">
@@ -72,90 +79,18 @@
                         </form>
                         <div class="comment-list is-hidden" id="comment-list" aria-live="polite"></div>
                     </div>
-                </article>
+                    </article>
+                </section>
 
-                <aside class="content-block detail-side">
-                    <div class="detail-section">
-                        <p class="eyebrow">Customize This Prompt</p>
-                        <form class="form-stack custom-editor-form" id="custom-editor-form">
-                            <div class="control-modules">
-                                <section class="control-module form-stack editor-field">
-                                    <label class="form-label" for="prompt-tone">Tone</label>
-                                    <select class="form-input" id="prompt-tone">
-                                        <option value="">Keep original tone</option>
-                                        <option value="professional">Professional</option>
-                                        <option value="friendly">Friendly</option>
-                                        <option value="persuasive">Persuasive</option>
-                                        <option value="academic">Academic</option>
-                                        <option value="playful">Playful</option>
-                                        <option value="confident">Confident</option>
-                                    </select>
-                                </section>
-                                <section class="control-module form-stack editor-field">
-                                    <label class="form-label" for="prompt-style">Style</label>
-                                    <select class="form-input" id="prompt-style">
-                                        <option value="">Keep original style</option>
-                                        <option value="concise">Concise</option>
-                                        <option value="step-by-step">Step-by-step</option>
-                                        <option value="visual">Visual</option>
-                                        <option value="formal">Formal</option>
-                                        <option value="creative">Creative</option>
-                                        <option value="data-driven">Data-driven</option>
-                                    </select>
-                                </section>
-                                <section class="control-module form-stack editor-field">
-                                    <label class="form-label" for="prompt-audience">Audience</label>
-                                    <input class="form-input" id="prompt-audience" type="text" placeholder="e.g. students, designers, marketers">
-                                </section>
-                                <section class="control-module form-stack editor-field">
-                                    <label class="form-label" for="prompt-format">Format</label>
-                                    <select class="form-input" id="prompt-format">
-                                        <option value="">Keep original format</option>
-                                        <option value="bullet list">Bullet list</option>
-                                        <option value="numbered steps">Numbered steps</option>
-                                        <option value="table">Table</option>
-                                        <option value="short paragraphs">Short paragraphs</option>
-                                        <option value="checklist">Checklist</option>
-                                        <option value="JSON">JSON</option>
-                                    </select>
-                                </section>
+                <aside class="detail-side">
+                    <div class="content-block detail-section detail-side-card">
+                        <form class="form-stack" id="custom-prompt-form">
+                            <div class="customize-toolbar">
+                                <button class="button-link secondary button-submit customize-prompt-trigger" type="button" id="customize-prompt-trigger">Customize Prompt</button>
+                                <button class="icon-action-button clear-custom-prompt-button" type="button" id="clear-custom-prompt-button" aria-label="Clear customized prompt"></button>
                             </div>
-
-                            <section class="control-module form-stack editor-field">
-                                <label class="form-label" for="prompt-length">Output Length</label>
-                                <select class="form-input" id="prompt-length">
-                                    <option value="">Keep original length</option>
-                                    <option value="very short">Very short</option>
-                                    <option value="under 120 words">Under 120 words</option>
-                                    <option value="medium length">Medium length</option>
-                                    <option value="detailed">Detailed</option>
-                                    <option value="long-form">Long-form</option>
-                                </select>
-                            </section>
-
-                            <section class="control-module form-stack editor-field">
-                                <label class="form-label" for="custom-instructions-input">Add Your Custom Instructions</label>
-                                <textarea class="form-input form-area compact-area" id="custom-instructions-input" rows="4" placeholder="Add extra constraints, examples, or changes you want to make."></textarea>
-                            </section>
-
-                            <section class="control-module form-stack editor-field">
-                                <div class="card-actions">
-                                    <button class="button-link primary button-submit" type="button" id="apply-changes-button">Apply Changes</button>
-                                    <button class="button-link secondary button-submit" type="button" id="reset-editor-button">Reset</button>
-                                    <button class="button-link secondary button-submit" type="button" id="save-version-button">Save as My Version</button>
-                                </div>
-                            </section>
-
-                            <section class="control-module form-stack editor-field">
-                                <label class="form-label" for="my-version-preview">My Version Preview</label>
-                                <textarea class="form-input form-area" id="my-version-preview" rows="10" readonly></textarea>
-                                <p class="status-note" id="editor-status"></p>
-                            </section>
-                        </form>
-                    </div>
-
-                    <div class="detail-section">
-                        <form class="form-stack" id="share-form">
+                            <div class="customize-feedback is-hidden" id="customize-feedback" aria-live="polite">Original prompt copied. You can customize it now.</div>
+                            <textarea class="form-input form-area custom-prompt-input" id="custom-prompt-input" rows="14" placeholder="Edit this prompt here, then copy it or open ChatGPT."></textarea>
                             <div class="card-actions">
                                 <button class="button-link secondary button-submit" type="button" id="copy-link-button">Copy</button>
                                 <button class="button-link chatgpt-button button-submit" type="button" id="use-chatgpt-button">
@@ -163,6 +98,7 @@
                                     <span>Use Now in ChatGPT</span>
                                 </button>
                             </div>
+                            <div class="customize-feedback is-hidden" id="copy-feedback" aria-live="polite">Prompt copied to clipboard.</div>
                             <p class="status-note" id="share-status"></p>
                         </form>
                     </div>

@@ -22,24 +22,15 @@ const commentFavoriteButton = document.getElementById("comment-favorite-button")
 const shareStatusEl = document.getElementById("share-status");
 const copyLinkButton = document.getElementById("copy-link-button");
 const useChatGPTButton = document.getElementById("use-chatgpt-button");
+const customizePromptTrigger = document.getElementById("customize-prompt-trigger");
+const clearCustomPromptButton = document.getElementById("clear-custom-prompt-button");
+const customizeFeedback = document.getElementById("customize-feedback");
+const copyFeedback = document.getElementById("copy-feedback");
+const customPromptInput = document.getElementById("custom-prompt-input");
 const detailCommentForm = document.getElementById("detail-comment-form");
 const detailCommentInput = document.getElementById("detail-comment-input");
-const customEditorForm = document.getElementById("custom-editor-form");
-const basePromptInput = document.getElementById("base-prompt-input");
-const toneInput = document.getElementById("prompt-tone");
-const styleInput = document.getElementById("prompt-style");
-const audienceInput = document.getElementById("prompt-audience");
-const lengthInput = document.getElementById("prompt-length");
-const formatInput = document.getElementById("prompt-format");
-const customInstructionsInput = document.getElementById("custom-instructions-input");
-const applyChangesButton = document.getElementById("apply-changes-button");
-const resetEditorButton = document.getElementById("reset-editor-button");
-const saveVersionButton = document.getElementById("save-version-button");
-const myVersionPreview = document.getElementById("my-version-preview");
-const editorStatusEl = document.getElementById("editor-status");
 let commentsExpanded = false;
 let hasRecordedView = false;
-let activeEditorPromptId = "";
 
 function autoResizeTextarea(element) {
     if (!element) {
@@ -49,6 +40,15 @@ function autoResizeTextarea(element) {
     element.style.height = "";
     const nextHeight = Math.max(10, Math.min(element.scrollHeight, 220));
     element.style.height = `${nextHeight}px`;
+}
+
+function showFeedback(element, message) {
+    if (!element) {
+        return;
+    }
+
+    element.textContent = message;
+    element.classList.remove("is-hidden");
 }
 
 function escapeHtml(value) {
@@ -123,6 +123,14 @@ function getUiIcon(name) {
         star: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="currentColor"></path>
+            </svg>
+        `,
+        trash: `
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5.8 6.4h8.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                <path d="M7.2 6.4V5.5a1.3 1.3 0 0 1 1.3-1.3h3a1.3 1.3 0 0 1 1.3 1.3v.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M7 8.2v6.1a1.4 1.4 0 0 0 1.4 1.4h3.2a1.4 1.4 0 0 0 1.4-1.4V8.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M8.9 9.6v4.1M11.1 9.6v4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
             </svg>
         `
     };
@@ -232,110 +240,12 @@ function renderOutputPreview(prompt) {
     outputPreviewEl.innerHTML = `<p class="output-paragraph">${escapeHtml(preview)}</p>`;
 }
 
-function buildCustomizedPrompt() {
-    const sections = [basePromptInput ? basePromptInput.value.trim() : (promptData?.prompt || "").trim()];
-
-    const optionalFields = [
-        ["Tone", toneInput.value.trim()],
-        ["Style", styleInput.value.trim()],
-        ["Audience", audienceInput.value.trim()],
-        ["Output Length", lengthInput.value.trim()],
-        ["Format", formatInput.value.trim()]
-    ].filter(([, value]) => value);
-
-    if (optionalFields.length) {
-        sections.push(optionalFields.map(([label, value]) => `${label}: ${value}`).join("\n"));
-    }
-
-    if (customInstructionsInput.value.trim()) {
-        sections.push(`Additional Instructions:\n${customInstructionsInput.value.trim()}`);
-    }
-
-    return sections.filter(Boolean).join("\n\n");
-}
-
-function getEditorState() {
-    return {
-        basePrompt: basePromptInput ? basePromptInput.value : "",
-        tone: toneInput.value,
-        style: styleInput.value,
-        audience: audienceInput.value,
-        length: lengthInput.value,
-        format: formatInput.value,
-        instructions: customInstructionsInput.value,
-        preview: myVersionPreview.value,
-        status: editorStatusEl.textContent
-    };
-}
-
-function applyEditorState(state) {
-    if (!state) {
-        return;
-    }
-
-    if (basePromptInput) {
-        basePromptInput.value = state.basePrompt;
-    }
-    toneInput.value = state.tone;
-    styleInput.value = state.style;
-    audienceInput.value = state.audience;
-    lengthInput.value = state.length;
-    formatInput.value = state.format;
-    customInstructionsInput.value = state.instructions;
-    myVersionPreview.value = state.preview;
-    editorStatusEl.textContent = state.status;
-}
-
-function resetCustomEditor(prompt) {
-    if (!prompt) {
-        return;
-    }
-
-    if (basePromptInput) {
-        basePromptInput.value = prompt.prompt || "";
-    }
-    toneInput.value = "";
-    styleInput.value = "";
-    audienceInput.value = "";
-    lengthInput.value = "";
-    formatInput.value = "";
-    customInstructionsInput.value = "";
-    myVersionPreview.value = prompt.prompt || "";
-    editorStatusEl.textContent = "Base prompt restored. Add edits to create your own version.";
-}
-
-function saveCustomVersion(prompt) {
-    if (!prompt) {
-        return;
-    }
-
-    const versionPayload = {
-        promptId: prompt.id,
-        sourceTitle: prompt.title,
-        savedAt: new Date().toISOString(),
-        customizedPrompt: myVersionPreview.value.trim()
-    };
-
-    if (!versionPayload.customizedPrompt) {
-        editorStatusEl.textContent = "Apply changes before saving your version.";
-        return;
-    }
-
-    const storageKey = "prompt-share-custom-versions";
-    const existingVersions = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
-    existingVersions.unshift(versionPayload);
-    window.localStorage.setItem(storageKey, JSON.stringify(existingVersions));
-    editorStatusEl.textContent = "Saved to My Version locally in this browser.";
-}
-
 function renderDetail(prompt) {
     if (!prompt) {
         titleEl.textContent = "Prompt not found";
         commentListEl.innerHTML = '<div class="empty-state">No prompt data available.</div>';
         return;
     }
-
-    const preservedEditorState = activeEditorPromptId === prompt.id ? getEditorState() : null;
     const commentsTotal = prompt.comments.length;
     const taxonomy = getPromptTaxonomy(prompt);
 
@@ -382,12 +292,6 @@ function renderDetail(prompt) {
     commentLikeButton.classList.toggle("is-active", Boolean(prompt.liked));
     commentFavoriteButton.innerHTML = getUiIcon("star");
     commentFavoriteButton.classList.toggle("is-active", Boolean(prompt.favorited));
-    if (preservedEditorState) {
-        applyEditorState(preservedEditorState);
-    } else {
-        resetCustomEditor(prompt);
-        activeEditorPromptId = prompt.id;
-    }
 }
 
 document.addEventListener("click", (event) => {
@@ -412,11 +316,17 @@ async function openInChatGPT() {
         return;
     }
 
+    const promptText = customPromptInput ? customPromptInput.value.trim() : promptData.prompt;
+    if (!promptText) {
+        showFeedback(copyFeedback, "Add prompt text before opening ChatGPT.");
+        return;
+    }
+
     try {
-        await navigator.clipboard.writeText(promptData.prompt);
-        shareStatusEl.textContent = "Prompt copied. Opening ChatGPT in a new tab.";
+        await navigator.clipboard.writeText(promptText);
+        showFeedback(copyFeedback, "Prompt copied. Opening ChatGPT in a new tab.");
     } catch (error) {
-        shareStatusEl.textContent = "ChatGPT opened, but clipboard copy failed. Copy the prompt manually from this page.";
+        showFeedback(copyFeedback, "ChatGPT opened, but clipboard copy failed. Copy the prompt manually from this page.");
     }
 
     window.open("https://chatgpt.com/", "_blank", "noopener,noreferrer");
@@ -454,19 +364,60 @@ commentFavoriteButton.addEventListener("click", () => {
 });
 
 copyLinkButton.addEventListener("click", async () => {
-    if (!promptData) {
+    const promptText = customPromptInput ? customPromptInput.value.trim() : "";
+    if (!promptText) {
+        showFeedback(copyFeedback, "Add prompt text before copying.");
         return;
     }
 
     try {
-        await navigator.clipboard.writeText(buildShareUrl(promptData));
-        promptData.copyCount = (promptData.copyCount || 0) + 1;
-        shareStatusEl.textContent = "Prompt link copied to clipboard.";
-        renderDetail(promptData);
+        await navigator.clipboard.writeText(promptText);
+        showFeedback(copyFeedback, "Prompt copied to clipboard.");
     } catch (error) {
-        shareStatusEl.textContent = "Copy failed in this browser. You can still copy the link manually.";
+        showFeedback(copyFeedback, "Copy failed in this browser. You can still copy the prompt manually.");
     }
 });
+
+if (customPromptInput) {
+    customPromptInput.addEventListener("input", () => {
+        autoResizeTextarea(customPromptInput);
+    });
+
+    customPromptInput.value = "";
+    autoResizeTextarea(customPromptInput);
+}
+
+if (customizePromptTrigger) {
+    customizePromptTrigger.addEventListener("click", async () => {
+        if (!promptData || !customPromptInput) {
+            return;
+        }
+
+        const promptText = promptData.prompt || "";
+        customPromptInput.value = promptText;
+        autoResizeTextarea(customPromptInput);
+
+        try {
+            await navigator.clipboard.writeText(promptText);
+            showFeedback(customizeFeedback, "Original prompt copied. You can customize it now.");
+        } catch (error) {
+            showFeedback(customizeFeedback, "Original prompt loaded. Copy it manually if needed.");
+        }
+    });
+}
+
+if (clearCustomPromptButton) {
+    clearCustomPromptButton.innerHTML = getUiIcon("trash");
+    clearCustomPromptButton.addEventListener("click", () => {
+        if (!customPromptInput) {
+            return;
+        }
+
+        customPromptInput.value = "";
+        autoResizeTextarea(customPromptInput);
+        showFeedback(customizeFeedback, "Customized prompt cleared.");
+    });
+}
 
 detailCommentForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -500,24 +451,6 @@ detailCommentInput.addEventListener("keydown", (event) => {
         event.preventDefault();
         detailCommentForm.requestSubmit();
     }
-});
-
-applyChangesButton.addEventListener("click", () => {
-    const customizedPrompt = buildCustomizedPrompt();
-    myVersionPreview.value = customizedPrompt;
-    editorStatusEl.textContent = "Custom version updated. Review it before saving.";
-});
-
-resetEditorButton.addEventListener("click", () => {
-    resetCustomEditor(promptData);
-});
-
-saveVersionButton.addEventListener("click", () => {
-    saveCustomVersion(promptData);
-});
-
-customEditorForm.addEventListener("submit", (event) => {
-    event.preventDefault();
 });
 
 if (promptData && !hasRecordedView) {
