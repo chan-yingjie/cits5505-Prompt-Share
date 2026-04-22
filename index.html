@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="ui-pages/ui-pages.css">
 </head>
-<body class="home-page">
+<body class="home-page minimal-home-page">
     <div class="page-shell">
         <header class="topbar">
             <nav class="topnav" aria-label="Primary navigation">
@@ -19,185 +19,28 @@
                 <a href="leaderboard.html">Leaderboard</a>
                 <a href="profile.html">Profile</a>
                 <a href="login.html">Login</a>
-      
+             
             </nav>
             <a class="brand" href="index.html">Prompt Battle</a>
         </header>
 
-        <main class="layout home-layout">
-            <section class="home-hero">
-                <div class="home-hero-copy">
-                    <p class="eyebrow">Platform Introduction</p>
-                    <h1>Discover, share, and rank the best AI prompts.</h1>
-                    <p class="section-copy">
-                        Prompt Battle helps users explore prompts across categories, submit original ideas,
-                        and discover what is trending in the community.
-                    </p>
+        <main class="minimal-home-hero">
+            <section class="minimal-hero-content">
+           
 
-                    <div class="home-action-row">
-                        <a class="button-link primary" href="ui-pages/feed.html">Explore Feed</a>
-                        <a class="button-link secondary" href="submit-prompt.html">Submit Prompt</a>
-                    </div>
-                </div>
-            </section>
+                <h1 class="minimal-home-title">
+                    Built for the prompt era.<br>
+                    <span>Reshaping AI.</span>
+                </h1>
 
-            <section class="home-main-grid">
-                <aside class="content-block home-sidebar">
-                    <div class="quick-link-card"></div>
-          <h3>Prompt browsing</h3>
-<p>Prompts can be explored by title, category, and creator.</p>
+                <p class="minimal-home-subtitle">
+                    Discover prompts, submit your own ideas, and explore a platform built
+                    for sharing, ranking, and improving AI workflows.
+                </p>
 
-<h3>Prompt submission</h3>
-<p>Users are able to share new prompts with the community.</p>
-
-<h3>User authentication</h3>
-<p>Accounts allow users to access saved activity and preferences.</p>
-
-<h3>Profile management</h3>
-<p>Users can review contributions, favorites, and interests.</p>
-
-                  
-                </aside>
-
-                <section class="home-content">
-                    <section class="content-block home-section-card">
-                        <div class="section-heading">
-                            <div>
-                                <p class="eyebrow">Popular Categories</p>
-                                <h2>Quick entry to prompt types</h2>
-                            </div>
-                        </div>
-
-                        <div class="home-category-grid">
-                            <a class="category-tab" href="ui-pages/feed.html?category=writing">Writing</a>
-                            <a class="category-tab" href="ui-pages/feed.html?category=education">Education</a>
-                            <a class="category-tab" href="ui-pages/feed.html?category=coding">Coding</a>
-                            <a class="category-tab" href="ui-pages/feed.html?category=image">Image Generation</a>
-                            <a class="category-tab" href="ui-pages/feed.html?category=video">Video Generation</a>
-                            <a class="category-tab" href="ui-pages/feed.html?category=marketing">Marketing</a>
-                        </div>
-                    </section>
-
-                    <section class="content-block home-section-card">
-                        <div class="section-heading">
-                            <div>
-                                <p class="eyebrow">Trending Prompts</p>
-                                <h2>Popular now</h2>
-                            </div>
-                            <a class="category-link" href="ui-pages/feed.html">View all</a>
-                        </div>
-
-                        <div class="home-trending-list">
-                            <article class="prompt-card">
-                                <div class="prompt-card-top">
-                                    <div class="prompt-author">
-                                        <div class="prompt-author-avatar author-tone-warm">IO</div>
-                                        <div class="prompt-author-copy">
-                                            <strong class="prompt-author-name">ivy.ops</strong>
-                                            <span class="prompt-author-handle">@ivy.ops</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="prompt-card-header">
-                                    <h3 class="card-title">Create a concise slide outline for a team update</h3>
-                                    <div class="card-stats">
-                                        <div class="card-stat"><strong>133</strong> views</div>
-                                        <div class="card-stat"><strong>11</strong> likes</div>
-                                        <div class="card-stat"><strong>9</strong> votes</div>
-                                    </div>
-                                </div>
-
-                                <p class="card-description">
-                                    Helps users turn scattered project notes into a presentation-ready structure
-                                    for weekly updates and reviews.
-                                </p>
-
-                                <div class="card-tags">
-                                    <span class="tag-pill tag-pill-primary">Productivity</span>
-                                    <span class="tag-pill tag-pill-secondary">Presentations</span>
-                                </div>
-                            </article>
-
-                            <article class="prompt-card">
-                                <div class="prompt-card-top">
-                                    <div class="prompt-author">
-                                        <div class="prompt-author-avatar author-tone-forest">CY</div>
-                                        <div class="prompt-author-copy">
-                                            <strong class="prompt-author-name">chan-yingjie</strong>
-                                            <span class="prompt-author-handle">@chan-yingjie</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="prompt-card-header">
-                                    <h3 class="card-title">Generate revision questions from lecture notes</h3>
-                                    <div class="card-stats">
-                                        <div class="card-stat"><strong>244</strong> views</div>
-                                        <div class="card-stat"><strong>53</strong> likes</div>
-                                        <div class="card-stat"><strong>18</strong> votes</div>
-                                    </div>
-                                </div>
-
-                                <p class="card-description">
-                                    Turns lecture summaries into mixed revision questions for active recall,
-                                    scenario practice, and exam preparation.
-                                </p>
-
-                                <div class="card-tags">
-                                    <span class="tag-pill tag-pill-primary">Education</span>
-                                    <span class="tag-pill tag-pill-secondary">Revision</span>
-                                </div>
-                            </article>
-
-                            <article class="prompt-card">
-                                <div class="prompt-card-top">
-                                    <div class="prompt-author">
-                                        <div class="prompt-author-avatar author-tone-sea">CH</div>
-                                        <div class="prompt-author-copy">
-                                            <strong class="prompt-author-name">chinmaiii</strong>
-                                            <span class="prompt-author-handle">@chinmaiii</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="prompt-card-header">
-                                    <h3 class="card-title">Rewrite an email for a professional escalation</h3>
-                                    <div class="card-stats">
-                                        <div class="card-stat"><strong>131</strong> views</div>
-                                        <div class="card-stat"><strong>27</strong> likes</div>
-                                        <div class="card-stat"><strong>10</strong> votes</div>
-                                    </div>
-                                </div>
-
-                                <p class="card-description">
-                                    Rewrites workplace emails in a calm, professional, and assertive tone while
-                                    keeping the original request clear.
-                                </p>
-
-                                <div class="card-tags">
-                                    <span class="tag-pill tag-pill-primary">Writing</span>
-                                    <span class="tag-pill tag-pill-secondary">Email</span>
-                                </div>
-                            </article>
-                        </div>
-                    </section>
-
-                    <section class="content-block home-section-card home-cta-card">
-                        <div>
-                            <p class="eyebrow">Get Started</p>
-                            <h2>Ready to join Prompt Battle?</h2>
-                            <p class="section-copy">
-                                Sign up to save your interests, share prompts, and take part in the community.
-                            </p>
-                        </div>
-
-                        <div class="home-action-row">
-                            <a class="button-link primary" href="signup.html">Create Account</a>
-                            <a class="button-link secondary" href="login.html">Log In</a>
-                        </div>
-                    </section>
-                </section>
+          <div class="minimal-home-actions">
+    <a class="button-link primary" href="ui-pages/feed.html">Explore</a>
+</div>
             </section>
         </main>
     </div>
