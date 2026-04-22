@@ -9,7 +9,6 @@ const clearSearchButton = document.getElementById("clear-search-button");
 const categoryResetButton = document.getElementById("category-reset-button");
 const categoryTabs = document.getElementById("category-tabs");
 const subcategoryChips = document.getElementById("subcategory-chips");
-const searchMeta = document.getElementById("search-meta");
 const filterStatus = document.getElementById("filter-status");
 const pageParams = new URLSearchParams(window.location.search);
 let activeQuery = "";
@@ -235,7 +234,7 @@ function buildFeedCard(prompt) {
             </div>
             <a class="prompt-preview prompt-preview-link" href="prompt-detail.html?id=${prompt.id}" aria-label="Open ${escapeHtml(prompt.title)} detail">
                 <div class="preview-box">
-                    <p class="card-description">${highlightText(prompt.summary, activeQuery)}</p>
+                    <p class="card-description">${highlightText(prompt.prompt, activeQuery)}</p>
                 </div>
             </a>
             <div class="card-tags" aria-label="Prompt tags">
@@ -362,7 +361,6 @@ function getFilteredPrompts() {
         const haystack = [
             prompt.title,
             prompt.author,
-            prompt.summary,
             prompt.prompt,
             prompt.outputPreview
         ].join(" ").toLowerCase();
@@ -419,12 +417,10 @@ function renderFeed() {
                 <p>Try fewer keywords, adjust the phrasing, or clear the filters to return to the full feed.</p>
             </div>
         `;
-        searchMeta.textContent = "No prompts match the current search.";
         return;
     }
 
     feedList.innerHTML = prompts.map(buildFeedCard).join("");
-    searchMeta.textContent = `Showing ${prompts.length} prompt${prompts.length === 1 ? "" : "s"} in the current result`;
 }
 
 searchForm.addEventListener("submit", (event) => {
