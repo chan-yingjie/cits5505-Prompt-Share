@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Share Feed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-pages.css">
+</head>
+<body id="top">
+    <div class="page-shell">
+        <header class="topbar">
+            <a class="brand" href="../index.html">Prompt Battle</a>
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="../index.html">Home</a>
+                <a class="active" href="feed.html">Feed</a>
+                <a href="../submit-prompt.html">Submit Prompt</a>
+                <a href="../leaderboard.html">Leaderboard</a>
+                <a href="../profile.html">Profile</a>
+                <a href="../login.html">Login</a>
+            </nav>
+        </header>
+
+        <main class="layout">
+            <section class="feed-layout">
+                <aside class="content-block feed-sidebar">
+                    <div class="feed-sidebar-copy">
+                        <p class="eyebrow">Categories</p>
+                        <h2 id="category-browser-title">Browse Categories</h2>
+                    </div>
+                    <div class="category-tabs" id="category-tabs" aria-label="Prompt categories"></div>
+                    <div class="sidebar-subcategory-block">
+                        <div class="subcategory-chips" id="subcategory-chips" aria-label="Prompt subcategories"></div>
+                    </div>
+                </aside>
+
+                <section class="feed-main">
+                    <section class="content-block search-panel">
+                        <form class="feed-search" id="feed-search-form">
+                            <label class="form-label" for="feed-search-input">Search Prompts</label>
+                            <div class="search-controls">
+                                <input class="form-input" id="feed-search-input" type="text" placeholder="Search by title, author, description, or keyword">
+                                <select class="form-input sort-select" id="feed-sort-select" aria-label="Sort prompts">
+                                    <option value="newest">Newest</option>
+                                    <option value="upvotes-desc">Most Liked</option>
+                                </select>
+                                <button class="button-link primary button-submit search-button" type="submit">Search</button>
+                                <button class="button-link secondary button-submit search-button" id="clear-search-button" type="button">Clear</button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section class="content-block prompt-panel">
+                        <div class="section-heading">
+                            <div>
+                                <h2>Prompt Feed</h2>
+                            </div>
+                        </div>
+
+                        <div class="search-meta" id="search-meta">Showing all prompts</div>
+                        <div class="prompt-list" id="feed-list" aria-live="polite"></div>
+                    </section>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">
+        Top
+    </button>
+
+    <script src="prompt-data.js"></script>
+    <script src="feed.js"></script>
+    <script src="ui-common.js"></script>
+</body>
+</html>
