@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Prompt | Prompt Battle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-pages/ui-pages.css">
+</head>
+<body class="submit-page">
+    <div class="page-shell">
+        <header class="topbar">
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="index.html">Home</a>
+                <a href="ui-pages/feed.html">Feed</a>
+                <a class="active" href="submit-prompt.html">Submit Prompt</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="login.html">Login</a>
+           
+            </nav>
+            <a class="brand" href="index.html">Prompt Battle</a>
+        </header>
+
+        <main class="layout submit-layout">
+            <aside class="content-block submit-side">
+                <div class="submit-side-copy">
+                    <p class="eyebrow">Submission Guide</p>
+                    <h2>Share a strong prompt</h2>
+                    <p class="section-copy">
+                        Clear prompts are easier to understand, reuse, and vote on.
+                        Keep your title specific and make your prompt detailed enough to guide the output.
+                    </p>
+                </div>
+
+                <div class="submit-tip-list">
+                    <article class="submit-tip-card">
+                        <h3>Write a clear title</h3>
+                        <p>Use a short title that explains the task or result users should expect.</p>
+                    </article>
+
+                    <article class="submit-tip-card">
+                        <h3>Choose relevant categories</h3>
+                        <p>Select up to three categories that best match your prompt topic.</p>
+                    </article>
+
+                    <article class="submit-tip-card">
+                        <h3>Make the prompt usable</h3>
+                        <p>Include enough detail so another user can copy and use it immediately.</p>
+                    </article>
+                </div>
+            </aside>
+
+            <section class="content-block submit-main">
+                <div class="submit-header">
+                    <p class="eyebrow">Submit Prompt</p>
+                    <h1>Create a new prompt</h1>
+                    <p class="section-copy">
+                        Fill in the details below to publish your prompt to the Prompt Battle community.
+                    </p>
+                </div>
+
+                <form class="form-stack submit-form" id="submit-prompt-form">
+                    <div class="form-stack">
+                        <label class="form-label" for="prompt-title">Prompt Title</label>
+                        <input
+                            class="form-input"
+                            id="prompt-title"
+                            name="prompt-title"
+                            type="text"
+                            placeholder="e.g. Generate revision questions from lecture notes"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-stack">
+                        <label class="form-label">Categories</label>
+                        <p class="submit-helper">Select up to 3 categories</p>
+
+                        <div class="category-select-grid">
+                            <label class="select-chip">
+                                <input type="checkbox" name="categories" value="Writing">
+                                <span>Writing</span>
+                            </label>
+
+                            <label class="select-chip">
+                                <input type="checkbox" name="categories" value="Education">
+                                <span>Education</span>
+                            </label>
+
+                            <label class="select-chip">
+                                <input type="checkbox" name="categories" value="Coding">
+                                <span>Coding</span>
+                            </label>
+
+                            <label class="select-chip">
+                                <input type="checkbox" name="categories" value="Image Generation">
+                                <span>Image Generation</span>
+                            </label>
+
+                            <label class="select-chip">
+                                <input type="checkbox" name="categories" value="Video Generation">
+                                <span>Video Generation</span>
+                            </label>
+
+                            <label class="select-chip">
+                                <input type="checkbox" name="categories" value="Marketing">
+                                <span>Marketing</span>
+                            </label>
+
+                            <label class="select-chip">
+                                <input type="checkbox" name="categories" value="Productivity">
+                                <span>Productivity</span>
+                            </label>
+
+                            <label class="select-chip">
+                                <input type="checkbox" name="categories" value="Artificial Intelligence">
+                                <span>Artificial Intelligence</span>
+                            </label>
+                        </div>
+
+                        <p class="submit-status-note" id="category-status">0 of 3 selected</p>
+                    </div>
+
+                    <div class="form-stack">
+                        <label class="form-label" for="prompt-description">Description</label>
+                        <textarea
+                            class="form-input form-area"
+                            id="prompt-description"
+                            name="prompt-description"
+                            rows="4"
+                            placeholder="Provide a short description of what the prompt does and what kind of result users can expect."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-stack">
+                        <label class="form-label" for="prompt-body">Prompt</label>
+                        <textarea
+                            class="form-input form-area submit-prompt-area"
+                            id="prompt-body"
+                            name="prompt-body"
+                            rows="8"
+                            placeholder="Write the full prompt here..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="submit-actions">
+                        <button class="button-link secondary button-submit" type="reset">Clear</button>
+                        <button class="button-link primary button-submit" type="submit">Publish Prompt</button>
+                    </div>
+
+                    <p class="status-note" id="submit-status" aria-live="polite"></p>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="ui-pages/submit-prompt.js"></script>
+</body>
+</html>

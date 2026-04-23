@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Prompt Battle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ui-pages/ui-pages.css">
+
+</head>
+<body class="login-page">
+    <div class="page-shell">
+        <header class="topbar">
+            <a class="brand" href="index.html">Prompt Battle</a>
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="index.html">Home</a>
+                <a href="pages/feed.html">Feed</a>
+                <a href="submit-prompt.html">Submit Prompt</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="profile.html">Profile</a>
+                <a class="active" href="login.html">Login</a>
+        
+            </nav>
+        </header>
+
+        <main class="login-layout">
+            <section class="login-visual content-block">
+                <p class="eyebrow">Prompt Battle</p>
+                <h1>Join the battle of prompts.</h1>
+                <p class="section-copy">
+                    Discover strong prompts, share your own ideas, and vote on the best AI outputs.
+                    Sign in to continue building, voting, and competing.
+                </p>
+
+                <div class="login-feature-list">
+                    <div class="login-feature-card">
+                        <strong>Explore prompts</strong>
+                        <span>Browse prompt ideas by category and style.</span>
+                    </div>
+                    <div class="login-feature-card">
+                        <strong>Vote and comment</strong>
+                        <span>Support the strongest prompt entries in the feed.</span>
+                    </div>
+                    <div class="login-feature-card">
+                        <strong>Build your profile</strong>
+                        <span>Track your submissions, likes, and prompt activity.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="login-card-wrap">
+                <article class="login-card">
+                    <div class="login-card-header">
+                        <h2>Log In</h2>
+                        <p class="login-switch">
+                            No account?
+                            <a href="signup.html">Sign Up</a>
+                        </p>
+                    </div>
+
+
+            
+                    <form class="form-stack login-form" id="login-form">
+                        <div class="editor-field form-stack">
+                            <label class="form-label" for="login-email">Email address</label>
+                            <input
+                                class="form-input"
+                                id="login-email"
+                                type="email"
+                                placeholder="Email address"
+                                required
+                            >
+                        </div>
+
+                        <div class="editor-field form-stack">
+                            <label class="form-label" for="login-password">Password</label>
+                            <div class="password-field">
+                                <input
+                                    class="form-input"
+                                    id="login-password"
+                                    type="password"
+                                    placeholder="Password"
+                                    required
+                                >
+                                <button class="password-toggle" id="password-toggle" type="button" aria-label="Show password">
+                                    👁
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="login-meta-row">
+                            <a class="forgot-link" href="#">Forgot Password?</a>
+                        </div>
+
+                        <button class="button-link primary button-submit login-submit" type="submit">
+                            Log In
+                        </button>
+
+                        <p class="login-status" id="login-status" aria-live="polite"></p>
+                    </form>
+                </article>
+            </section>
+        </main>
+    </div>
+
+  <script src="ui-pages/login.js"></script>
+      
+</body>
+</html>
