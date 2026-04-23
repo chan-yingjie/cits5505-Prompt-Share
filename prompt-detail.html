@@ -3,78 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Detail - Prompt Battle</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Prompt Detail | Prompt Share</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-pages/ui-pages.css">
 </head>
-<body>
+<body id="top">
+    <div class="page-shell">
+        <header class="topbar">
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="index.html">Home</a>
+                <a href="feed.html">Feed</a>
+                <a href="submit-prompt.html">Submit Prompt</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="login.html">Login</a>
+            </nav>
+            <a class="brand" href="index.html">Prompt Share</a>
+        </header>
 
-    <nav>
-        <h1>Prompt Battle</h1>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="feed.html">Feed</a></li>
-            <li><a href="submit-prompt.html">Submit</a></li>
-            <li><a href="leaderboard.html">Leaderboard</a></li>
-            <li><a href="profile.html">Profile</a></li>
-            <li><a href="login.html">Login</a></li>
-        </ul>
-    </nav>
+        <main class="layout">
+            <section class="detail-layout">
+                <article class="content-block detail-main">
+                    <div class="detail-header">
+                        <a class="back-link" href="feed.html">&larr; Back to feed</a>
+                        <div class="detail-identity">
+                            <div class="detail-author-avatar author-tone-warm" id="detail-author-avatar" aria-hidden="true">AU</div>
+                            <div class="detail-author-stack">
+                                <div id="detail-author">Author</div>
+                                <p class="detail-submitted meta-time" id="detail-submitted-at">Submitted time</p>
+                            </div>
+                        </div>
+                        <h1 id="detail-title">Prompt title</h1>
+                        <div class="detail-metrics detail-header-metrics card-stats" aria-label="Prompt interaction summary">
+                            <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-views">0</strong></span>
+                            <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-comments">0</strong></span>
+                            <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-likes">0</strong></span>
+                            <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-favorites">0</strong></span>
+                            <div class="detail-category-pills detail-category-pills-inline" id="detail-category" aria-label="Prompt category">
+                                <span class="detail-category-pill detail-category-pill-general">General</span>
+                            </div>
+                        </div>
+                    </div>
 
-    <section>
-        <h2>Page Description</h2>
-        <p>
-            This page shows the full content of a selected prompt, including its full output,
-            vote count, and comments from other users.
-        </p>
-    </section>
+                    <div class="detail-section">
+                        <div class="preview-box">
+                            <pre class="detail-code" id="detail-prompt"></pre>
+                        </div>
+                    </div>
 
-    <section>
-        <h2>Prompt Detail</h2>
-        <p><strong>Title:</strong> Summarise an article</p>
-        <p><strong>Author:</strong> Armin312</p>
-        <p><strong>Votes:</strong> 15</p>
+                    <div class="detail-section">
+                        <button class="button-link secondary" id="output-toggle-button" type="button" aria-expanded="false" aria-controls="detail-output-preview">
+                            <span class="output-toggle-icon" aria-hidden="true">
+                                <svg viewBox="0 0 20 20" fill="none" focusable="false">
+                                    <path d="M7 5.8 12 10l-5 4.2" stroke="#5A7FDB" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </span>
+                            <span class="output-toggle-label">Show example output</span>
+                        </button>
+                        <div class="output-panel detail-preview-panel is-hidden" id="detail-output-preview"></div>
+                    </div>
 
-        <h3>Prompt</h3>
-        <p>
-            Summarise the following article in three concise bullet points.
-            Focus on the main issue, the cause, and the outcome.
-        </p>
+                    <div class="detail-section detail-comments-inline">
+                        <form class="form-stack comment-form" id="detail-comment-form">
+                            <div class="comment-bar">
+                                <textarea class="form-input comment-input" id="detail-comment-input" rows="1" placeholder="Write a comment"></textarea>
+                                <div class="comment-actions-inline">
+                                    <button class="icon-action-button" id="comment-like-button" type="button" aria-label="Like prompt"></button>
+                                    <button class="icon-action-button" id="comment-favorite-button" type="button" aria-label="Favorite prompt"></button>
+                                    <button class="icon-action-button" id="comments-toggle-button" type="button" aria-label="View comments"></button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="comment-list is-hidden" id="comment-list" aria-live="polite"></div>
+                    </div>
+                </article>
 
-        <h3>Full Output</h3>
-        <p>
-            • The article discusses a recent event and its main developments.
-            • It explains the underlying reasons and contributing factors.
-            • It concludes with the outcomes and possible future implications.
-        </p>
-    </section>
+                <aside class="content-block detail-side customize-card">
+                    <div class="detail-section">
+                        <div class="detail-side-header">
+                            <button class="button-submit btn-secondary customize-trigger-top" type="button" id="customize-prompt-trigger">Customize Prompt</button>
+                            <button class="clear-btn" type="button" id="clear-custom-prompt-button">Clear</button>
+                        </div>
+                        <form class="form-stack custom-editor-form" id="custom-prompt-form">
+                            <div class="custom-prompt-field">
+                                <div class="success-text fade-message is-hidden" id="customize-feedback" aria-live="polite">Copied</div>
+                                <textarea class="form-input form-area prompt-editor" id="custom-prompt-input" rows="14" placeholder="Click &quot;Customize Prompt&quot; to copy the original prompt, then edit it as needed."></textarea>
+                            </div>
+                            <div class="button-group">
+                                <button class="button-submit btn-secondary" type="button" id="save-prompt-button">Save</button>
+                                <button class="button-submit btn-secondary" type="button" id="copy-link-button">Copy</button>
+                                <button class="button-submit btn-primary" type="button" id="use-chatgpt-button">
+                                    <span class="chatgpt-icon" aria-hidden="true">✦</span>
+                                    <span>Use in ChatGPT</span>
+                                </button>
+                            </div>
+                            <p class="status-note" id="share-status"></p>
+                        </form>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
 
-    <section>
-        <h2>Comments</h2>
+    <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">Top</button>
 
-        <div class="comment-box">
-            <p><strong>chinmaiii:</strong> This prompt is clear and gives a concise response.</p>
-        </div>
-
-        <div class="comment-box">
-            <p><strong>chan-yingjie:</strong> Maybe add a word limit to make the output even more controlled.</p>
-        </div>
-
-        <div class="comment-box">
-            <p><strong>demo_user:</strong> The bullet point format works well for summarisation tasks.</p>
-        </div>
-    </section>
-
-    <section>
-        <h2>Interaction Summary</h2>
-        <p>This prompt has received <strong>15 votes</strong> and <strong>3 comments</strong>.</p>
-        <p>Other users can clearly see community feedback through vote counts and comments.</p>
-        <button>Upvote</button>
-        <button>Add Comment</button>
-    </section>
-
-    <section>
-        <a href="feed.html">← Back to Feed</a>
-    </section>
-
+    <script src="ui-pages/prompt-data.js"></script>
+    <script src="ui-pages/prompt-detail.js"></script>
+    <script src="ui-pages/ui-common.js"></script>
 </body>
 </html>

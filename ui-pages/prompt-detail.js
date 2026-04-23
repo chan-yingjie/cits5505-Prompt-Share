@@ -1,5 +1,5 @@
 const params = new URLSearchParams(window.location.search);
-const promptId = params.get("id");
+const promptId = params.get("prompt") || params.get("id");
 let promptData = Array.isArray(window.promptFeedData)
     ? window.promptFeedData.find((item) => item.id === promptId) || window.promptFeedData[0]
     : null;
@@ -11,6 +11,8 @@ const submittedAtEl = document.getElementById("detail-submitted-at");
 const categoryEl = document.getElementById("detail-category");
 const promptEl = document.getElementById("detail-prompt");
 const outputPreviewEl = document.getElementById("detail-output-preview");
+const outputToggleButton = document.getElementById("output-toggle-button");
+const outputToggleLabel = document.querySelector(".output-toggle-label");
 const summaryLikesEl = document.getElementById("summary-likes");
 const summaryCommentsEl = document.getElementById("summary-comments");
 const summaryViewsEl = document.getElementById("summary-views");
@@ -19,30 +21,23 @@ const commentListEl = document.getElementById("comment-list");
 const commentsToggleButton = document.getElementById("comments-toggle-button");
 const commentLikeButton = document.getElementById("comment-like-button");
 const commentFavoriteButton = document.getElementById("comment-favorite-button");
-const actionRowEl = document.getElementById("detail-actions");
-const shareLinkEl = document.getElementById("share-link");
-const shareEmailEl = document.getElementById("share-email");
 const shareStatusEl = document.getElementById("share-status");
+const savePromptButton = document.getElementById("save-prompt-button");
 const copyLinkButton = document.getElementById("copy-link-button");
 const useChatGPTButton = document.getElementById("use-chatgpt-button");
+const customizePromptTrigger = document.getElementById("customize-prompt-trigger");
+const clearCustomPromptButton = document.getElementById("clear-custom-prompt-button");
+const customizeFeedback = document.getElementById("customize-feedback");
+const customPromptInput = document.getElementById("custom-prompt-input");
 const detailCommentForm = document.getElementById("detail-comment-form");
 const detailCommentInput = document.getElementById("detail-comment-input");
-const customEditorForm = document.getElementById("custom-editor-form");
-const basePromptInput = document.getElementById("base-prompt-input");
-const toneInput = document.getElementById("prompt-tone");
-const styleInput = document.getElementById("prompt-style");
-const audienceInput = document.getElementById("prompt-audience");
-const lengthInput = document.getElementById("prompt-length");
-const formatInput = document.getElementById("prompt-format");
-const customInstructionsInput = document.getElementById("custom-instructions-input");
-const applyChangesButton = document.getElementById("apply-changes-button");
-const resetEditorButton = document.getElementById("reset-editor-button");
-const saveVersionButton = document.getElementById("save-version-button");
-const myVersionPreview = document.getElementById("my-version-preview");
-const editorStatusEl = document.getElementById("editor-status");
 let commentsExpanded = false;
+let outputExpanded = false;
 let hasRecordedView = false;
-let activeEditorPromptId = "";
+let feedbackTimeoutId = null;
+let buttonHintTimeoutId = null;
+let originalPromptText = "";
+let savedPromptText = "";
 
 function autoResizeTextarea(element) {
     if (!element) {
@@ -50,8 +45,47 @@ function autoResizeTextarea(element) {
     }
 
     element.style.height = "";
-    const nextHeight = Math.max(10, Math.min(element.scrollHeight, 220));
+    const maxHeight = element === customPromptInput ? 420 : 220;
+    const minHeight = element === customPromptInput ? 420 : 10;
+    const nextHeight = Math.max(minHeight, Math.min(element.scrollHeight, maxHeight));
     element.style.height = `${nextHeight}px`;
+}
+
+function showFeedback(element, message) {
+    if (!element) {
+        return;
+    }
+
+    element.textContent = message;
+    element.classList.remove("is-hidden");
+    element.classList.add("show");
+
+    if (feedbackTimeoutId) {
+        window.clearTimeout(feedbackTimeoutId);
+    }
+
+    feedbackTimeoutId = window.setTimeout(() => {
+        element.classList.remove("show");
+        window.setTimeout(() => {
+            element.classList.add("is-hidden");
+        }, 300);
+    }, 2000);
+}
+
+function hintButton(button) {
+    if (!button) {
+        return;
+    }
+
+    button.classList.add("is-suggested");
+
+    if (buttonHintTimeoutId) {
+        window.clearTimeout(buttonHintTimeoutId);
+    }
+
+    buttonHintTimeoutId = window.setTimeout(() => {
+        button.classList.remove("is-suggested");
+    }, 2200);
 }
 
 function escapeHtml(value) {
@@ -92,38 +126,66 @@ function getAuthorInitials(author) {
     return author.slice(0, 2).toUpperCase();
 }
 
+function getProfileHref(value) {
+    if (!value) {
+        return "profile.html";
+    }
+
+    if (value.startsWith("../")) {
+        return value.slice(3);
+    }
+
+    return value;
+}
+
+function buildShareUrl(prompt) {
+    const shareUrl = new URL(window.location.href);
+    shareUrl.search = `?prompt=${prompt.id}`;
+    shareUrl.hash = "";
+    return shareUrl.toString();
+}
+
 function getUiIcon(name) {
     const icons = {
         clock: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.7"></circle>
-                <path d="M10 5.8v4.5l3 1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="10" cy="10" r="7.25" fill="#F3F4F6" stroke="#6B7280" stroke-width="1.5"></circle>
+                <path d="M10 5.8v4.5l3 1.8" stroke="#6B7280" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
         `,
         eye: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
-                <circle cx="10" cy="10" r="2.1" fill="currentColor"></circle>
+                <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"></path>
+                <circle cx="10" cy="10" r="2.3" fill="#5A7FDB"></circle>
+                <circle cx="10.8" cy="9.2" r="0.7" fill="#FFFFFF"></circle>
             </svg>
         `,
         comment: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+                <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"></path>
             </svg>
         `,
         heart: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="currentColor"></path>
+                <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"></path>
             </svg>
         `,
         star: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="currentColor"></path>
+                <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"></path>
+            </svg>
+        `,
+        trash: `
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5.8 6.4h8.4" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round"></path>
+                <path d="M7.2 6.4V5.5a1.3 1.3 0 0 1 1.3-1.3h3a1.3 1.3 0 0 1 1.3 1.3v.9" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M7 8.2v6.1a1.4 1.4 0 0 0 1.4 1.4h3.2a1.4 1.4 0 0 0 1.4-1.4V8.2" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M8.9 9.6v4.1M11.1 9.6v4.1" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round"></path>
             </svg>
         `
     };
 
-    return icons[name] || "";
+    return icons[name] || icons.eye;
 }
 
 function slugify(value) {
@@ -166,24 +228,13 @@ function buildAuthorLink(prompt, options = {}) {
     const totalLikes = prompts.reduce((sum, item) => sum + item.likes, 0);
     const initials = getAuthorInitials(prompt.author);
     const tone = getAuthorTone(prompt.author);
+    const authorLink = escapeHtml(getProfileHref(prompt.authorLink));
 
     return `
         <a class="author-link" href="${authorLink}">
             <span>${includeByPrefix ? `by ${escapeHtml(prompt.author)}` : escapeHtml(prompt.author)}</span>
             <span class="author-popover">
-                <span class="author-preview-header">
-                    <span class="author-avatar author-tone-${tone}">${escapeHtml(initials)}</span>
-                    <span class="author-preview-copy">
-                        <strong>${escapeHtml(prompt.author)}</strong>
-                        <span class="author-handle">${authorHandle}</span>
-                        <span>${authorBio}</span>
-                    </span>
-                </span>
-                <span class="author-stats">
-                    <span><strong>${promptCount}</strong> prompts</span>
-                    <span><strong>${totalLikes}</strong> likes</span>
-                </span>
-                <em>Click to open profile</em>
+                <span class="author-popover-note">Click to view author</span>
             </span>
         </a>
     `;
@@ -228,100 +279,16 @@ function renderOutputPreview(prompt) {
     outputPreviewEl.innerHTML = `<p class="output-paragraph">${escapeHtml(preview)}</p>`;
 }
 
-function buildCustomizedPrompt() {
-    const sections = [basePromptInput ? basePromptInput.value.trim() : (promptData?.prompt || "").trim()];
-
-    const optionalFields = [
-        ["Tone", toneInput.value.trim()],
-        ["Style", styleInput.value.trim()],
-        ["Audience", audienceInput.value.trim()],
-        ["Output Length", lengthInput.value.trim()],
-        ["Format", formatInput.value.trim()]
-    ].filter(([, value]) => value);
-
-    if (optionalFields.length) {
-        sections.push(optionalFields.map(([label, value]) => `${label}: ${value}`).join("\n"));
-    }
-
-    if (customInstructionsInput.value.trim()) {
-        sections.push(`Additional Instructions:\n${customInstructionsInput.value.trim()}`);
-    }
-
-    return sections.filter(Boolean).join("\n\n");
-}
-
-function getEditorState() {
-    return {
-        basePrompt: basePromptInput ? basePromptInput.value : "",
-        tone: toneInput.value,
-        style: styleInput.value,
-        audience: audienceInput.value,
-        length: lengthInput.value,
-        format: formatInput.value,
-        instructions: customInstructionsInput.value,
-        preview: myVersionPreview.value,
-        status: editorStatusEl.textContent
-    };
-}
-
-function applyEditorState(state) {
-    if (!state) {
+function syncOutputVisibility() {
+    if (!outputPreviewEl || !outputToggleButton) {
         return;
     }
 
-    if (basePromptInput) {
-        basePromptInput.value = state.basePrompt;
+    outputPreviewEl.classList.toggle("is-hidden", !outputExpanded);
+    if (outputToggleLabel) {
+        outputToggleLabel.textContent = outputExpanded ? "Hide example output" : "Show example output";
     }
-    toneInput.value = state.tone;
-    styleInput.value = state.style;
-    audienceInput.value = state.audience;
-    lengthInput.value = state.length;
-    formatInput.value = state.format;
-    customInstructionsInput.value = state.instructions;
-    myVersionPreview.value = state.preview;
-    editorStatusEl.textContent = state.status;
-}
-
-function resetCustomEditor(prompt) {
-    if (!prompt) {
-        return;
-    }
-
-    if (basePromptInput) {
-        basePromptInput.value = prompt.prompt || "";
-    }
-    toneInput.value = "";
-    styleInput.value = "";
-    audienceInput.value = "";
-    lengthInput.value = "";
-    formatInput.value = "";
-    customInstructionsInput.value = "";
-    myVersionPreview.value = prompt.prompt || "";
-    editorStatusEl.textContent = "Base prompt restored. Add edits to create your own version.";
-}
-
-function saveCustomVersion(prompt) {
-    if (!prompt) {
-        return;
-    }
-
-    const versionPayload = {
-        promptId: prompt.id,
-        sourceTitle: prompt.title,
-        savedAt: new Date().toISOString(),
-        customizedPrompt: myVersionPreview.value.trim()
-    };
-
-    if (!versionPayload.customizedPrompt) {
-        editorStatusEl.textContent = "Apply changes before saving your version.";
-        return;
-    }
-
-    const storageKey = "prompt-share-custom-versions";
-    const existingVersions = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
-    existingVersions.unshift(versionPayload);
-    window.localStorage.setItem(storageKey, JSON.stringify(existingVersions));
-    editorStatusEl.textContent = "Saved to My Version locally in this browser.";
+    outputToggleButton.setAttribute("aria-expanded", outputExpanded ? "true" : "false");
 }
 
 function renderDetail(prompt) {
@@ -330,8 +297,6 @@ function renderDetail(prompt) {
         commentListEl.innerHTML = '<div class="empty-state">No prompt data available.</div>';
         return;
     }
-
-    const preservedEditorState = activeEditorPromptId === prompt.id ? getEditorState() : null;
     const commentsTotal = prompt.comments.length;
     const taxonomy = getPromptTaxonomy(prompt);
 
@@ -357,6 +322,7 @@ function renderDetail(prompt) {
     categoryEl.innerHTML = categoryPills.join("");
     promptEl.textContent = prompt.prompt;
     renderOutputPreview(prompt);
+    syncOutputVisibility();
     summaryLikesEl.textContent = String(prompt.likes);
     summaryCommentsEl.textContent = String(commentsTotal);
     summaryViewsEl.textContent = String(prompt.viewCount || 0);
@@ -368,21 +334,6 @@ function renderDetail(prompt) {
         metricIcons[2].innerHTML = getUiIcon("heart");
         metricIcons[3].innerHTML = getUiIcon("star");
     }
-    const shareUrl = new URL(window.location.href);
-    shareUrl.search = `?id=${prompt.id}`;
-    shareUrl.hash = "";
-    shareLinkEl.value = shareUrl.toString();
-    actionRowEl.innerHTML = `
-        <button class="action-chip ${prompt.liked ? "is-active" : ""}" type="button" data-action="like">
-            ${prompt.liked ? "Liked" : "Like"}
-        </button>
-        <button class="action-chip" type="button" data-action="focus-comment">
-            Comment
-        </button>
-        <button class="action-chip" type="button" data-action="share">
-            Share
-        </button>
-    `;
 
     renderComments(prompt.comments);
     commentListEl.classList.toggle("is-hidden", !commentsExpanded);
@@ -393,16 +344,9 @@ function renderDetail(prompt) {
     commentLikeButton.classList.toggle("is-active", Boolean(prompt.liked));
     commentFavoriteButton.innerHTML = getUiIcon("star");
     commentFavoriteButton.classList.toggle("is-active", Boolean(prompt.favorited));
-    if (preservedEditorState) {
-        applyEditorState(preservedEditorState);
-    } else {
-        resetCustomEditor(prompt);
-        activeEditorPromptId = prompt.id;
-    }
 }
 
 document.addEventListener("click", (event) => {
-    const actionButton = event.target.closest("#detail-actions [data-action]");
     const deleteButton = event.target.closest("[data-delete-comment]");
 
     if (deleteButton && promptData) {
@@ -417,26 +361,6 @@ document.addEventListener("click", (event) => {
         }
         return;
     }
-
-    if (!actionButton || !promptData) {
-        return;
-    }
-
-    if (actionButton.dataset.action === "like") {
-        promptData.liked = !promptData.liked;
-        promptData.likes += promptData.liked ? 1 : -1;
-    }
-
-    if (actionButton.dataset.action === "focus-comment") {
-        detailCommentInput.focus();
-    }
-
-    if (actionButton.dataset.action === "share") {
-        promptData.shareCount = (promptData.shareCount || 0) + 1;
-        copyLinkButton.click();
-    }
-
-    renderDetail(promptData);
 });
 
 async function openInChatGPT() {
@@ -444,11 +368,17 @@ async function openInChatGPT() {
         return;
     }
 
+    const promptText = customPromptInput ? customPromptInput.value.trim() : promptData.prompt;
+    if (!promptText) {
+        showFeedback(customizeFeedback, "Add prompt text first");
+        return;
+    }
+
     try {
-        await navigator.clipboard.writeText(promptData.prompt);
-        shareStatusEl.textContent = "Prompt copied. Opening ChatGPT in a new tab.";
+        await navigator.clipboard.writeText(promptText);
+        showFeedback(customizeFeedback, "Copied");
     } catch (error) {
-        shareStatusEl.textContent = "ChatGPT opened, but clipboard copy failed. Copy the prompt manually from this page.";
+        showFeedback(customizeFeedback, "Opened ChatGPT");
     }
 
     window.open("https://chatgpt.com/", "_blank", "noopener,noreferrer");
@@ -485,25 +415,82 @@ commentFavoriteButton.addEventListener("click", () => {
     renderDetail(promptData);
 });
 
-copyLinkButton.addEventListener("click", async () => {
-    try {
-        await navigator.clipboard.writeText(shareLinkEl.value);
-        if (promptData) {
-            promptData.copyCount = (promptData.copyCount || 0) + 1;
+if (outputToggleButton) {
+    outputToggleButton.addEventListener("click", () => {
+        outputExpanded = !outputExpanded;
+        syncOutputVisibility();
+    });
+}
+
+if (savePromptButton) {
+    savePromptButton.addEventListener("click", () => {
+        if (!customPromptInput) {
+            return;
         }
-        shareStatusEl.textContent = "Prompt link copied to clipboard.";
-        renderDetail(promptData);
+
+        savedPromptText = customPromptInput.value.trim() || originalPromptText;
+        showFeedback(customizeFeedback, "Saved");
+        hintButton(copyLinkButton);
+    });
+}
+
+copyLinkButton.addEventListener("click", async () => {
+    const promptText = savedPromptText || originalPromptText || (customPromptInput ? customPromptInput.value.trim() : "");
+    if (!promptText) {
+        showFeedback(customizeFeedback, "Add prompt text first");
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(promptText);
+        showFeedback(customizeFeedback, "Copied to clipboard");
+        hintButton(useChatGPTButton);
     } catch (error) {
-        shareStatusEl.textContent = "Copy failed in this browser. You can still copy the link manually.";
+        showFeedback(customizeFeedback, "Copy manually");
     }
 });
 
-document.getElementById("share-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    shareStatusEl.textContent = shareEmailEl.value
-        ? `Share link prepared for ${shareEmailEl.value}.`
-        : "Enter an email address before sharing.";
-});
+if (customPromptInput) {
+    customPromptInput.addEventListener("input", () => {
+        autoResizeTextarea(customPromptInput);
+    });
+
+    customPromptInput.value = "";
+    autoResizeTextarea(customPromptInput);
+}
+
+if (customizePromptTrigger) {
+    customizePromptTrigger.addEventListener("click", async () => {
+        if (!promptData || !customPromptInput) {
+            return;
+        }
+
+        const promptText = promptData.prompt || "";
+        originalPromptText = promptText;
+        savedPromptText = promptText;
+        customPromptInput.value = promptText;
+        autoResizeTextarea(customPromptInput);
+
+        try {
+            await navigator.clipboard.writeText(promptText);
+            showFeedback(customizeFeedback, "Copied");
+        } catch (error) {
+            showFeedback(customizeFeedback, "Loaded");
+        }
+    });
+}
+
+if (clearCustomPromptButton) {
+    clearCustomPromptButton.addEventListener("click", () => {
+        if (!customPromptInput) {
+            return;
+        }
+
+        customPromptInput.value = "";
+        autoResizeTextarea(customPromptInput);
+        showFeedback(customizeFeedback, "Cleared");
+    });
+}
 
 detailCommentForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -537,24 +524,6 @@ detailCommentInput.addEventListener("keydown", (event) => {
         event.preventDefault();
         detailCommentForm.requestSubmit();
     }
-});
-
-applyChangesButton.addEventListener("click", () => {
-    const customizedPrompt = buildCustomizedPrompt();
-    myVersionPreview.value = customizedPrompt;
-    editorStatusEl.textContent = "Custom version updated. Review it before saving.";
-});
-
-resetEditorButton.addEventListener("click", () => {
-    resetCustomEditor(promptData);
-});
-
-saveVersionButton.addEventListener("click", () => {
-    saveCustomVersion(promptData);
-});
-
-customEditorForm.addEventListener("submit", (event) => {
-    event.preventDefault();
 });
 
 if (promptData && !hasRecordedView) {

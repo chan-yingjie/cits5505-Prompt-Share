@@ -9,7 +9,6 @@ const clearSearchButton = document.getElementById("clear-search-button");
 const categoryResetButton = document.getElementById("category-reset-button");
 const categoryTabs = document.getElementById("category-tabs");
 const subcategoryChips = document.getElementById("subcategory-chips");
-const searchMeta = document.getElementById("search-meta");
 const filterStatus = document.getElementById("filter-status");
 const pageParams = new URLSearchParams(window.location.search);
 let activeQuery = "";
@@ -127,33 +126,46 @@ function getAuthorTone(author) {
     return tones[score % tones.length];
 }
 
+function getProfileHref(value) {
+    if (!value) {
+        return "profile.html";
+    }
+
+    if (value.startsWith("../")) {
+        return value.slice(3);
+    }
+
+    return value;
+}
+
 function getUiIcon(name) {
     const icons = {
         clock: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.7"></circle>
-                <path d="M10 5.8v4.5l3 1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="10" cy="10" r="7.25" fill="#F3F4F6" stroke="#6B7280" stroke-width="1.5"></circle>
+                <path d="M10 5.8v4.5l3 1.8" stroke="#6B7280" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
         `,
         eye: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
-                <circle cx="10" cy="10" r="2.1" fill="currentColor"></circle>
+                <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"></path>
+                <circle cx="10" cy="10" r="2.3" fill="#5A7FDB"></circle>
+                <circle cx="10.8" cy="9.2" r="0.7" fill="#FFFFFF"></circle>
             </svg>
         `,
         comment: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+                <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"></path>
             </svg>
         `,
         heart: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="currentColor"></path>
+                <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"></path>
             </svg>
         `,
         star: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="currentColor"></path>
+                <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"></path>
             </svg>
         `
     };
@@ -162,30 +174,13 @@ function getUiIcon(name) {
 }
 
 function buildAuthorPreview(prompt) {
-    const authorLink = escapeHtml(prompt.authorLink || "../profile.html");
-    const authorBio = escapeHtml(prompt.authorBio || "Prompt contributor.");
-    const prompts = window.promptFeedData.filter((item) => item.author === prompt.author);
-    const promptCount = prompts.length;
-    const totalLikes = prompts.reduce((sum, item) => sum + item.likes, 0);
-    const initials = getInitials(prompt.author);
-    const tone = getAuthorTone(prompt.author);
+    const authorLink = escapeHtml(getProfileHref(prompt.authorLink));
 
     return `
         <a class="author-link prompt-author-link" href="${authorLink}">
             <span class="prompt-author-name">${highlightText(prompt.author, activeQuery)}</span>
             <span class="author-popover">
-                <span class="author-preview-header">
-                    <span class="author-avatar author-tone-${tone}">${escapeHtml(initials)}</span>
-                    <span class="author-preview-copy">
-                        <strong>${escapeHtml(prompt.author)}</strong>
-                        <span>${authorBio}</span>
-                    </span>
-                </span>
-                <span class="author-stats">
-                    <span><strong>${promptCount}</strong> prompts</span>
-                    <span><strong>${totalLikes}</strong> likes</span>
-                </span>
-                <em>Click to open profile</em>
+                <span class="author-popover-note">Click to view author</span>
             </span>
         </a>
     `;
@@ -204,15 +199,19 @@ function buildFeedCard(prompt) {
         <article class="prompt-card" data-prompt-id="${prompt.id}">
             <div class="prompt-card-top">
                 <div class="prompt-author">
-                    <a class="prompt-author-avatar author-tone-${authorTone}" href="${escapeHtml(prompt.authorLink || "../profile.html")}" aria-label="Open ${escapeHtml(prompt.author)} profile">${escapeHtml(authorInitials)}</a>
+                    <a class="prompt-author-avatar author-tone-${authorTone}" href="${escapeHtml(getProfileHref(prompt.authorLink))}" aria-label="Open ${escapeHtml(prompt.author)} profile">${escapeHtml(authorInitials)}</a>
                     <div class="prompt-author-copy">
                         ${buildAuthorPreview(prompt)}
+                        <div class="meta-time">
+                            <span class="meta-icon" aria-hidden="true">${getUiIcon("clock")}</span>
+                            <span>${escapeHtml(formatSubmittedAt(prompt.submittedAt))}</span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="prompt-card-header">
                 <h3 class="card-title">
-                    <a class="card-title-link" href="prompt-detail.html?id=${prompt.id}">${highlightText(prompt.title, activeQuery)}</a>
+                    <a class="card-title-link" href="prompt-detail.html?prompt=${encodeURIComponent(prompt.id)}">${highlightText(prompt.title, activeQuery)}</a>
                 </h3>
                 <div class="card-stats" aria-label="Prompt interaction data">
                     <div class="card-stat">
@@ -231,25 +230,21 @@ function buildFeedCard(prompt) {
                         <span class="stat-icon" aria-hidden="true">${getUiIcon("star")}</span>
                         <strong>${favoriteCount}</strong>
                     </div>
+                    <div class="card-tags card-tags-inline" aria-label="Prompt tags">
+                        <a class="meta-pill category-link tag-pill tag-pill-primary" href="feed.html?category=${encodeURIComponent(taxonomy.categorySlug)}">
+                            ${escapeHtml(taxonomy.categoryLabel)}
+                        </a>
+                        <a class="meta-pill category-link tag-pill tag-pill-secondary" href="feed.html?category=${encodeURIComponent(taxonomy.categorySlug)}&subcategory=${encodeURIComponent(taxonomy.subcategorySlug)}">
+                            ${escapeHtml(taxonomy.subcategoryLabel)}
+                        </a>
+                    </div>
                 </div>
             </div>
-            <a class="prompt-preview prompt-preview-link" href="prompt-detail.html?id=${prompt.id}" aria-label="Open ${escapeHtml(prompt.title)} detail">
+            <a class="prompt-preview prompt-preview-link" href="prompt-detail.html?prompt=${encodeURIComponent(prompt.id)}" aria-label="Open ${escapeHtml(prompt.title)} detail">
                 <div class="preview-box">
-                    <p class="card-description">${highlightText(prompt.summary, activeQuery)}</p>
+                    <p class="card-description">${highlightText(prompt.prompt, activeQuery)}</p>
                 </div>
             </a>
-            <div class="card-tags" aria-label="Prompt tags">
-                <a class="meta-pill category-link tag-pill tag-pill-primary" href="feed.html?category=${encodeURIComponent(taxonomy.categorySlug)}">
-                    ${escapeHtml(taxonomy.categoryLabel)}
-                </a>
-                <a class="meta-pill category-link tag-pill tag-pill-secondary" href="feed.html?category=${encodeURIComponent(taxonomy.categorySlug)}&subcategory=${encodeURIComponent(taxonomy.subcategorySlug)}">
-                    ${escapeHtml(taxonomy.subcategoryLabel)}
-                </a>
-            </div>
-            <div class="meta-time">
-                <span class="meta-icon" aria-hidden="true">${getUiIcon("clock")}</span>
-                <span>${escapeHtml(formatSubmittedAt(prompt.submittedAt))}</span>
-            </div>
         </article>
     `;
 }
@@ -362,7 +357,6 @@ function getFilteredPrompts() {
         const haystack = [
             prompt.title,
             prompt.author,
-            prompt.summary,
             prompt.prompt,
             prompt.outputPreview
         ].join(" ").toLowerCase();
@@ -419,12 +413,10 @@ function renderFeed() {
                 <p>Try fewer keywords, adjust the phrasing, or clear the filters to return to the full feed.</p>
             </div>
         `;
-        searchMeta.textContent = "No prompts match the current search.";
         return;
     }
 
     feedList.innerHTML = prompts.map(buildFeedCard).join("");
-    searchMeta.textContent = `Showing ${prompts.length} prompt${prompts.length === 1 ? "" : "s"} in the current result`;
 }
 
 searchForm.addEventListener("submit", (event) => {

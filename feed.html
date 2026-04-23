@@ -3,70 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feed - Prompt Battle</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Feed | Prompt Share</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-pages/ui-pages.css">
 </head>
-<body>
+<body id="top">
+    <div class="page-shell">
+        <header class="topbar">
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="index.html">Home</a>
+                <a class="active" href="feed.html">Feed</a>
+                <a href="submit-prompt.html">Submit Prompt</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="login.html">Login</a>
+            </nav>
+            <a class="brand" href="index.html">Prompt Share</a>
+        </header>
 
-    <nav>
-        <h1>Prompt Battle</h1>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="feed.html">Feed</a></li>
-            <li><a href="submit-prompt.html">Submit</a></li>
-            <li><a href="leaderboard.html">Leaderboard</a></li>
-            <li><a href="profile.html">Profile</a></li>
-            <li><a href="login.html">Login</a></li>
-        </ul>
-    </nav>
+        <main class="layout">
+            <section class="feed-layout">
+                <aside class="content-block feed-sidebar">
+                    <div class="feed-sidebar-copy">
+                        <p class="eyebrow">Categories</p>
+                        <h2 id="category-browser-title">Browse Categories</h2>
+                    </div>
+                    <div class="category-tabs" id="category-tabs" aria-label="Prompt categories"></div>
+                    <div class="sidebar-subcategory-block">
+                        <div class="subcategory-chips" id="subcategory-chips" aria-label="Prompt subcategories"></div>
+                    </div>
+                </aside>
 
-    <section>
-        <h2>Page Description</h2>
-        <p>
-            This page displays prompts submitted by users. It allows users to browse prompts,
-            see the author, preview the output, and view votes and comments from other users.
-        </p>
-    </section>
+                <section class="feed-main">
+                    <section class="content-block search-panel">
+                        <form class="feed-search" id="feed-search-form">
+                            <label class="form-label" for="feed-search-input">Search Prompts</label>
+                            <div class="search-controls">
+                                <input class="form-input" id="feed-search-input" type="text" placeholder="Search by title, author, description, or keyword">
+                                <select class="form-input sort-select" id="feed-sort-select" aria-label="Sort prompts">
+                                    <option value="newest">Newest</option>
+                                    <option value="upvotes-desc">Most Liked</option>
+                                </select>
+                                <button class="button-link primary button-submit search-button" type="submit">Search</button>
+                                <button class="button-link secondary button-submit search-button" id="clear-search-button" type="button">Clear</button>
+                            </div>
+                        </form>
+                    </section>
 
-    <section>
-        <h2>Prompt Feed</h2>
+                    <section class="content-block prompt-panel">
+                        <div class="prompt-list" id="feed-list" aria-live="polite"></div>
+                    </section>
+                </section>
+            </section>
+        </main>
+    </div>
 
-        <div class="prompt-card">
-            <h3>Summarise an article</h3>
-            <p><strong>Author:</strong> Armin312</p>
-            <p><strong>Prompt:</strong> Summarise this article in three bullet points.</p>
-            <p><strong>Output Preview:</strong> The article highlights the main events, causes, and outcomes in a concise form.</p>
-            <p><strong>Votes:</strong> 15</p>
-            <p><strong>Comments:</strong> 3</p>
-            <button>Upvote</button>
-            <button>Comment</button>
-            <a href="prompt-detail.html" class="detail-link">View Details</a>
-        </div>
+    <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">
+        Top
+    </button>
 
-        <div class="prompt-card">
-            <h3>Rewrite an email professionally</h3>
-            <p><strong>Author:</strong> chinmaiii</p>
-            <p><strong>Prompt:</strong> Rewrite this email in a more professional and polite tone.</p>
-            <p><strong>Output Preview:</strong> The revised email uses clearer wording and a more formal tone.</p>
-            <p><strong>Votes:</strong> 10</p>
-            <p><strong>Comments:</strong> 2</p>
-            <button>Upvote</button>
-            <button>Comment</button>
-            <a href="prompt-detail.html" class="detail-link">View Details</a>
-        </div>
-
-        <div class="prompt-card">
-            <h3>Generate study questions</h3>
-            <p><strong>Author:</strong> chan-yingjie</p>
-            <p><strong>Prompt:</strong> Create five revision questions from this lecture summary.</p>
-            <p><strong>Output Preview:</strong> The model generates short-answer and discussion questions for revision.</p>
-            <p><strong>Votes:</strong> 18</p>
-            <p><strong>Comments:</strong> 4</p>
-            <button>Upvote</button>
-            <button>Comment</button>
-            <a href="prompt-detail.html" class="detail-link">View Details</a>
-        </div>
-    </section>
-
+    <script src="ui-pages/prompt-data.js"></script>
+    <script src="ui-pages/feed.js"></script>
+    <script src="ui-pages/ui-common.js"></script>
 </body>
 </html>
