@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Detail | Prompt Battle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-pages/ui-pages.css">
+</head>
+<body id="top">
+    <div class="page-shell">
+        <header class="topbar">
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="index.html">Home</a>
+                <a href="ui-pages/feed.html">Feed</a>
+                <a href="submit-prompt.html">Submit Prompt</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="login.html">Login</a>
+            </nav>
+            <a class="brand" href="index.html">Prompt Battle</a>
+        </header>
+
+        <main class="layout">
+            <section class="detail-layout">
+                <article class="content-block detail-main">
+                    <div class="detail-header">
+                        <a class="back-link" href="ui-pages/feed.html">&larr; Back to feed</a>
+                        <div class="detail-identity">
+                            <div class="detail-author-avatar author-tone-warm" id="detail-author-avatar" aria-hidden="true">AU</div>
+                            <div class="detail-author-stack">
+                                <div id="detail-author">Author</div>
+                                <p class="detail-submitted meta-time" id="detail-submitted-at">Submitted time</p>
+                            </div>
+                        </div>
+                        <h1 id="detail-title">Prompt title</h1>
+                        <div class="detail-metrics detail-header-metrics card-stats" aria-label="Prompt interaction summary">
+                            <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-views">0</strong></span>
+                            <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-comments">0</strong></span>
+                            <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-likes">0</strong></span>
+                            <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-favorites">0</strong></span>
+                        </div>
+                        <div class="detail-category-pills" id="detail-category" aria-label="Prompt category">
+                            <span class="detail-category-pill detail-category-pill-general">General</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <p class="eyebrow">Original Prompt</p>
+                        <div class="preview-box">
+                            <pre class="detail-code" id="detail-prompt"></pre>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <p class="eyebrow">Example Output</p>
+                        <div class="output-panel detail-preview-panel" id="detail-output-preview"></div>
+                    </div>
+
+                    <div class="detail-section detail-comments-inline">
+                        <form class="form-stack comment-form" id="detail-comment-form">
+                            <div class="comment-bar">
+                                <textarea class="form-input comment-input" id="detail-comment-input" rows="1" placeholder="Write a comment"></textarea>
+                                <div class="comment-actions-inline">
+                                    <button class="icon-action-button" id="comment-like-button" type="button" aria-label="Like prompt"></button>
+                                    <button class="icon-action-button" id="comment-favorite-button" type="button" aria-label="Favorite prompt"></button>
+                                    <button class="icon-action-button" id="comments-toggle-button" type="button" aria-label="View comments"></button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="comment-list is-hidden" id="comment-list" aria-live="polite"></div>
+                    </div>
+                </article>
+
+                <aside class="content-block detail-side">
+                    <div class="detail-section">
+                        <p class="eyebrow">Customize</p>
+                        <form class="form-stack custom-editor-form" id="custom-prompt-form">
+                            <div class="card-actions">
+                                <button class="button-link secondary button-submit" type="button" id="customize-prompt-trigger">Load Prompt</button>
+                                <button class="icon-action-button" type="button" id="clear-custom-prompt-button" aria-label="Clear customized prompt"></button>
+                            </div>
+                            <div class="status-note is-hidden" id="customize-feedback" aria-live="polite">Original prompt copied. You can customize it now.</div>
+                            <textarea class="form-input form-area" id="custom-prompt-input" rows="14" placeholder="Edit this prompt here, then copy it or open ChatGPT."></textarea>
+                            <div class="card-actions">
+                                <button class="button-link secondary button-submit" type="button" id="copy-link-button">Copy</button>
+                                <button class="button-link primary button-submit chatgpt-button" type="button" id="use-chatgpt-button">
+                                    <span class="chatgpt-icon" aria-hidden="true">✦</span>
+                                    <span>Use in ChatGPT</span>
+                                </button>
+                            </div>
+                            <div class="status-note is-hidden" id="copy-feedback" aria-live="polite">Prompt copied to clipboard.</div>
+                            <p class="status-note" id="share-status"></p>
+                        </form>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
+
+    <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">Top</button>
+
+    <script src="ui-pages/prompt-data.js"></script>
+    <script src="ui-pages/prompt-detail.js"></script>
+    <script src="ui-pages/ui-common.js"></script>
+</body>
+</html>
