@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | Prompt Battle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-pages/ui-pages.css">
+</head>
+<body id="top">
+    <div class="page-shell">
+        <header class="topbar">
+            <nav class="topnav" aria-label="Primary navigation">
+                <a href="index.html">Home</a>
+                <a href="ui-pages/feed.html">Feed</a>
+                <a href="submit-prompt.html">Submit Prompt</a>
+                <a class="active" href="leaderboard.html">Leaderboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="login.html">Login</a>
+            </nav>
+            <a class="brand" href="index.html">Prompt Battle</a>
+        </header>
+
+        <main class="layout">
+            <section class="content-block">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Leaderboard</p>
+                        <h2>Ranked by community engagement</h2>
+                        <p class="section-copy">
+                            Sort prompts or users by likes, favorites, views, or votes.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="search-controls">
+                    <div class="interaction-row" aria-label="Leaderboard mode">
+                        <button class="action-chip is-active" id="mode-prompts" type="button">Prompts</button>
+                        <button class="action-chip" id="mode-users" type="button">Users</button>
+                    </div>
+
+                    <select class="form-input sort-select" id="metric-select" aria-label="Sort by metric">
+                        <option value="likes">Likes</option>
+                        <option value="favorites">Favorites</option>
+                        <option value="views">Views</option>
+                        <option value="votes">Votes</option>
+                    </select>
+
+                    <select class="form-input sort-select" id="order-select" aria-label="Sort order">
+                        <option value="desc">Highest first</option>
+                        <option value="asc">Lowest first</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="content-block">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow" id="results-eyebrow">Prompts</p>
+                        <h2 id="results-title">Top prompts</h2>
+                    </div>
+                    <a class="category-link" href="ui-pages/feed.html">Browse feed</a>
+                </div>
+
+                <div class="leaderboard-list" id="leaderboard-list" aria-live="polite"></div>
+            </section>
+        </main>
+    </div>
+
+    <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">
+        Top
+    </button>
+
+    <script src="ui-pages/prompt-data.js"></script>
+    <script src="ui-pages/ui-common.js"></script>
+    <script>
+        (function () {
+            const listEl = document.getElementById("leaderboard-list");
+            const metricSelect = document.getElementById("metric-select");
+            const orderSelect = document.getElementById("order-select");
+            const promptsModeBtn = document.getElementById("mode-prompts");
+            const usersModeBtn = document.getElementById("mode-users");
+            const resultsEyebrowEl = document.getElementById("results-eyebrow");
+            const resultsTitleEl = document.getElementById("results-title");
+
+            const dataset = Array.isArray(window.promptFeedData) ? window.promptFeedData : [];
+            let mode = "prompts";
+
+            function getMetricValue(item, metric) {
+                if (metric === "likes") return Number(item.likes || 0);
+                if (metric === "favorites") return Number(item.favorites || 0);
+                if (metric === "views") return Number(item.viewCount || 0);
+                if (metric === "votes") return Number(item.votes || 0);
+                return 0;
+            }
+
+            function toInitials(name) {
+                return String(name || "")
+                    .split(/[\s._-]+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map(part => part[0].toUpperCase())
+                    .join("") || "U";
+            }
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replaceAll("&", "&amp;")
+                    .replaceAll("<", "&lt;")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll('"', "&quot;")
+                    .replaceAll("'", "&#39;");
+            }
+
+            function setMode(nextMode) {
+                mode = nextMode;
+                promptsModeBtn.classList.toggle("is-active", mode === "prompts");
+                usersModeBtn.classList.toggle("is-active", mode === "users");
+                resultsEyebrowEl.textContent = mode === "prompts" ? "Prompts" : "Users";
+                resultsTitleEl.textContent = mode === "prompts" ? "Top prompts" : "Top users";
+                render();
+            }
+
+            function render() {
+                const metric = metricSelect.value;
+                const order = orderSelect.value;
+                const direction = order === "asc" ? 1 : -1;
+
+                if (!dataset.length) {
+                    listEl.innerHTML = `<div class="empty-state">Leaderboard data will appear here once the back-end is connected.</div>`;
+                    return;
+                }
+
+                if (mode === "prompts") {
+                    const rows = [...dataset]
+                        .sort((a, b) => direction * (getMetricValue(a, metric) - getMetricValue(b, metric)))
+                        .slice(0, 20);
+
+                    listEl.innerHTML = rows.map((p, index) => {
+                        const detailHref = `prompt-detail.html?prompt=${encodeURIComponent(p.id || "")}`;
+                        const authorHref = `profile.html?user=${encodeURIComponent(p.author || "")}`;
+                        const metricValue = getMetricValue(p, metric);
+                        return `
+                            <article class="leaderboard-row">
+                                <div class="leaderboard-rank" aria-label="Rank ${index + 1}">${index + 1}</div>
+                                <div>
+                                    <h3 class="card-title">
+                                        <a class="card-title-link" href="${detailHref}">${escapeHtml(p.title || "Untitled prompt")}</a>
+                                    </h3>
+                                    <a class="author-link" href="${authorHref}">
+                                        <span class="profile-icon" aria-hidden="true">👤</span>
+                                        <span><strong>${escapeHtml(p.author || "Unknown")}</strong></span>
+                                        <span>${escapeHtml(p.authorHandle || "")}</span>
+                                    </a>
+                                </div>
+                                <div class="leaderboard-metrics">
+                                    <div><strong>${metricValue}</strong> ${escapeHtml(metric)}</div>
+                                    <div><strong>${Number(p.likes || 0)}</strong> likes</div>
+                                    <div><strong>${Number(p.viewCount || 0)}</strong> views</div>
+                                </div>
+                            </article>
+                        `;
+                    }).join("");
+                    return;
+                }
+
+                const userMap = new Map();
+                dataset.forEach((p) => {
+                    const key = String(p.author || "Unknown");
+                    const existing = userMap.get(key) || {
+                        author: key,
+                        handle: p.authorHandle || ("@" + key),
+                        bio: p.authorBio || "",
+                        prompts: 0,
+                        likes: 0,
+                        favorites: 0,
+                        views: 0,
+                        votes: 0
+                    };
+
+                    existing.prompts += 1;
+                    existing.likes += Number(p.likes || 0);
+                    existing.favorites += Number(p.favorites || 0);
+                    existing.views += Number(p.viewCount || 0);
+                    existing.votes += Number(p.votes || 0);
+                    userMap.set(key, existing);
+                });
+
+                const users = [...userMap.values()]
+                    .sort((a, b) => direction * (Number(a[metric] || 0) - Number(b[metric] || 0)))
+                    .slice(0, 20);
+
+                listEl.innerHTML = users.map((u, index) => {
+                    const profileHref = `profile.html?user=${encodeURIComponent(u.author)}`;
+                    const metricValue = Number(u[metric] || 0);
+                    return `
+                        <article class="leaderboard-row">
+                            <div class="leaderboard-rank" aria-label="Rank ${index + 1}">${index + 1}</div>
+                            <div>
+                                <div class="prompt-author">
+                                    <div class="prompt-author-avatar author-tone-warm">${escapeHtml(toInitials(u.author))}</div>
+                                    <div class="prompt-author-copy">
+                                        <a class="prompt-author-link" href="${profileHref}">
+                                            <strong class="prompt-author-name">${escapeHtml(u.author)}</strong>
+                                            <span class="prompt-author-handle">${escapeHtml(u.handle)}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                ${u.bio ? `<p class="card-description">${escapeHtml(u.bio)}</p>` : ""}
+                            </div>
+                            <div class="leaderboard-metrics">
+                                <div><strong>${metricValue}</strong> ${escapeHtml(metric)}</div>
+                                <div><strong>${u.prompts}</strong> prompts</div>
+                                <div><strong>${u.likes}</strong> likes</div>
+                            </div>
+                        </article>
+                    `;
+                }).join("");
+            }
+
+            promptsModeBtn.addEventListener("click", () => setMode("prompts"));
+            usersModeBtn.addEventListener("click", () => setMode("users"));
+            metricSelect.addEventListener("change", render);
+            orderSelect.addEventListener("change", render);
+
+            setMode("prompts");
+        })();
+    </script>
+</body>
+</html>
