@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Prompt Battle</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- IMPORTANT -->
+    <link rel="stylesheet" href="ui-pages/ui-pages.css">
+</head>
+
+<body class="login-page">
+    <div class="page-shell">
+
+        <!-- NAVBAR -->
+        <header class="topbar">
+            <a class="brand" href="index.html">Prompt Battle</a>
+            <nav class="topnav">
+                <a href="index.html">Home</a>
+                <a href="ui-pages/feed.html">Feed</a>
+                <a href="submit-prompt.html">Submit Prompt</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="login.html">Login</a>
+        
+            </nav>
+        </header>
+
+        <!-- MAIN -->
+        <main class="login-layout">
+
+            <!-- LEFT SIDE -->
+            <section class="login-visual content-block">
+                <p class="eyebrow">Prompt Battle</p>
+                <h1>Create your account.</h1>
+                <p class="section-copy">
+                    Start sharing prompts, competing with others, and building your AI portfolio.
+                </p>
+            </section>
+
+            <!-- RIGHT SIDE -->
+            <section class="login-card-wrap">
+                <article class="login-card">
+
+                    <div class="login-card-header">
+                        <h2>Sign Up</h2>
+                        <p class="login-switch">
+                            Already have an account?
+                            <a href="login.html">Log In</a>
+                        </p>
+                    </div>
+
+                  
+    
+
+                    <!-- FORM -->
+                    <form id="signup-form" class="form-stack">
+
+                        <div class="editor-field form-stack">
+                            <label class="form-label">Full Name</label>
+                            <input class="form-input" id="name" type="text" placeholder="Your name" required>
+                        </div>
+
+                        <div class="editor-field form-stack">
+                            <label class="form-label">Email</label>
+                            <input class="form-input" id="email" type="email" placeholder="Email address" required>
+                        </div>
+
+                        <div class="editor-field form-stack">
+                            <label class="form-label">Password</label>
+                            <input class="form-input" id="password" type="password" placeholder="Password" required>
+                        </div>
+
+                        <div class="editor-field form-stack">
+                            <label class="form-label">Confirm Password</label>
+                            <input class="form-input" id="confirm" type="password" placeholder="Confirm password" required>
+                        </div>
+                        <div class="editor-field form-stack">
+    <label class="form-label">What type of prompts are you interested in?</label>
+    <p class="interest-helper">Select all that apply</p>
+
+    <div class="interest-grid">
+        <label class="interest-option">
+            <input type="checkbox" name="interests" value="Writing">
+            <span>Writing</span>
+        </label>
+
+        <label class="interest-option">
+            <input type="checkbox" name="interests" value="Education">
+            <span>Education</span>
+        </label>
+
+        <label class="interest-option">
+            <input type="checkbox" name="interests" value="Coding">
+            <span>Coding</span>
+        </label>
+
+        <label class="interest-option">
+            <input type="checkbox" name="interests" value="Marketing">
+            <span>Marketing</span>
+        </label>
+
+        <label class="interest-option">
+            <input type="checkbox" name="interests" value="Image Generation">
+            <span>Image Generation</span>
+        </label>
+
+        <label class="interest-option">
+            <input type="checkbox" name="interests" value="Video Generation">
+            <span>Video Generation</span>
+        </label>
+
+        <label class="interest-option">
+            <input type="checkbox" name="interests" value="Productivity">
+            <span>Productivity</span>
+        </label>
+
+        <label class="interest-option">
+            <input type="checkbox" name="interests" value="Other">
+            <span>Other</span>
+        </label>
+    </div>
+</div>
+
+                        <button class="button-link primary login-submit" type="submit">
+                            Create Account
+                        </button>
+
+                        <p id="signup-status" class="login-status"></p>
+
+                    </form>
+                </article>
+            </section>
+
+        </main>
+    </div>
+<script src="ui-pages/signup.js"></script>
+
+</body>
+</html>
