@@ -271,12 +271,12 @@ function renderDetail(prompt) {
         <span>${escapeHtml(formatSubmittedAt(prompt.submittedAt))}</span>
     `;
     const categoryPills = [
-        `<a class="detail-category-pill ${getCategoryToneClass(taxonomy.categorySlug)}" href="ui-pages/feed.html?category=${encodeURIComponent(taxonomy.categorySlug)}">${escapeHtml(taxonomy.categoryLabel)}</a>`
+        `<a class="detail-category-pill ${getCategoryToneClass(taxonomy.categorySlug)}" href="feed.html?category=${encodeURIComponent(taxonomy.categorySlug)}">${escapeHtml(taxonomy.categoryLabel)}</a>`
     ];
 
     if (taxonomy.subcategoryLabel.toLowerCase() !== taxonomy.categoryLabel.toLowerCase()) {
         categoryPills.push(
-            `<a class="detail-category-pill detail-category-pill-subtle" href="ui-pages/feed.html?category=${encodeURIComponent(taxonomy.categorySlug)}&subcategory=${encodeURIComponent(taxonomy.subcategorySlug)}">${escapeHtml(taxonomy.subcategoryLabel)}</a>`
+            `<a class="detail-category-pill detail-category-pill-subtle" href="feed.html?category=${encodeURIComponent(taxonomy.categorySlug)}&subcategory=${encodeURIComponent(taxonomy.subcategorySlug)}">${escapeHtml(taxonomy.subcategoryLabel)}</a>`
         );
     }
 
