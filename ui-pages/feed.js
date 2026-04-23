@@ -126,6 +126,18 @@ function getAuthorTone(author) {
     return tones[score % tones.length];
 }
 
+function getProfileHref(value) {
+    if (!value) {
+        return "profile.html";
+    }
+
+    if (value.startsWith("../")) {
+        return value.slice(3);
+    }
+
+    return value;
+}
+
 function getUiIcon(name) {
     const icons = {
         clock: `
@@ -161,7 +173,7 @@ function getUiIcon(name) {
 }
 
 function buildAuthorPreview(prompt) {
-    const authorLink = escapeHtml(prompt.authorLink || "../profile.html");
+    const authorLink = escapeHtml(getProfileHref(prompt.authorLink));
     const authorBio = escapeHtml(prompt.authorBio || "Prompt contributor.");
     const prompts = window.promptFeedData.filter((item) => item.author === prompt.author);
     const promptCount = prompts.length;
@@ -203,7 +215,7 @@ function buildFeedCard(prompt) {
         <article class="prompt-card" data-prompt-id="${prompt.id}">
             <div class="prompt-card-top">
                 <div class="prompt-author">
-                    <a class="prompt-author-avatar author-tone-${authorTone}" href="${escapeHtml(prompt.authorLink || "../profile.html")}" aria-label="Open ${escapeHtml(prompt.author)} profile">${escapeHtml(authorInitials)}</a>
+                    <a class="prompt-author-avatar author-tone-${authorTone}" href="${escapeHtml(getProfileHref(prompt.authorLink))}" aria-label="Open ${escapeHtml(prompt.author)} profile">${escapeHtml(authorInitials)}</a>
                     <div class="prompt-author-copy">
                         ${buildAuthorPreview(prompt)}
                     </div>
