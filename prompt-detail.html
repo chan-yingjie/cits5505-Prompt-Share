@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Detail | Prompt Battle</title>
+    <title>Prompt Detail | Prompt Share</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
                 <a href="profile.html">Profile</a>
                 <a href="login.html">Login</a>
             </nav>
-            <a class="brand" href="index.html">Prompt Battle</a>
+            <a class="brand" href="index.html">Prompt Share</a>
         </header>
 
         <main class="layout">
@@ -41,22 +41,28 @@
                             <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-comments">0</strong></span>
                             <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-likes">0</strong></span>
                             <span class="detail-metric card-stat"><span class="metric-icon stat-icon" aria-hidden="true"></span><strong id="summary-favorites">0</strong></span>
-                        </div>
-                        <div class="detail-category-pills" id="detail-category" aria-label="Prompt category">
-                            <span class="detail-category-pill detail-category-pill-general">General</span>
+                            <div class="detail-category-pills detail-category-pills-inline" id="detail-category" aria-label="Prompt category">
+                                <span class="detail-category-pill detail-category-pill-general">General</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <p class="eyebrow">Original Prompt</p>
                         <div class="preview-box">
                             <pre class="detail-code" id="detail-prompt"></pre>
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <p class="eyebrow">Example Output</p>
-                        <div class="output-panel detail-preview-panel" id="detail-output-preview"></div>
+                        <button class="button-link secondary" id="output-toggle-button" type="button" aria-expanded="false" aria-controls="detail-output-preview">
+                            <span class="output-toggle-icon" aria-hidden="true">
+                                <svg viewBox="0 0 20 20" fill="none" focusable="false">
+                                    <path d="M7 5.8 12 10l-5 4.2" stroke="#5A7FDB" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </span>
+                            <span class="output-toggle-label">Show example output</span>
+                        </button>
+                        <div class="output-panel detail-preview-panel is-hidden" id="detail-output-preview"></div>
                     </div>
 
                     <div class="detail-section detail-comments-inline">
@@ -74,24 +80,25 @@
                     </div>
                 </article>
 
-                <aside class="content-block detail-side">
+                <aside class="content-block detail-side customize-card">
                     <div class="detail-section">
-                        <p class="eyebrow">Customize</p>
+                        <div class="detail-side-header">
+                            <button class="button-submit btn-secondary customize-trigger-top" type="button" id="customize-prompt-trigger">Customize Prompt</button>
+                            <button class="clear-btn" type="button" id="clear-custom-prompt-button">Clear</button>
+                        </div>
                         <form class="form-stack custom-editor-form" id="custom-prompt-form">
-                            <div class="card-actions">
-                                <button class="button-link secondary button-submit" type="button" id="customize-prompt-trigger">Load Prompt</button>
-                                <button class="icon-action-button" type="button" id="clear-custom-prompt-button" aria-label="Clear customized prompt"></button>
+                            <div class="custom-prompt-field">
+                                <div class="success-text fade-message is-hidden" id="customize-feedback" aria-live="polite">Copied</div>
+                                <textarea class="form-input form-area prompt-editor" id="custom-prompt-input" rows="14" placeholder="Click &quot;Customize Prompt&quot; to copy the original prompt, then edit it as needed."></textarea>
                             </div>
-                            <div class="status-note is-hidden" id="customize-feedback" aria-live="polite">Original prompt copied. You can customize it now.</div>
-                            <textarea class="form-input form-area" id="custom-prompt-input" rows="14" placeholder="Edit this prompt here, then copy it or open ChatGPT."></textarea>
-                            <div class="card-actions">
-                                <button class="button-link secondary button-submit" type="button" id="copy-link-button">Copy</button>
-                                <button class="button-link primary button-submit chatgpt-button" type="button" id="use-chatgpt-button">
+                            <div class="button-group">
+                                <button class="button-submit btn-secondary" type="button" id="save-prompt-button">Save</button>
+                                <button class="button-submit btn-secondary" type="button" id="copy-link-button">Copy</button>
+                                <button class="button-submit btn-primary" type="button" id="use-chatgpt-button">
                                     <span class="chatgpt-icon" aria-hidden="true">✦</span>
                                     <span>Use in ChatGPT</span>
                                 </button>
                             </div>
-                            <div class="status-note is-hidden" id="copy-feedback" aria-live="polite">Prompt copied to clipboard.</div>
                             <p class="status-note" id="share-status"></p>
                         </form>
                     </div>
