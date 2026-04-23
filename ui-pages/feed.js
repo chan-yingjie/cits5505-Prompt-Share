@@ -223,7 +223,7 @@ function buildFeedCard(prompt) {
             </div>
             <div class="prompt-card-header">
                 <h3 class="card-title">
-                    <a class="card-title-link" href="../prompt-detail.html?prompt=${encodeURIComponent(prompt.id)}">${highlightText(prompt.title, activeQuery)}</a>
+                    <a class="card-title-link" href="prompt-detail.html?prompt=${encodeURIComponent(prompt.id)}">${highlightText(prompt.title, activeQuery)}</a>
                 </h3>
                 <div class="card-stats" aria-label="Prompt interaction data">
                     <div class="card-stat">
@@ -244,7 +244,7 @@ function buildFeedCard(prompt) {
                     </div>
                 </div>
             </div>
-            <a class="prompt-preview prompt-preview-link" href="../prompt-detail.html?prompt=${encodeURIComponent(prompt.id)}" aria-label="Open ${escapeHtml(prompt.title)} detail">
+            <a class="prompt-preview prompt-preview-link" href="prompt-detail.html?prompt=${encodeURIComponent(prompt.id)}" aria-label="Open ${escapeHtml(prompt.title)} detail">
                 <div class="preview-box">
                     <p class="card-description">${highlightText(prompt.prompt, activeQuery)}</p>
                 </div>
