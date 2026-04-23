@@ -11,6 +11,8 @@ const submittedAtEl = document.getElementById("detail-submitted-at");
 const categoryEl = document.getElementById("detail-category");
 const promptEl = document.getElementById("detail-prompt");
 const outputPreviewEl = document.getElementById("detail-output-preview");
+const outputToggleButton = document.getElementById("output-toggle-button");
+const outputToggleLabel = document.querySelector(".output-toggle-label");
 const summaryLikesEl = document.getElementById("summary-likes");
 const summaryCommentsEl = document.getElementById("summary-comments");
 const summaryViewsEl = document.getElementById("summary-views");
@@ -20,17 +22,22 @@ const commentsToggleButton = document.getElementById("comments-toggle-button");
 const commentLikeButton = document.getElementById("comment-like-button");
 const commentFavoriteButton = document.getElementById("comment-favorite-button");
 const shareStatusEl = document.getElementById("share-status");
+const savePromptButton = document.getElementById("save-prompt-button");
 const copyLinkButton = document.getElementById("copy-link-button");
 const useChatGPTButton = document.getElementById("use-chatgpt-button");
 const customizePromptTrigger = document.getElementById("customize-prompt-trigger");
 const clearCustomPromptButton = document.getElementById("clear-custom-prompt-button");
 const customizeFeedback = document.getElementById("customize-feedback");
-const copyFeedback = document.getElementById("copy-feedback");
 const customPromptInput = document.getElementById("custom-prompt-input");
 const detailCommentForm = document.getElementById("detail-comment-form");
 const detailCommentInput = document.getElementById("detail-comment-input");
 let commentsExpanded = false;
+let outputExpanded = false;
 let hasRecordedView = false;
+let feedbackTimeoutId = null;
+let buttonHintTimeoutId = null;
+let originalPromptText = "";
+let savedPromptText = "";
 
 function autoResizeTextarea(element) {
     if (!element) {
@@ -38,7 +45,9 @@ function autoResizeTextarea(element) {
     }
 
     element.style.height = "";
-    const nextHeight = Math.max(10, Math.min(element.scrollHeight, 220));
+    const maxHeight = element === customPromptInput ? 420 : 220;
+    const minHeight = element === customPromptInput ? 420 : 10;
+    const nextHeight = Math.max(minHeight, Math.min(element.scrollHeight, maxHeight));
     element.style.height = `${nextHeight}px`;
 }
 
@@ -49,6 +58,34 @@ function showFeedback(element, message) {
 
     element.textContent = message;
     element.classList.remove("is-hidden");
+    element.classList.add("show");
+
+    if (feedbackTimeoutId) {
+        window.clearTimeout(feedbackTimeoutId);
+    }
+
+    feedbackTimeoutId = window.setTimeout(() => {
+        element.classList.remove("show");
+        window.setTimeout(() => {
+            element.classList.add("is-hidden");
+        }, 300);
+    }, 2000);
+}
+
+function hintButton(button) {
+    if (!button) {
+        return;
+    }
+
+    button.classList.add("is-suggested");
+
+    if (buttonHintTimeoutId) {
+        window.clearTimeout(buttonHintTimeoutId);
+    }
+
+    buttonHintTimeoutId = window.setTimeout(() => {
+        button.classList.remove("is-suggested");
+    }, 2200);
 }
 
 function escapeHtml(value) {
@@ -112,42 +149,43 @@ function getUiIcon(name) {
     const icons = {
         clock: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.7"></circle>
-                <path d="M10 5.8v4.5l3 1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="10" cy="10" r="7.25" fill="#F3F4F6" stroke="#6B7280" stroke-width="1.5"></circle>
+                <path d="M10 5.8v4.5l3 1.8" stroke="#6B7280" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
         `,
         eye: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
-                <circle cx="10" cy="10" r="2.1" fill="currentColor"></circle>
+                <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"></path>
+                <circle cx="10" cy="10" r="2.3" fill="#5A7FDB"></circle>
+                <circle cx="10.8" cy="9.2" r="0.7" fill="#FFFFFF"></circle>
             </svg>
         `,
         comment: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+                <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"></path>
             </svg>
         `,
         heart: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="currentColor"></path>
+                <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"></path>
             </svg>
         `,
         star: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="currentColor"></path>
+                <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"></path>
             </svg>
         `,
         trash: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M5.8 6.4h8.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
-                <path d="M7.2 6.4V5.5a1.3 1.3 0 0 1 1.3-1.3h3a1.3 1.3 0 0 1 1.3 1.3v.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M7 8.2v6.1a1.4 1.4 0 0 0 1.4 1.4h3.2a1.4 1.4 0 0 0 1.4-1.4V8.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M8.9 9.6v4.1M11.1 9.6v4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                <path d="M5.8 6.4h8.4" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round"></path>
+                <path d="M7.2 6.4V5.5a1.3 1.3 0 0 1 1.3-1.3h3a1.3 1.3 0 0 1 1.3 1.3v.9" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M7 8.2v6.1a1.4 1.4 0 0 0 1.4 1.4h3.2a1.4 1.4 0 0 0 1.4-1.4V8.2" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M8.9 9.6v4.1M11.1 9.6v4.1" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round"></path>
             </svg>
         `
     };
 
-    return icons[name] || "";
+    return icons[name] || icons.eye;
 }
 
 function slugify(value) {
@@ -183,31 +221,12 @@ function getCategoryToneClass(categorySlug) {
 function buildAuthorLink(prompt, options = {}) {
     const { includeByPrefix = true } = options;
     const authorLink = escapeHtml(getProfileHref(prompt.authorLink));
-    const authorBio = escapeHtml(prompt.authorBio || "Prompt contributor.");
-    const authorHandle = escapeHtml(prompt.authorHandle || `@${prompt.author}`);
-    const prompts = window.promptFeedData.filter((item) => item.author === prompt.author);
-    const promptCount = prompts.length;
-    const totalLikes = prompts.reduce((sum, item) => sum + item.likes, 0);
-    const initials = getAuthorInitials(prompt.author);
-    const tone = getAuthorTone(prompt.author);
 
     return `
         <a class="author-link" href="${authorLink}">
             <span>${includeByPrefix ? `by ${escapeHtml(prompt.author)}` : escapeHtml(prompt.author)}</span>
             <span class="author-popover">
-                <span class="author-preview-header">
-                    <span class="author-avatar author-tone-${tone}">${escapeHtml(initials)}</span>
-                    <span class="author-preview-copy">
-                        <strong>${escapeHtml(prompt.author)}</strong>
-                        <span class="author-handle">${authorHandle}</span>
-                        <span>${authorBio}</span>
-                    </span>
-                </span>
-                <span class="author-stats">
-                    <span><strong>${promptCount}</strong> prompts</span>
-                    <span><strong>${totalLikes}</strong> likes</span>
-                </span>
-                <em>Click to open profile</em>
+                <span class="author-popover-note">Click to view author</span>
             </span>
         </a>
     `;
@@ -252,6 +271,18 @@ function renderOutputPreview(prompt) {
     outputPreviewEl.innerHTML = `<p class="output-paragraph">${escapeHtml(preview)}</p>`;
 }
 
+function syncOutputVisibility() {
+    if (!outputPreviewEl || !outputToggleButton) {
+        return;
+    }
+
+    outputPreviewEl.classList.toggle("is-hidden", !outputExpanded);
+    if (outputToggleLabel) {
+        outputToggleLabel.textContent = outputExpanded ? "Hide example output" : "Show example output";
+    }
+    outputToggleButton.setAttribute("aria-expanded", outputExpanded ? "true" : "false");
+}
+
 function renderDetail(prompt) {
     if (!prompt) {
         titleEl.textContent = "Prompt not found";
@@ -283,6 +314,7 @@ function renderDetail(prompt) {
     categoryEl.innerHTML = categoryPills.join("");
     promptEl.textContent = prompt.prompt;
     renderOutputPreview(prompt);
+    syncOutputVisibility();
     summaryLikesEl.textContent = String(prompt.likes);
     summaryCommentsEl.textContent = String(commentsTotal);
     summaryViewsEl.textContent = String(prompt.viewCount || 0);
@@ -330,15 +362,15 @@ async function openInChatGPT() {
 
     const promptText = customPromptInput ? customPromptInput.value.trim() : promptData.prompt;
     if (!promptText) {
-        showFeedback(copyFeedback, "Add prompt text before opening ChatGPT.");
+        showFeedback(customizeFeedback, "Add prompt text first");
         return;
     }
 
     try {
         await navigator.clipboard.writeText(promptText);
-        showFeedback(copyFeedback, "Prompt copied. Opening ChatGPT in a new tab.");
+        showFeedback(customizeFeedback, "Copied");
     } catch (error) {
-        showFeedback(copyFeedback, "ChatGPT opened, but clipboard copy failed. Copy the prompt manually from this page.");
+        showFeedback(customizeFeedback, "Opened ChatGPT");
     }
 
     window.open("https://chatgpt.com/", "_blank", "noopener,noreferrer");
@@ -375,18 +407,38 @@ commentFavoriteButton.addEventListener("click", () => {
     renderDetail(promptData);
 });
 
+if (outputToggleButton) {
+    outputToggleButton.addEventListener("click", () => {
+        outputExpanded = !outputExpanded;
+        syncOutputVisibility();
+    });
+}
+
+if (savePromptButton) {
+    savePromptButton.addEventListener("click", () => {
+        if (!customPromptInput) {
+            return;
+        }
+
+        savedPromptText = customPromptInput.value.trim() || originalPromptText;
+        showFeedback(customizeFeedback, "Saved");
+        hintButton(copyLinkButton);
+    });
+}
+
 copyLinkButton.addEventListener("click", async () => {
-    const promptText = customPromptInput ? customPromptInput.value.trim() : "";
+    const promptText = savedPromptText || originalPromptText || (customPromptInput ? customPromptInput.value.trim() : "");
     if (!promptText) {
-        showFeedback(copyFeedback, "Add prompt text before copying.");
+        showFeedback(customizeFeedback, "Add prompt text first");
         return;
     }
 
     try {
         await navigator.clipboard.writeText(promptText);
-        showFeedback(copyFeedback, "Prompt copied to clipboard.");
+        showFeedback(customizeFeedback, "Copied to clipboard");
+        hintButton(useChatGPTButton);
     } catch (error) {
-        showFeedback(copyFeedback, "Copy failed in this browser. You can still copy the prompt manually.");
+        showFeedback(customizeFeedback, "Copy manually");
     }
 });
 
@@ -406,20 +458,21 @@ if (customizePromptTrigger) {
         }
 
         const promptText = promptData.prompt || "";
+        originalPromptText = promptText;
+        savedPromptText = promptText;
         customPromptInput.value = promptText;
         autoResizeTextarea(customPromptInput);
 
         try {
             await navigator.clipboard.writeText(promptText);
-            showFeedback(customizeFeedback, "Original prompt copied. You can customize it now.");
+            showFeedback(customizeFeedback, "Copied");
         } catch (error) {
-            showFeedback(customizeFeedback, "Original prompt loaded. Copy it manually if needed.");
+            showFeedback(customizeFeedback, "Loaded");
         }
     });
 }
 
 if (clearCustomPromptButton) {
-    clearCustomPromptButton.innerHTML = getUiIcon("trash");
     clearCustomPromptButton.addEventListener("click", () => {
         if (!customPromptInput) {
             return;
@@ -427,7 +480,7 @@ if (clearCustomPromptButton) {
 
         customPromptInput.value = "";
         autoResizeTextarea(customPromptInput);
-        showFeedback(customizeFeedback, "Customized prompt cleared.");
+        showFeedback(customizeFeedback, "Cleared");
     });
 }
 
