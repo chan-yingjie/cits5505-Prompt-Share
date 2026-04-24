@@ -42,6 +42,21 @@ window.promptFeedData = [
                 author: "demo_user",
                 handle: "@demo_user",
                 body: "Good balance between structure and flexibility. The \"what happens next\" angle is useful."
+            },
+            {
+                author: "mia.codes",
+                handle: "@mia.codes",
+                body: "The three-part structure is strong. I would probably add a source citation step for research tasks."
+            },
+            {
+                author: "kai.dev",
+                handle: "@kai.dev",
+                body: "This feels reusable because the output length is tightly controlled without over-constraining the reasoning."
+            },
+            {
+                author: "ivy.ops",
+                handle: "@ivy.ops",
+                body: "Nice prompt for dashboards and briefing packs. The wording is clear enough for quick team updates."
             }
         ]
     },

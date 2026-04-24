@@ -142,30 +142,29 @@ function getUiIcon(name) {
     const icons = {
         clock: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <circle cx="10" cy="10" r="7.25" fill="#F3F4F6" stroke="#6B7280" stroke-width="1.5"></circle>
-                <path d="M10 5.8v4.5l3 1.8" stroke="#6B7280" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.45"></circle>
+                <path d="M10 5.8v4.5l2.7 1.7" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
         `,
         eye: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"></path>
-                <circle cx="10" cy="10" r="2.3" fill="#5A7FDB"></circle>
-                <circle cx="10.8" cy="9.2" r="0.7" fill="#FFFFFF"></circle>
+                <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"></path>
+                <circle cx="10" cy="10" r="2.2" stroke="currentColor" stroke-width="1.45"></circle>
             </svg>
         `,
         comment: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"></path>
+                <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"></path>
             </svg>
         `,
         heart: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"></path>
+                <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"></path>
             </svg>
         `,
         star: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"></path>
+                <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"></path>
             </svg>
         `
     };
@@ -358,7 +357,8 @@ function getFilteredPrompts() {
             prompt.title,
             prompt.author,
             prompt.prompt,
-            prompt.outputPreview
+            prompt.outputPreview,
+            ...(Array.isArray(prompt.keywords) ? prompt.keywords : [])
         ].join(" ").toLowerCase();
 
         return keywords.every((keyword) => haystack.includes(keyword));
@@ -389,6 +389,31 @@ function getFilteredPrompts() {
     return filteredPrompts;
 }
 
+function updateFilterStatus(count) {
+    if (!filterStatus) {
+        return;
+    }
+
+    const fragments = [`${count} result${count === 1 ? "" : "s"}`];
+
+    if (activeCategory) {
+        fragments.push(categoryLabelMap[activeCategory] || activeCategory);
+    }
+
+    if (activeSubcategory) {
+        fragments.push(subcategoryLabelMap[activeSubcategory] || activeSubcategory);
+    }
+
+    if (activeQuery) {
+        fragments.push(`search: "${activeQuery}"`);
+    }
+
+    fragments.push(`sorted by ${getSortLabel()}`);
+
+    filterStatus.textContent = fragments.join("  •  ");
+    filterStatus.classList.remove("is-hidden");
+}
+
 function renderFeed() {
     const prompts = getFilteredPrompts();
     const allPrompts = window.promptFeedData;
@@ -405,6 +430,7 @@ function renderFeed() {
     }
 
     renderCategoryFilters();
+    updateFilterStatus(prompts.length);
 
     if (!Array.isArray(prompts) || prompts.length === 0) {
         feedList.innerHTML = `
