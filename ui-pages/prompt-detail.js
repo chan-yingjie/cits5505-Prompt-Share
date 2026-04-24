@@ -1,7 +1,84 @@
+const COMMENT_STORAGE_KEY = "prompt-share-comments-v1";
 const params = new URLSearchParams(window.location.search);
 const promptId = params.get("prompt") || params.get("id");
+
+function normalizeComment(comment) {
+    if (!comment || typeof comment !== "object") {
+        return null;
+    }
+
+    const author = String(comment.author || "").trim() || "anonymous";
+    const handle = String(comment.handle || "").trim() || "@anonymous";
+    const body = String(comment.body || "").trim();
+
+    if (!body) {
+        return null;
+    }
+
+    return {
+        author,
+        handle,
+        body
+    };
+}
+
+function getStoredCommentsMap() {
+    try {
+        const storedValue = window.localStorage.getItem(COMMENT_STORAGE_KEY);
+        if (!storedValue) {
+            return {};
+        }
+
+        const parsed = JSON.parse(storedValue);
+        return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (error) {
+        return {};
+    }
+}
+
+function setStoredCommentsMap(nextMap) {
+    try {
+        window.localStorage.setItem(COMMENT_STORAGE_KEY, JSON.stringify(nextMap));
+    } catch (error) {
+        return;
+    }
+}
+
+function hydratePromptComments() {
+    if (!Array.isArray(window.promptFeedData)) {
+        return;
+    }
+
+    const storedCommentsMap = getStoredCommentsMap();
+
+    window.promptFeedData.forEach((prompt) => {
+        const bundledComments = Array.isArray(prompt.comments)
+            ? prompt.comments.map(normalizeComment).filter(Boolean)
+            : [];
+        const storedComments = Array.isArray(storedCommentsMap[prompt.id])
+            ? storedCommentsMap[prompt.id].map(normalizeComment).filter(Boolean)
+            : null;
+
+        prompt.comments = storedComments || bundledComments;
+    });
+}
+
+function persistPromptComments(prompt) {
+    if (!prompt || !prompt.id) {
+        return;
+    }
+
+    const storedCommentsMap = getStoredCommentsMap();
+    storedCommentsMap[prompt.id] = Array.isArray(prompt.comments)
+        ? prompt.comments.map(normalizeComment).filter(Boolean)
+        : [];
+    setStoredCommentsMap(storedCommentsMap);
+}
+
+hydratePromptComments();
+
 let promptData = Array.isArray(window.promptFeedData)
-    ? window.promptFeedData.find((item) => item.id === promptId) || window.promptFeedData[0]
+    ? (promptId ? window.promptFeedData.find((item) => item.id === promptId) || null : window.promptFeedData[0] || null)
     : null;
 
 const titleEl = document.getElementById("detail-title");
@@ -24,10 +101,12 @@ const commentFavoriteButton = document.getElementById("comment-favorite-button")
 const shareStatusEl = document.getElementById("share-status");
 const savePromptButton = document.getElementById("save-prompt-button");
 const copyLinkButton = document.getElementById("copy-link-button");
+const shareLinkButton = document.getElementById("share-link-button");
 const useChatGPTButton = document.getElementById("use-chatgpt-button");
 const customizePromptTrigger = document.getElementById("customize-prompt-trigger");
 const clearCustomPromptButton = document.getElementById("clear-custom-prompt-button");
 const customizeFeedback = document.getElementById("customize-feedback");
+const actionFeedback = document.getElementById("action-feedback");
 const customPromptInput = document.getElementById("custom-prompt-input");
 const detailCommentForm = document.getElementById("detail-comment-form");
 const detailCommentInput = document.getElementById("detail-comment-input");
@@ -36,8 +115,17 @@ let outputExpanded = false;
 let hasRecordedView = false;
 let feedbackTimeoutId = null;
 let buttonHintTimeoutId = null;
+let activeFeedbackElement = null;
 let originalPromptText = "";
 let savedPromptText = "";
+let hasCustomizedPrompt = false;
+let editingCommentIndex = null;
+
+const customActionButtons = [
+    savePromptButton,
+    copyLinkButton,
+    useChatGPTButton
+].filter(Boolean);
 
 function autoResizeTextarea(element) {
     if (!element) {
@@ -56,9 +144,15 @@ function showFeedback(element, message) {
         return;
     }
 
+    if (activeFeedbackElement && activeFeedbackElement !== element) {
+        activeFeedbackElement.classList.remove("show");
+        activeFeedbackElement.classList.add("is-hidden");
+    }
+
     element.textContent = message;
     element.classList.remove("is-hidden");
     element.classList.add("show");
+    activeFeedbackElement = element;
 
     if (feedbackTimeoutId) {
         window.clearTimeout(feedbackTimeoutId);
@@ -68,12 +162,19 @@ function showFeedback(element, message) {
         element.classList.remove("show");
         window.setTimeout(() => {
             element.classList.add("is-hidden");
+            if (activeFeedbackElement === element) {
+                activeFeedbackElement = null;
+            }
         }, 300);
     }, 2000);
 }
 
 function hintButton(button) {
     if (!button) {
+        return;
+    }
+
+    if (button.disabled) {
         return;
     }
 
@@ -86,6 +187,65 @@ function hintButton(button) {
     buttonHintTimeoutId = window.setTimeout(() => {
         button.classList.remove("is-suggested");
     }, 2200);
+}
+
+function syncCustomPromptControls() {
+    const isEnabled = hasCustomizedPrompt && Boolean(promptData);
+
+    customActionButtons.forEach((button) => {
+        button.disabled = !isEnabled;
+        button.classList.toggle("is-disabled", !isEnabled);
+    });
+
+    if (customPromptInput) {
+        customPromptInput.readOnly = !isEnabled;
+        customPromptInput.classList.toggle("is-disabled", !isEnabled);
+    }
+}
+
+function resetCustomPromptState() {
+    hasCustomizedPrompt = false;
+    originalPromptText = "";
+    savedPromptText = "";
+
+    if (customPromptInput) {
+        customPromptInput.value = "";
+        autoResizeTextarea(customPromptInput);
+    }
+
+    syncCustomPromptControls();
+}
+
+function loadCustomPrompt(text) {
+    const promptText = String(text || "").trim();
+
+    hasCustomizedPrompt = Boolean(promptText);
+    originalPromptText = promptText;
+    savedPromptText = promptText;
+
+    if (customPromptInput) {
+        customPromptInput.value = promptText;
+        autoResizeTextarea(customPromptInput);
+    }
+
+    syncCustomPromptControls();
+}
+
+function requireCustomizedPrompt(message = "Click Customize Prompt first") {
+    if (!hasCustomizedPrompt) {
+        showFeedback(customizeFeedback, message);
+        return false;
+    }
+
+    return true;
+}
+
+function getEditablePromptText() {
+    if (!requireCustomizedPrompt()) {
+        return "";
+    }
+
+    return customPromptInput ? customPromptInput.value.trim() : "";
 }
 
 function escapeHtml(value) {
@@ -175,6 +335,13 @@ function getUiIcon(name) {
                 <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"></path>
             </svg>
         `,
+        share: `
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M12.4 4.7h2.9v2.9" stroke="#5A7FDB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M8.2 11.8 15.3 4.7" stroke="#5A7FDB" stroke-width="1.6" stroke-linecap="round"></path>
+                <path d="M15 10.2v4.1a1.3 1.3 0 0 1-1.3 1.3H5.7a1.3 1.3 0 0 1-1.3-1.3V6.3A1.3 1.3 0 0 1 5.7 5h4.1" stroke="#5A7FDB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+        `,
         trash: `
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="M5.8 6.4h8.4" stroke="#6B7280" stroke-width="1.7" stroke-linecap="round"></path>
@@ -245,9 +412,21 @@ function renderComments(comments) {
                     <span class="comment-author">${comment.author}</span>
                     <span class="meta-pill">${comment.handle}</span>
                 </div>
-                <button class="comment-delete" type="button" data-delete-comment="${index}">Delete</button>
+                <div class="comment-card-actions">
+                    ${editingCommentIndex === index ? `
+                        <button class="comment-action-button comment-action-button-primary" type="button" data-save-comment="${index}">Save</button>
+                        <button class="comment-action-button" type="button" data-cancel-edit-comment="${index}">Cancel</button>
+                    ` : `
+                        <button class="comment-action-button" type="button" data-edit-comment="${index}">Edit</button>
+                        <button class="comment-action-button comment-action-button-danger" type="button" data-delete-comment="${index}">Delete</button>
+                    `}
+                </div>
             </div>
-            <p class="comment-body">${comment.body}</p>
+            ${editingCommentIndex === index ? `
+                <textarea class="form-input form-area comment-edit-input" data-edit-comment-input="${index}" rows="3">${escapeHtml(comment.body)}</textarea>
+            ` : `
+                <p class="comment-body">${escapeHtml(comment.body)}</p>
+            `}
         </article>
     `).join("");
 }
@@ -285,8 +464,39 @@ function syncOutputVisibility() {
 
 function renderDetail(prompt) {
     if (!prompt) {
+        document.title = "Prompt not found | Prompt Share";
         titleEl.textContent = "Prompt not found";
+        authorEl.textContent = "Unknown author";
+        authorAvatarEl.textContent = "--";
+        submittedAtEl.textContent = "This prompt link is invalid or no longer available.";
+        categoryEl.innerHTML = "";
+        promptEl.textContent = "Check the link and return to the feed to choose another prompt.";
+        outputPreviewEl.innerHTML = "";
+        outputPreviewEl.classList.add("is-hidden");
+        outputToggleButton.setAttribute("aria-expanded", "false");
+        outputToggleButton.disabled = true;
+        outputToggleButton.classList.add("is-disabled");
+        if (outputToggleLabel) {
+            outputToggleLabel.textContent = "Example output unavailable";
+        }
+        summaryLikesEl.textContent = "0";
+        summaryCommentsEl.textContent = "0";
+        summaryViewsEl.textContent = "0";
+        summaryFavoritesEl.textContent = "0";
         commentListEl.innerHTML = '<div class="empty-state">No prompt data available.</div>';
+        commentListEl.classList.remove("is-hidden");
+        commentsToggleButton.disabled = true;
+        commentLikeButton.disabled = true;
+        commentFavoriteButton.disabled = true;
+        if (shareLinkButton) {
+            shareLinkButton.disabled = true;
+            shareLinkButton.classList.add("is-disabled");
+            shareLinkButton.innerHTML = getUiIcon("share");
+        }
+        resetCustomPromptState();
+        if (shareStatusEl) {
+            shareStatusEl.textContent = "";
+        }
         return;
     }
     const commentsTotal = prompt.comments.length;
@@ -329,6 +539,18 @@ function renderDetail(prompt) {
 
     renderComments(prompt.comments);
     commentListEl.classList.toggle("is-hidden", !commentsExpanded);
+    outputToggleButton.disabled = false;
+    outputToggleButton.classList.remove("is-disabled");
+    commentsToggleButton.disabled = false;
+    commentLikeButton.disabled = false;
+    commentFavoriteButton.disabled = false;
+    if (shareLinkButton) {
+        shareLinkButton.disabled = false;
+        shareLinkButton.classList.remove("is-disabled");
+        shareLinkButton.innerHTML = getUiIcon("share");
+        shareLinkButton.setAttribute("aria-label", "Share prompt link");
+    }
+    syncCustomPromptControls();
     commentsToggleButton.innerHTML = getUiIcon("comment");
     commentsToggleButton.classList.toggle("is-active", commentsExpanded);
     commentsToggleButton.setAttribute("aria-label", commentsExpanded ? "Hide comments" : `View comments (${commentsTotal})`);
@@ -339,6 +561,47 @@ function renderDetail(prompt) {
 }
 
 document.addEventListener("click", (event) => {
+    const editButton = event.target.closest("[data-edit-comment]");
+    if (editButton && promptData) {
+        editingCommentIndex = Number(editButton.dataset.editComment);
+        renderDetail(promptData);
+        const editInput = commentListEl.querySelector(`[data-edit-comment-input="${editingCommentIndex}"]`);
+        if (editInput) {
+            editInput.focus();
+            editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+        }
+        return;
+    }
+
+    const cancelEditButton = event.target.closest("[data-cancel-edit-comment]");
+    if (cancelEditButton && promptData) {
+        editingCommentIndex = null;
+        renderDetail(promptData);
+        showFeedback(actionFeedback, "Edit canceled");
+        return;
+    }
+
+    const saveEditButton = event.target.closest("[data-save-comment]");
+    if (saveEditButton && promptData) {
+        const commentIndex = Number(saveEditButton.dataset.saveComment);
+        const editInput = commentListEl.querySelector(`[data-edit-comment-input="${commentIndex}"]`);
+        const nextBody = editInput ? editInput.value.trim() : "";
+
+        if (!nextBody) {
+            showFeedback(actionFeedback, "Comment cannot be empty");
+            return;
+        }
+
+        if (promptData.comments[commentIndex]) {
+            promptData.comments[commentIndex].body = nextBody;
+        }
+        persistPromptComments(promptData);
+        editingCommentIndex = null;
+        renderDetail(promptData);
+        showFeedback(actionFeedback, "Comment updated");
+        return;
+    }
+
     const deleteButton = event.target.closest("[data-delete-comment]");
 
     if (deleteButton && promptData) {
@@ -349,7 +612,14 @@ document.addEventListener("click", (event) => {
                 return;
             }
             promptData.comments.splice(commentIndex, 1);
+            persistPromptComments(promptData);
+            if (editingCommentIndex === commentIndex) {
+                editingCommentIndex = null;
+            } else if (editingCommentIndex !== null && commentIndex < editingCommentIndex) {
+                editingCommentIndex -= 1;
+            }
             renderDetail(promptData);
+            showFeedback(actionFeedback, "Comment deleted");
         }
         return;
     }
@@ -360,9 +630,8 @@ async function openInChatGPT() {
         return;
     }
 
-    const promptText = customPromptInput ? customPromptInput.value.trim() : promptData.prompt;
+    const promptText = getEditablePromptText();
     if (!promptText) {
-        showFeedback(customizeFeedback, "Add prompt text first");
         return;
     }
 
@@ -385,6 +654,7 @@ commentsToggleButton.addEventListener("click", () => {
     commentsToggleButton.setAttribute("aria-label", commentsExpanded
         ? "Hide comments"
         : `View comments (${promptData ? promptData.comments.length : 0})`);
+    showFeedback(actionFeedback, commentsExpanded ? "Comments shown" : "Comments hidden");
 });
 
 commentLikeButton.addEventListener("click", () => {
@@ -395,6 +665,7 @@ commentLikeButton.addEventListener("click", () => {
     promptData.liked = !promptData.liked;
     promptData.likes += promptData.liked ? 1 : -1;
     renderDetail(promptData);
+    showFeedback(actionFeedback, promptData.liked ? "Liked" : "Like removed");
 });
 
 commentFavoriteButton.addEventListener("click", () => {
@@ -405,6 +676,7 @@ commentFavoriteButton.addEventListener("click", () => {
     promptData.favorited = !promptData.favorited;
     promptData.favorites = Math.max(0, (promptData.favorites || 0) + (promptData.favorited ? 1 : -1));
     renderDetail(promptData);
+    showFeedback(actionFeedback, promptData.favorited ? "Saved to favorites" : "Removed from favorites");
 });
 
 if (outputToggleButton) {
@@ -416,20 +688,20 @@ if (outputToggleButton) {
 
 if (savePromptButton) {
     savePromptButton.addEventListener("click", () => {
-        if (!customPromptInput) {
+        const promptText = getEditablePromptText();
+        if (!promptText) {
             return;
         }
 
-        savedPromptText = customPromptInput.value.trim() || originalPromptText;
+        savedPromptText = promptText;
         showFeedback(customizeFeedback, "Saved");
         hintButton(copyLinkButton);
     });
 }
 
 copyLinkButton.addEventListener("click", async () => {
-    const promptText = savedPromptText || originalPromptText || (customPromptInput ? customPromptInput.value.trim() : "");
+    const promptText = getEditablePromptText();
     if (!promptText) {
-        showFeedback(customizeFeedback, "Add prompt text first");
         return;
     }
 
@@ -442,13 +714,30 @@ copyLinkButton.addEventListener("click", async () => {
     }
 });
 
+if (shareLinkButton) {
+    shareLinkButton.addEventListener("click", async () => {
+        if (!promptData) {
+            return;
+        }
+
+        const shareUrl = buildShareUrl(promptData);
+
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            showFeedback(actionFeedback, "Link copied");
+            hintButton(useChatGPTButton);
+        } catch (error) {
+            showFeedback(actionFeedback, "Copy link manually");
+        }
+    });
+}
+
 if (customPromptInput) {
     customPromptInput.addEventListener("input", () => {
         autoResizeTextarea(customPromptInput);
     });
 
-    customPromptInput.value = "";
-    autoResizeTextarea(customPromptInput);
+    resetCustomPromptState();
 }
 
 if (customizePromptTrigger) {
@@ -458,10 +747,7 @@ if (customizePromptTrigger) {
         }
 
         const promptText = promptData.prompt || "";
-        originalPromptText = promptText;
-        savedPromptText = promptText;
-        customPromptInput.value = promptText;
-        autoResizeTextarea(customPromptInput);
+        loadCustomPrompt(promptText);
 
         try {
             await navigator.clipboard.writeText(promptText);
@@ -474,12 +760,12 @@ if (customizePromptTrigger) {
 
 if (clearCustomPromptButton) {
     clearCustomPromptButton.addEventListener("click", () => {
-        if (!customPromptInput) {
+        if (!hasCustomizedPrompt) {
+            showFeedback(customizeFeedback, "Click Customize Prompt first");
             return;
         }
 
-        customPromptInput.value = "";
-        autoResizeTextarea(customPromptInput);
+        resetCustomPromptState();
         showFeedback(customizeFeedback, "Cleared");
     });
 }
@@ -500,6 +786,7 @@ detailCommentForm.addEventListener("submit", (event) => {
         handle: "@you",
         body
     });
+    persistPromptComments(promptData);
 
     detailCommentInput.value = "";
     autoResizeTextarea(detailCommentInput);
