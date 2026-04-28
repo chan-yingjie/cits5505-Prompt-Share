@@ -181,12 +181,7 @@ a {
     color: rgba(200, 190, 178, 0.75);
     font-size: 0.9rem;
     font-weight: 500;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     transition: color 0.18s ease, gap 0.18s ease;
-}
-
-.site-footer-nav a:last-child {
-    border-bottom: none;
 }
 
 .site-footer-nav a:hover {
@@ -221,15 +216,10 @@ a {
     align-items: center;
     gap: 9px;
     padding: 5px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     color: rgba(200, 190, 178, 0.65);
     font-size: 0.84rem;
     font-weight: 400;
     font-family: "Poppins", monospace;
-}
-
-.site-footer-author:last-child {
-    border-bottom: none;
 }
 
 .site-footer-author svg {
@@ -4177,7 +4167,7 @@ p {
     max-width: none;
     margin-left: 0;
     padding: 0;
-    transform: translateY(-40px);
+    transform: translateY(-24px);
 }
 
 .minimal-home-label {
