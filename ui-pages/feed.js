@@ -1,7 +1,5 @@
 const feedList = document.getElementById("feed-list");
-const promptCount = document.getElementById("prompt-count");
-const commentCount = document.getElementById("comment-count");
-const likeCount = document.getElementById("like-count");
+const feedPagination = document.getElementById("feed-pagination");
 const searchForm = document.getElementById("feed-search-form");
 const searchInput = document.getElementById("feed-search-input");
 const sortSelect = document.getElementById("feed-sort-select");
@@ -11,9 +9,11 @@ const categoryTabs = document.getElementById("category-tabs");
 const subcategoryChips = document.getElementById("subcategory-chips");
 const filterStatus = document.getElementById("filter-status");
 const pageParams = new URLSearchParams(window.location.search);
+const ITEMS_PER_PAGE = 6;
 let activeQuery = "";
 let activeCategory = "";
 let activeSubcategory = "";
+let currentPage = 1;
 const categoryLabelMap = {
     education: "Education",
     image: "Image Generation",
@@ -281,6 +281,7 @@ function getCategoryTree() {
 
 function renderCategoryFilters() {
     const categoryTree = getCategoryTree();
+    const subcategoryRow = document.getElementById("feed-subcategory-row");
 
     categoryTabs.innerHTML = [
         `<button class="category-tab ${!activeCategory ? "is-active" : ""}" type="button" data-category="">All</button>`,
@@ -293,12 +294,14 @@ function renderCategoryFilters() {
 
     if (!activeCategory) {
         subcategoryChips.innerHTML = "";
+        if (subcategoryRow) subcategoryRow.classList.remove("is-visible");
         return;
     }
 
     const selectedCategory = categoryTree.find((category) => category.slug === activeCategory);
     if (!selectedCategory) {
         subcategoryChips.innerHTML = "";
+        if (subcategoryRow) subcategoryRow.classList.remove("is-visible");
         return;
     }
 
@@ -310,6 +313,8 @@ function renderCategoryFilters() {
             </button>
         `)
     ].join("");
+
+    if (subcategoryRow) subcategoryRow.classList.add("is-visible");
 }
 
 function getSortLabel() {
@@ -346,7 +351,47 @@ function syncUrl() {
         nextUrl.searchParams.delete("subcategory");
     }
 
+    if (currentPage > 1) {
+        nextUrl.searchParams.set("page", String(currentPage));
+    } else {
+        nextUrl.searchParams.delete("page");
+    }
+
     window.history.replaceState({}, "", nextUrl);
+}
+
+function renderPagination(total) {
+    if (!feedPagination) {
+        return;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+
+    if (total === 0) {
+        feedPagination.innerHTML = "";
+        return;
+    }
+
+    const prevDisabled = currentPage === 1;
+    const nextDisabled = currentPage === totalPages;
+
+    const pageButtons = Array.from({ length: totalPages }, (_, i) => {
+        const pageNum = i + 1;
+        const isActive = pageNum === currentPage;
+        return `<button class="page-btn page-num${isActive ? " is-active" : ""}" type="button" data-page="${pageNum}" aria-label="Page ${pageNum}"${isActive ? ' aria-current="page"' : ""}>${pageNum}</button>`;
+    }).join("");
+
+    feedPagination.innerHTML = `
+        <button class="page-btn page-arrow" type="button" data-page="${currentPage - 1}"${prevDisabled ? " disabled" : ""} aria-label="Previous page">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Prev
+        </button>
+        ${pageButtons}
+        <button class="page-btn page-arrow" type="button" data-page="${currentPage + 1}"${nextDisabled ? " disabled" : ""} aria-label="Next page">
+            Next
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    `;
 }
 
 function getFilteredPrompts() {
@@ -416,18 +461,6 @@ function updateFilterStatus(count) {
 
 function renderFeed() {
     const prompts = getFilteredPrompts();
-    const allPrompts = window.promptFeedData;
-    const totalComments = allPrompts.reduce((sum, prompt) => sum + prompt.comments.length, 0);
-    const totalLikes = allPrompts.reduce((sum, prompt) => sum + prompt.likes, 0);
-    if (promptCount) {
-        promptCount.textContent = String(allPrompts.length);
-    }
-    if (commentCount) {
-        commentCount.textContent = String(totalComments);
-    }
-    if (likeCount) {
-        likeCount.textContent = String(totalLikes);
-    }
 
     renderCategoryFilters();
     updateFilterStatus(prompts.length);
@@ -439,31 +472,47 @@ function renderFeed() {
                 <p>Try fewer keywords, adjust the phrasing, or clear the filters to return to the full feed.</p>
             </div>
         `;
+        renderPagination(0);
         return;
     }
 
-    feedList.innerHTML = prompts.map(buildFeedCard).join("");
+    const totalPages = Math.ceil(prompts.length / ITEMS_PER_PAGE);
+    if (currentPage > totalPages) {
+        currentPage = totalPages;
+    }
+
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    feedList.innerHTML = prompts.slice(start, start + ITEMS_PER_PAGE).map(buildFeedCard).join("");
+    renderPagination(prompts.length);
 }
 
 searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
     activeQuery = searchInput.value.trim();
+    currentPage = 1;
     syncUrl();
     renderFeed();
+    feedList.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 clearSearchButton.addEventListener("click", () => {
     searchInput.value = "";
     activeQuery = "";
+    currentPage = 1;
     syncUrl();
     renderFeed();
 });
 
-sortSelect.addEventListener("change", renderFeed);
+sortSelect.addEventListener("change", () => {
+    currentPage = 1;
+    renderFeed();
+});
+
 if (categoryResetButton) {
     categoryResetButton.addEventListener("click", () => {
         activeCategory = "";
         activeSubcategory = "";
+        currentPage = 1;
         syncUrl();
         renderFeed();
     });
@@ -477,6 +526,7 @@ categoryTabs.addEventListener("click", (event) => {
 
     activeCategory = categoryButton.dataset.category || "";
     activeSubcategory = "";
+    currentPage = 1;
     syncUrl();
     renderFeed();
 });
@@ -488,9 +538,26 @@ subcategoryChips.addEventListener("click", (event) => {
     }
 
     activeSubcategory = subcategoryButton.dataset.subcategory || "";
+    currentPage = 1;
     syncUrl();
     renderFeed();
 });
+
+if (feedPagination) {
+    feedPagination.addEventListener("click", (event) => {
+        const btn = event.target.closest("[data-page]");
+        if (!btn || btn.disabled) {
+            return;
+        }
+        const page = parseInt(btn.dataset.page, 10);
+        if (!Number.isNaN(page)) {
+            currentPage = page;
+            syncUrl();
+            renderFeed();
+            feedList.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    });
+}
 
 const initialQuery = pageParams.get("search");
 if (initialQuery) {
@@ -506,6 +573,11 @@ if (initialCategory) {
 const initialSubcategory = pageParams.get("subcategory");
 if (initialCategory && initialSubcategory) {
     activeSubcategory = initialSubcategory;
+}
+
+const initialPage = parseInt(pageParams.get("page") || "1", 10);
+if (initialPage > 1) {
+    currentPage = initialPage;
 }
 
 renderFeed();
