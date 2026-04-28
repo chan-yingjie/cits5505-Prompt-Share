@@ -24,25 +24,121 @@
             <a class="brand" href="index.html">Prompt Share</a>
         </header>
 
-        <main class="minimal-home-hero">
-            <section class="minimal-hero-content">
-           
+        <main class="minimal-home-layout">
+            <section class="minimal-home-hero">
+                <div class="minimal-hero-visual" aria-hidden="true">
+                    <img src="images/pic3-transparent.png" alt="" class="minimal-hero-image">
+                </div>
 
-                <h1 class="minimal-home-title">
-                    Built for the prompt era.<br>
-                    <span>Reshaping AI.</span>
-                </h1>
+                <section class="minimal-hero-content">
+                    <p class="minimal-home-label">Prompt Sharing Platform</p>
+                    <h1 class="minimal-home-title">
+                        <span class="typewriter-line" id="typewriter-line-1" data-text="Built for the prompt era."></span><br>
+                        <span class="typewriter-line" id="typewriter-line-2" data-text="Reshaping AI."></span>
+                    </h1>
 
-                <p class="minimal-home-subtitle">
-                    Discover prompts, submit your own ideas, and explore a platform built
-                    for sharing, ranking, and improving AI workflows.
-                </p>
+                    <p class="minimal-home-subtitle">
+                        Discover, share, and improve prompts together.
+                    </p>
 
-          <div class="minimal-home-actions">
-    <a class="button-link primary" href="feed.html">Explore</a>
-</div>
+                    <div class="minimal-home-actions">
+                        <a class="button-link primary" href="feed.html">Explore Prompts</a>
+                        <a class="button-link secondary" href="login.html">Login</a>
+                    </div>
+                </section>
+            </section>
+
+            <section class="minimal-home-how-it-works" aria-labelledby="how-it-works-title">
+                <div class="minimal-home-section-head">
+                    <p class="eyebrow">How It Works</p>
+                    <h2 id="how-it-works-title">A simple loop for better prompts.</h2>
+                </div>
+
+                <div class="minimal-home-steps">
+                    <article class="minimal-step-card">
+                        <span class="minimal-step-number">01</span>
+                        <h3>Discover</h3>
+                        <p>Browse the Explore feed to find useful prompts, trending ideas, and patterns worth reusing.</p>
+                    </article>
+
+                    <article class="minimal-step-card">
+                        <span class="minimal-step-number">02</span>
+                        <h3>Share</h3>
+                        <p>Publish your own prompt workflows so others can learn from them, test them, and build on them.</p>
+                    </article>
+
+                    <article class="minimal-step-card">
+                        <span class="minimal-step-number">03</span>
+                        <h3>Improve</h3>
+                        <p>Iterate together through feedback, comparisons, and community insight to make each version stronger.</p>
+                    </article>
+                </div>
             </section>
         </main>
+
+        <footer class="site-footer" aria-labelledby="site-footer-title">
+            <div class="site-footer-grid">
+                <div class="site-footer-brand">
+                    <h2 id="site-footer-title">Prompt Share</h2>
+                    <p>A community space for discovering, sharing, and refining AI prompts together.</p>
+                    <p>Built for prompt discovery, collaboration, and iteration.</p>
+                    <p>Frontend prototype for the Prompt Share experience.</p>
+                </div>
+                <div class="site-footer-column">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="feed.html">Explore</a>
+                    <a href="submit-prompt.html">Submit Prompt</a>
+                    <a href="leaderboard.html">Leaderboard</a>
+                </div>
+                <div class="site-footer-column">
+                    <h3>Authors</h3>
+                    <p>24262634@student.uwa.edu.au</p>
+                    <p>24771727@student.uwa.edu.au</p>
+                    <p>23864156@student.uwa.edu.au</p>
+                </div>
+            </div>
+            <div class="site-footer-bottom">
+                <span>&copy; 2026 Prompt Share. All rights reserved.</span>
+                <span>Made for a better prompt-sharing workflow.</span>
+            </div>
+        </footer>
     </div>
+
+    <script>
+        (function () {
+            const lines = Array.from(document.querySelectorAll(".typewriter-line"));
+
+            function typeLine(element, delay) {
+                const text = element.dataset.text || "";
+                let index = 0;
+
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        element.classList.add("is-typing");
+
+                        const timer = window.setInterval(() => {
+                            element.textContent = text.slice(0, index + 1);
+                            index += 1;
+
+                            if (index >= text.length) {
+                                window.clearInterval(timer);
+                                element.classList.remove("is-typing");
+                                resolve();
+                            }
+                        }, 65);
+                    }, delay);
+                });
+            }
+
+            async function playTypewriter() {
+                for (let i = 0; i < lines.length; i += 1) {
+                    await typeLine(lines[i], i === 0 ? 250 : 120);
+                }
+            }
+
+            playTypewriter();
+        }());
+    </script>
 </body>
 </html>
