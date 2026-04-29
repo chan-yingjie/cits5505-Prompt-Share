@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="ui-pages/ui-pages.css">
 </head>
 <body class="submit-page">
@@ -20,51 +20,101 @@
                 <a href="leaderboard.html">Leaderboard</a>
                 <a href="profile.html">Profile</a>
                 <a href="login.html">Login</a>
-           
             </nav>
-            <a class="brand" href="index.html">Prompt Share</a>
+            <a class="brand" href="index.html" aria-label="Prompt Share home">
+                <span>Prompt Share</span>
+                <span class="brand-mark" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                </span>
+            </a>
         </header>
 
-        <main class="layout submit-layout">
+        <main class="layout submit-stage">
+
+            <section class="submit-hero">
+                <div class="submit-hero-text">
+                    <span class="submit-hero-eyebrow">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 1l1.5 3.5L12 6l-3.5 1.5L7 11l-1.5-3.5L2 6l3.5-1.5L7 1z" fill="currentColor"/></svg>
+                        Community Prompts
+                    </span>
+                    <h1 class="submit-hero-title">Create a&nbsp;<em>new prompt</em></h1>
+                    <p class="submit-hero-sub">Share your best prompts with the community — clear, specific, and ready to use.</p>
+                </div>
+                <img class="submit-hero-figure" src="images/pic9-transparent.png" alt="" aria-hidden="true">
+            </section>
+
+            <div class="submit-layout">
+
+            <!-- LEFT: Guide -->
             <aside class="content-block submit-side">
                 <div class="submit-side-copy">
                     <p class="eyebrow">Submission Guide</p>
                     <h2>Share a strong prompt</h2>
-                    <p class="section-copy">
-                        Clear prompts are easier to understand, reuse, and vote on.
-                        Keep your title specific and make your prompt detailed enough to guide the output.
-                    </p>
                 </div>
 
                 <div class="submit-tip-list">
-                    <article class="submit-tip-card">
-                        <h3>Write a clear title</h3>
-                        <p>Use a short title that explains the task or result users should expect.</p>
+                    <article class="submit-tip-card" data-step="0">
+                        <div class="submit-step-col">
+                            <span class="submit-tip-num">01</span>
+                            <div class="submit-step-line"></div>
+                        </div>
+                        <div class="submit-step-body">
+                            <h3>Prompt Title</h3>
+                            <p>Give it a specific, descriptive name so others know exactly what to expect.</p>
+                        </div>
                     </article>
 
-                    <article class="submit-tip-card">
-                        <h3>Choose relevant categories</h3>
-                        <p>Select up to three categories that best match your prompt topic.</p>
+                    <article class="submit-tip-card" data-step="1">
+                        <div class="submit-step-col">
+                            <span class="submit-tip-num">02</span>
+                            <div class="submit-step-line"></div>
+                        </div>
+                        <div class="submit-step-body">
+                            <h3>Categories</h3>
+                            <p>Pick 1–3 tags that match your prompt's topic and purpose.</p>
+                        </div>
                     </article>
 
-                    <article class="submit-tip-card">
-                        <h3>Make the prompt usable</h3>
-                        <p>Include enough detail so another user can copy and use it immediately.</p>
+                    <article class="submit-tip-card" data-step="2">
+                        <div class="submit-step-col">
+                            <span class="submit-tip-num">03</span>
+                            <div class="submit-step-line"></div>
+                        </div>
+                        <div class="submit-step-body">
+                            <h3>Description</h3>
+                            <p>Briefly explain what this prompt does and what output to expect.</p>
+                        </div>
+                    </article>
+
+                    <article class="submit-tip-card" data-step="3">
+                        <div class="submit-step-col">
+                            <span class="submit-tip-num">04</span>
+                            <div class="submit-step-line"></div>
+                        </div>
+                        <div class="submit-step-body">
+                            <h3>Full Prompt</h3>
+                            <p>Write clearly enough that someone can copy and use it right away.</p>
+                        </div>
+                    </article>
+
+                    <article class="submit-tip-card" data-step="4">
+                        <div class="submit-step-col">
+                            <span class="submit-tip-num">05</span>
+                            <div class="submit-step-line"></div>
+                        </div>
+                        <div class="submit-step-body">
+                            <h3>Example Output <span class="step-optional-badge">Optional</span></h3>
+                            <p>Show what a great response looks like — helps others know what to expect.</p>
+                        </div>
                     </article>
                 </div>
             </aside>
 
+            <!-- RIGHT: Form -->
             <section class="content-block submit-main">
-                <div class="submit-header">
-                    <p class="eyebrow">Submit Prompt</p>
-                    <h1>Create a new prompt</h1>
-                    <p class="section-copy">
-                        Fill in the details below to publish your prompt to the Prompt Share community.
-                    </p>
-                </div>
-
                 <form class="form-stack submit-form" id="submit-prompt-form">
-                    <div class="form-stack">
+
+                    <div class="form-stack submit-field">
                         <label class="form-label" for="prompt-title">Prompt Title</label>
                         <input
                             class="form-input"
@@ -76,76 +126,80 @@
                         >
                     </div>
 
-                    <div class="form-stack">
+                    <div class="form-stack submit-field">
                         <label class="form-label">Categories</label>
-                        <p class="submit-helper">Select up to 3 categories</p>
-
                         <div class="category-select-grid">
                             <label class="select-chip">
                                 <input type="checkbox" name="categories" value="Writing">
-                                <span>Writing</span>
+                                <span><span class="chip-icon">✍️</span>Writing</span>
                             </label>
-
                             <label class="select-chip">
                                 <input type="checkbox" name="categories" value="Education">
-                                <span>Education</span>
+                                <span><span class="chip-icon">🎓</span>Education</span>
                             </label>
-
                             <label class="select-chip">
                                 <input type="checkbox" name="categories" value="Coding">
-                                <span>Coding</span>
+                                <span><span class="chip-icon">💻</span>Coding</span>
                             </label>
-
                             <label class="select-chip">
                                 <input type="checkbox" name="categories" value="Image Generation">
-                                <span>Image Generation</span>
+                                <span><span class="chip-icon">🎨</span>Image Generation</span>
                             </label>
-
                             <label class="select-chip">
                                 <input type="checkbox" name="categories" value="Video Generation">
-                                <span>Video Generation</span>
+                                <span><span class="chip-icon">🎬</span>Video Generation</span>
                             </label>
-
                             <label class="select-chip">
                                 <input type="checkbox" name="categories" value="Marketing">
-                                <span>Marketing</span>
+                                <span><span class="chip-icon">📣</span>Marketing</span>
                             </label>
-
                             <label class="select-chip">
                                 <input type="checkbox" name="categories" value="Productivity">
-                                <span>Productivity</span>
+                                <span><span class="chip-icon">⚡</span>Productivity</span>
                             </label>
-
                             <label class="select-chip">
                                 <input type="checkbox" name="categories" value="Artificial Intelligence">
-                                <span>Artificial Intelligence</span>
+                                <span><span class="chip-icon">🤖</span>Artificial Intelligence</span>
                             </label>
                         </div>
-
                         <p class="submit-status-note" id="category-status">0 of 3 selected</p>
                     </div>
 
-                    <div class="form-stack">
+                    <div class="form-stack submit-field">
                         <label class="form-label" for="prompt-description">Description</label>
                         <textarea
                             class="form-input form-area"
                             id="prompt-description"
                             name="prompt-description"
                             rows="4"
-                            placeholder="Provide a short description of what the prompt does and what kind of result users can expect."
+                            placeholder="What does this prompt help users do? What kind of output does it produce?"
                             required
                         ></textarea>
                     </div>
 
-                    <div class="form-stack">
+                    <div class="form-stack submit-field">
                         <label class="form-label" for="prompt-body">Prompt</label>
                         <textarea
                             class="form-input form-area submit-prompt-area"
                             id="prompt-body"
                             name="prompt-body"
                             rows="8"
-                            placeholder="Write the full prompt here..."
+                            placeholder="Write the full prompt here…"
                             required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-stack submit-field">
+                        <div class="output-field-header">
+                            <label class="form-label" for="prompt-output">Example Output <span class="form-optional-badge">Optional</span></label>
+                            <button class="skip-step-btn" type="button" id="skip-output-btn">Skip this step</button>
+                        </div>
+                        <textarea
+                            class="form-input form-area"
+                            id="prompt-output"
+                            name="prompt-output"
+                            rows="5"
+                            placeholder="Paste or write an example of the output this prompt produces…"
                         ></textarea>
                     </div>
 
@@ -157,9 +211,65 @@
                     <p class="status-note" id="submit-status" aria-live="polite"></p>
                 </form>
             </section>
+
+            </div><!-- end .submit-layout -->
         </main>
 
         <footer class="site-footer" data-shared-footer aria-labelledby="site-footer-title"></footer>
+    </div>
+
+    <!-- Celebration overlay -->
+    <div class="cel-overlay" id="cel-overlay" aria-hidden="true">
+        <div class="cel-modal">
+            <div class="cel-confetti" id="cel-confetti"></div>
+
+            <div class="cel-stage">
+                <!-- Person left -->
+                <div class="cel-person cel-person-l">
+                    <svg width="80" height="120" viewBox="0 0 80 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="40" cy="16" r="13" fill="#f5a623" stroke="#c96b31" stroke-width="2"/>
+                        <circle cx="35" cy="14" r="2.2" fill="#2c1a0e"/>
+                        <circle cx="45" cy="14" r="2.2" fill="#2c1a0e"/>
+                        <path d="M34 21 Q40 26.5 46 21" stroke="#2c1a0e" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                        <line x1="40" y1="29" x2="40" y2="72" stroke="#2c1a0e" stroke-width="5" stroke-linecap="round"/>
+                        <line x1="40" y1="44" x2="72" y2="12" stroke="#2c1a0e" stroke-width="4.5" stroke-linecap="round"/>
+                        <line x1="40" y1="44" x2="12" y2="62" stroke="#2c1a0e" stroke-width="4.5" stroke-linecap="round"/>
+                        <line x1="40" y1="72" x2="24" y2="112" stroke="#2c1a0e" stroke-width="4.5" stroke-linecap="round"/>
+                        <line x1="40" y1="72" x2="56" y2="112" stroke="#2c1a0e" stroke-width="4.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+
+                <!-- Clap burst -->
+                <div class="cel-clap" id="cel-clap">
+                    <span class="cel-clap-star">★</span>
+                    <span class="cel-clap-ring"></span>
+                </div>
+
+                <!-- Person right (mirrored) -->
+                <div class="cel-person cel-person-r">
+                    <svg width="80" height="120" viewBox="0 0 80 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform:scaleX(-1)">
+                        <circle cx="40" cy="16" r="13" fill="#f5a623" stroke="#c96b31" stroke-width="2"/>
+                        <circle cx="35" cy="14" r="2.2" fill="#2c1a0e"/>
+                        <circle cx="45" cy="14" r="2.2" fill="#2c1a0e"/>
+                        <path d="M34 21 Q40 26.5 46 21" stroke="#2c1a0e" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                        <line x1="40" y1="29" x2="40" y2="72" stroke="#2c1a0e" stroke-width="5" stroke-linecap="round"/>
+                        <line x1="40" y1="44" x2="72" y2="12" stroke="#2c1a0e" stroke-width="4.5" stroke-linecap="round"/>
+                        <line x1="40" y1="44" x2="12" y2="62" stroke="#2c1a0e" stroke-width="4.5" stroke-linecap="round"/>
+                        <line x1="40" y1="72" x2="24" y2="112" stroke="#2c1a0e" stroke-width="4.5" stroke-linecap="round"/>
+                        <line x1="40" y1="72" x2="56" y2="112" stroke="#2c1a0e" stroke-width="4.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="cel-message">
+                <p class="cel-title">Prompt Published!</p>
+                <p class="cel-sub">Your prompt is now live on the community feed.</p>
+                <div class="cel-actions">
+                    <a href="feed.html" class="button-link primary">View in Feed</a>
+                    <button class="button-link secondary" id="cel-close">Submit Another</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

@@ -446,7 +446,11 @@ function renderOutputPreview(prompt) {
         return;
     }
 
-    const preview = prompt.outputPreview || "No preview available for this prompt.";
+    const isUserSubmitted = typeof prompt.id === "string" && prompt.id.startsWith("user-");
+    const fallback = isUserSubmitted
+        ? "The author hasn't provided an example output for this prompt."
+        : "No preview available for this prompt.";
+    const preview = prompt.outputPreview || fallback;
     outputPreviewEl.innerHTML = `<p class="output-paragraph">${escapeHtml(preview)}</p>`;
 }
 
