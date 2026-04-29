@@ -1,10 +1,49 @@
 const toggle = document.getElementById("toggle");
-const password = document.getElementById("password");
+const passwordToggles = document.querySelectorAll(".password-toggle");
+document.querySelectorAll(".password-input").forEach((wrapper) => {
+  const input = wrapper.querySelector("input");
+  const toggle = wrapper.querySelector(".password-toggle");
+  const eye = wrapper.querySelector(".icon-eye");
+  const eyeOff = wrapper.querySelector(".icon-eye-off");
 
-if (toggle && password) {
-  toggle.addEventListener("click", function () {
-    const isPassword = password.type === "password";
-    password.type = isPassword ? "text" : "password";
-    toggle.textContent = isPassword ? "Hide" : "Show";
+  toggle.addEventListener("click", () => {
+    const isHidden = input.type === "password";
+
+    input.type = isHidden ? "text" : "password";
+
+    eye.style.display = isHidden ? "block" : "none";
+    eyeOff.style.display = isHidden ? "none" : "block";
+  });
+});
+const forgotBtn = document.getElementById("forgot-password-btn");
+const resetModal = document.getElementById("reset-modal");
+const closeResetModal = document.getElementById("close-reset-modal");
+const sendCodeBtn = document.getElementById("send-code-btn");
+const resetEmail = document.getElementById("reset-email");
+const resetStatus = document.getElementById("reset-status");
+
+if (forgotBtn && resetModal) {
+  forgotBtn.addEventListener("click", function () {
+    resetModal.classList.add("show");
+    resetStatus.textContent = "";
+  });
+}
+
+if (closeResetModal && resetModal) {
+  closeResetModal.addEventListener("click", function () {
+    resetModal.classList.remove("show");
+  });
+}
+
+if (sendCodeBtn) {
+  sendCodeBtn.addEventListener("click", function () {
+    const email = resetEmail.value.trim();
+
+    if (!email) {
+      resetStatus.textContent = "Please enter your email address.";
+      return;
+    }
+
+    resetStatus.textContent = "Verification code sent to your email.";
   });
 }

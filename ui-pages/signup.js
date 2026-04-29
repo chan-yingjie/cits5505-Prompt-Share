@@ -12,10 +12,18 @@ passwordToggles.forEach(function (button) {
       return;
     }
 
-    input.type = input.type === "password" ? "text" : "password";
+    const eyeIcon = button.querySelector(".icon-eye");
+    const eyeOffIcon = button.querySelector(".icon-eye-off");
+
+    const isHidden = input.type === "password";
+    input.type = isHidden ? "text" : "password";
+
+    if (eyeIcon && eyeOffIcon) {
+      eyeIcon.style.display = isHidden ? "block" : "none";
+      eyeOffIcon.style.display = isHidden ? "none" : "block";
+    }
   });
 });
-
 interestInputs.forEach(function (input) {
   input.addEventListener("change", function () {
     const allOption = document.querySelector('input[name="interests"][value="All"]');
@@ -44,7 +52,7 @@ interestInputs.forEach(function (input) {
       signupStatus.textContent = "You can select up to 3 interests only.";
       return;
     }
-
+    
     signupStatus.textContent = "";
   });
 });
