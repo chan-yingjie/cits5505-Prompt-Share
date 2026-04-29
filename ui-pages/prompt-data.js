@@ -639,5 +639,113 @@ window.promptFeedData = [
         favorited: false,
         votes: 7,
         comments: []
+    },
+    {
+        id: "demo-writing-coach",
+        title: "Personal writing coach for academic essays",
+        category: "Writing",
+        categorySlug: "writing",
+        subcategory: "Academic",
+        subcategorySlug: "academic",
+        author: "demo_user",
+        authorHandle: "@demo_user",
+        authorBio: "Share great prompts and help the community learn together.",
+        authorLink: "../profile.html?user=demo_user",
+        submittedAt: "2026-04-13T10:00:00+08:00",
+        keywords: ["writing", "academic", "essay", "feedback"],
+        prompt: "Act as a writing coach reviewing an academic essay draft. Identify three structural issues, two argument clarity problems, and one place where the evidence does not connect to the claim. For each issue, explain why it weakens the essay and suggest a specific revision. End with a one-sentence note on the essay's strongest point to keep the feedback constructive.",
+        outputPreview: "The coach pinpoints six specific issues with revision suggestions and closes with a positive observation.",
+        outputFull: [
+            "Structural issue 1: Your introduction delays the thesis to the third paragraph, reducing clarity early on.",
+            "Structural issue 2: Paragraph four shifts topic mid-way without a transition, breaking the logical flow.",
+            "Structural issue 3: The conclusion introduces a new idea rather than synthesising existing arguments.",
+            "Clarity issue 1: Paragraph two's central claim is buried in a long sentence — isolate it at the start.",
+            "Clarity issue 2: 'Impact on society' in paragraph five is too broad — specify which group and which effect.",
+            "Evidence gap: The statistic in paragraph three supports a different time period than your argument claims.",
+            "Strongest point: Your historical comparison in paragraph six is precise, well-sourced, and persuasive."
+        ],
+        likes: 31,
+        viewCount: 142,
+        copyCount: 19,
+        shareCount: 6,
+        favorites: 8,
+        liked: false,
+        favorited: false,
+        votes: 12,
+        comments: [
+            { author: "chinmaiii", handle: "@chinmaiii", body: "The six-part structure is very systematic. Works well for giving structured feedback without overwhelming students." },
+            { author: "chan-yingjie", handle: "@chan-yingjie", body: "Ending on a positive is a smart touch. Makes the feedback feel balanced and actionable." }
+        ]
+    },
+    {
+        id: "demo-code-reviewer",
+        title: "Code review checklist for pull requests",
+        category: "Coding",
+        categorySlug: "coding",
+        subcategory: "Code Review",
+        subcategorySlug: "code-review",
+        author: "demo_user",
+        authorHandle: "@demo_user",
+        authorBio: "Share great prompts and help the community learn together.",
+        authorLink: "../profile.html?user=demo_user",
+        submittedAt: "2026-04-20T14:30:00+08:00",
+        keywords: ["code review", "pull request", "development", "best practices"],
+        prompt: "Review this code change as an experienced engineer. Check for: logic errors, edge cases not handled, naming that obscures intent, missing or redundant comments, and security concerns. For each issue found, give the file location, a one-sentence explanation of the problem, and a suggested fix. If no issues exist in a category, say 'None found' rather than skipping it. End with an overall recommendation: Approve, Approve with suggestions, or Request changes.",
+        outputPreview: "A structured code review covering five categories with location-specific feedback and a final recommendation.",
+        outputFull: [
+            "Logic errors: Line 42 — the loop condition uses <= instead of <, causing an off-by-one error. Change to strict less-than.",
+            "Edge cases: Line 67 — the function does not handle null input. Add a null check at the top.",
+            "Naming: Line 89 — 'temp' does not describe what the variable holds. Rename to 'filteredResults'.",
+            "Comments: None found.",
+            "Security: Line 103 — user input is interpolated directly into the query string. Use parameterised queries instead.",
+            "Recommendation: Request changes — two of the five issues affect correctness or security."
+        ],
+        likes: 56,
+        viewCount: 271,
+        copyCount: 38,
+        shareCount: 14,
+        favorites: 21,
+        liked: false,
+        favorited: true,
+        votes: 28,
+        comments: [
+            { author: "kai.dev", handle: "@kai.dev", body: "The 'None found' instruction prevents the model from hallucinating issues in clean categories. Nice detail." },
+            { author: "Armin312", handle: "@Armin312", body: "I added this to my team's PR template. The five-category structure maps well to our review criteria." },
+            { author: "mia.codes", handle: "@mia.codes", body: "The final recommendation tier is the most useful part — it forces a clear verdict rather than vague feedback." }
+        ]
+    },
+    {
+        id: "demo-meeting-notes",
+        title: "Turn raw meeting notes into a structured summary",
+        category: "Productivity",
+        categorySlug: "productivity",
+        subcategory: "Meetings",
+        subcategorySlug: "meetings",
+        author: "demo_user",
+        authorHandle: "@demo_user",
+        authorBio: "Share great prompts and help the community learn together.",
+        authorLink: "../profile.html?user=demo_user",
+        submittedAt: "2026-04-23T09:00:00+08:00",
+        keywords: ["meeting", "notes", "summary", "productivity", "action items"],
+        prompt: "Convert these raw meeting notes into a structured summary. Format it as: one sentence context (who, what, when), three to five key decisions made, a numbered action items list with owner and deadline where mentioned, and any open questions still unresolved. Keep the language neutral and factual. If the notes are unclear on ownership or deadline, note it as 'TBD' rather than guessing. The output should be paste-ready for a team channel or project tracker.",
+        outputPreview: "Raw notes become a clean summary with decisions, action items, and open questions — ready to share.",
+        outputFull: [
+            "Context: Design sync on April 23, attended by product, design, and engineering to align on the Q2 onboarding flow.",
+            "Key decisions: 1. Mobile-first layout adopted for onboarding screens. 2. Copy review deadline extended to May 2. 3. Analytics tracking deferred to Phase 2.",
+            "Action items: 1. Design to deliver wireframes by April 28 (owner: Sam). 2. Engineering to review API constraints by April 30 (owner: TBD). 3. PM to update roadmap doc by April 25 (owner: Priya).",
+            "Open questions: Which analytics provider will be used in Phase 2? Has legal approved the new consent copy?"
+        ],
+        likes: 23,
+        viewCount: 108,
+        copyCount: 15,
+        shareCount: 5,
+        favorites: 6,
+        liked: true,
+        favorited: false,
+        votes: 9,
+        comments: [
+            { author: "ivy.ops", handle: "@ivy.ops", body: "The TBD instruction stops the model from fabricating owners and deadlines. I use this every week now." },
+            { author: "chinmaiii", handle: "@chinmaiii", body: "Paste-ready output is exactly what teams need. No reformatting before sending to Slack." }
+        ]
     }
 ];
