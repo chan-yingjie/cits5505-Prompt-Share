@@ -41,11 +41,6 @@
                             </div>
                             <div class="detail-header-tools">
                                 <p class="detail-submitted meta-time" id="detail-submitted-at">Submitted time</p>
-                                <button class="detail-menu-button" type="button" aria-label="More actions">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                </button>
                             </div>
                         </div>
                         <h1 id="detail-title">Prompt title</h1>
@@ -136,6 +131,26 @@
     </div>
 
     <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">Top</button>
+
+    <div class="modal-overlay detail-confirm-overlay" id="delete-comment-modal" aria-hidden="true">
+        <div class="reset-modal detail-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="delete-comment-modal-title" aria-describedby="delete-comment-modal-description">
+            <button type="button" class="modal-close detail-confirm-close" id="close-delete-comment-modal" aria-label="Close delete confirmation">×</button>
+            <div class="detail-confirm-icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" fill="none" focusable="false">
+                    <path d="M5.8 6.4h8.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                    <path d="M7.2 6.4V5.5a1.3 1.3 0 0 1 1.3-1.3h3a1.3 1.3 0 0 1 1.3 1.3v.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M7 8.2v6.1a1.4 1.4 0 0 0 1.4 1.4h3.2a1.4 1.4 0 0 0 1.4-1.4V8.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M8.9 9.6v4.1M11.1 9.6v4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                </svg>
+            </div>
+            <h2 id="delete-comment-modal-title">Delete this comment?</h2>
+            <p id="delete-comment-modal-description">This action cannot be undone.</p>
+            <div class="detail-confirm-actions">
+                <button class="button-submit btn-secondary" type="button" id="cancel-delete-comment-button">Cancel</button>
+                <button class="button-submit btn-primary detail-confirm-delete-button" type="button" id="confirm-delete-comment-button">Delete</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
