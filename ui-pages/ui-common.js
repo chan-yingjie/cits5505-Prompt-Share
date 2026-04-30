@@ -137,3 +137,49 @@ document.addEventListener("click", (event) => {
 
     closeAuthorPopovers();
 });
+
+document.querySelectorAll(".topbar").forEach((topbar) => {
+    const toggle = topbar.querySelector(".nav-toggle");
+    const nav = topbar.querySelector(".topnav");
+
+    if (!toggle || !nav) {
+        return;
+    }
+
+    function closeNav() {
+        topbar.classList.remove("is-nav-open");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.setAttribute("aria-label", "Open navigation menu");
+    }
+
+    function openNav() {
+        topbar.classList.add("is-nav-open");
+        toggle.setAttribute("aria-expanded", "true");
+        toggle.setAttribute("aria-label", "Close navigation menu");
+    }
+
+    toggle.addEventListener("click", () => {
+        if (topbar.classList.contains("is-nav-open")) {
+            closeNav();
+            return;
+        }
+
+        openNav();
+    });
+
+    nav.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", closeNav);
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!topbar.contains(event.target)) {
+            closeNav();
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 860) {
+            closeNav();
+        }
+    });
+});
