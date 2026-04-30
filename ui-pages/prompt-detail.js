@@ -110,6 +110,10 @@ const actionFeedback = document.getElementById("action-feedback");
 const customPromptInput = document.getElementById("custom-prompt-input");
 const detailCommentForm = document.getElementById("detail-comment-form");
 const detailCommentInput = document.getElementById("detail-comment-input");
+const deleteCommentModal = document.getElementById("delete-comment-modal");
+const closeDeleteCommentModalButton = document.getElementById("close-delete-comment-modal");
+const cancelDeleteCommentButton = document.getElementById("cancel-delete-comment-button");
+const confirmDeleteCommentButton = document.getElementById("confirm-delete-comment-button");
 let commentsExpanded = false;
 let outputExpanded = false;
 let hasRecordedView = false;
@@ -120,6 +124,8 @@ let originalPromptText = "";
 let savedPromptText = "";
 let hasCustomizedPrompt = false;
 let editingCommentIndex = null;
+let pendingDeleteCommentIndex = null;
+let lastDeleteTrigger = null;
 
 const customActionButtons = [
     savePromptButton,
@@ -167,6 +173,60 @@ function showFeedback(element, message) {
             }
         }, 300);
     }, 2000);
+}
+
+function openDeleteCommentModal(commentIndex, trigger) {
+    if (!deleteCommentModal || Number.isNaN(commentIndex)) {
+        return;
+    }
+
+    pendingDeleteCommentIndex = commentIndex;
+    lastDeleteTrigger = trigger || null;
+    deleteCommentModal.classList.add("show");
+    deleteCommentModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+
+    if (confirmDeleteCommentButton) {
+        confirmDeleteCommentButton.focus();
+    }
+}
+
+function closeDeleteCommentModal(options = {}) {
+    const { restoreFocus = true } = options;
+
+    if (!deleteCommentModal) {
+        return;
+    }
+
+    deleteCommentModal.classList.remove("show");
+    deleteCommentModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+    pendingDeleteCommentIndex = null;
+
+    if (restoreFocus && lastDeleteTrigger) {
+        lastDeleteTrigger.focus();
+    }
+
+    lastDeleteTrigger = null;
+}
+
+function confirmDeleteComment() {
+    if (!promptData || pendingDeleteCommentIndex === null) {
+        closeDeleteCommentModal({ restoreFocus: false });
+        return;
+    }
+
+    promptData.comments.splice(pendingDeleteCommentIndex, 1);
+    persistPromptComments(promptData);
+    if (editingCommentIndex === pendingDeleteCommentIndex) {
+        editingCommentIndex = null;
+    } else if (editingCommentIndex !== null && pendingDeleteCommentIndex < editingCommentIndex) {
+        editingCommentIndex -= 1;
+    }
+
+    closeDeleteCommentModal({ restoreFocus: false });
+    renderDetail(promptData);
+    showFeedback(actionFeedback, "Comment deleted");
 }
 
 function hintButton(button) {
@@ -406,29 +466,48 @@ function renderComments(comments) {
     }
 
     commentListEl.innerHTML = comments.map((comment, index) => `
-        <article class="comment-card">
+        <article class="comment-card ${editingCommentIndex === index ? "is-editing" : ""}">
             <div class="comment-meta">
                 <div class="comment-meta-main">
                     <span class="comment-author">${comment.author}</span>
                     <span class="meta-pill">${comment.handle}</span>
+                    ${editingCommentIndex === index ? '<span class="comment-editing-pill">Editing</span>' : ""}
                 </div>
                 <div class="comment-card-actions">
                     ${editingCommentIndex === index ? `
-                        <button class="comment-action-button comment-action-button-primary" type="button" data-save-comment="${index}">Save</button>
-                        <button class="comment-action-button" type="button" data-cancel-edit-comment="${index}">Cancel</button>
+                        <button class="comment-action-button comment-action-button-primary comment-edit-save-button" type="button" data-save-comment="${index}">
+                            <span class="comment-action-label">Save</span>
+                        </button>
+                        <button class="comment-action-button comment-edit-cancel-button" type="button" data-cancel-edit-comment="${index}">
+                            <span class="comment-action-label">Cancel</span>
+                        </button>
                     ` : `
-                        <button class="comment-action-button" type="button" data-edit-comment="${index}">Edit</button>
-                        <button class="comment-action-button comment-action-button-danger" type="button" data-delete-comment="${index}">Delete</button>
+                        <button class="comment-action-button" type="button" data-edit-comment="${index}">
+                            <span class="comment-action-label">Edit</span>
+                        </button>
+                        <button class="comment-action-button comment-action-button-danger" type="button" data-delete-comment="${index}">
+                            <span class="comment-action-label">Delete</span>
+                        </button>
                     `}
                 </div>
             </div>
             ${editingCommentIndex === index ? `
-                <textarea class="form-input form-area comment-edit-input" data-edit-comment-input="${index}" rows="3">${escapeHtml(comment.body)}</textarea>
+                <textarea class="form-input form-area comment-edit-input" data-edit-comment-input="${index}" rows="3" aria-label="Edit comment"></textarea>
             ` : `
                 <p class="comment-body">${escapeHtml(comment.body)}</p>
             `}
         </article>
     `).join("");
+
+    commentListEl.querySelectorAll("[data-edit-comment-input]").forEach((input) => {
+        const commentIndex = Number(input.getAttribute("data-edit-comment-input"));
+        if (Number.isNaN(commentIndex) || !comments[commentIndex]) {
+            return;
+        }
+
+        input.value = comments[commentIndex].body;
+        autoResizeTextarea(input);
+    });
 }
 
 function renderOutput(lines) {
@@ -611,21 +690,35 @@ document.addEventListener("click", (event) => {
     if (deleteButton && promptData) {
         const commentIndex = Number(deleteButton.dataset.deleteComment);
         if (!Number.isNaN(commentIndex)) {
-            const confirmed = window.confirm("Delete this comment?");
-            if (!confirmed) {
-                return;
-            }
-            promptData.comments.splice(commentIndex, 1);
-            persistPromptComments(promptData);
-            if (editingCommentIndex === commentIndex) {
-                editingCommentIndex = null;
-            } else if (editingCommentIndex !== null && commentIndex < editingCommentIndex) {
-                editingCommentIndex -= 1;
-            }
-            renderDetail(promptData);
-            showFeedback(actionFeedback, "Comment deleted");
+            openDeleteCommentModal(commentIndex, deleteButton);
         }
         return;
+    }
+});
+
+if (closeDeleteCommentModalButton) {
+    closeDeleteCommentModalButton.addEventListener("click", closeDeleteCommentModal);
+}
+
+if (cancelDeleteCommentButton) {
+    cancelDeleteCommentButton.addEventListener("click", closeDeleteCommentModal);
+}
+
+if (confirmDeleteCommentButton) {
+    confirmDeleteCommentButton.addEventListener("click", confirmDeleteComment);
+}
+
+if (deleteCommentModal) {
+    deleteCommentModal.addEventListener("click", (event) => {
+        if (event.target === deleteCommentModal) {
+            closeDeleteCommentModal();
+        }
+    });
+}
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && deleteCommentModal && deleteCommentModal.classList.contains("show")) {
+        closeDeleteCommentModal();
     }
 });
 
