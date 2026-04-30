@@ -7462,7 +7462,7 @@ body.profile-page .page-shell {
     border: 1px solid #dedfe4;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 background: #fff;
 }
 .auth-input:focus-within {
@@ -7497,12 +7497,13 @@ background: #fff;
     box-shadow: none;  
 }
 .auth-input input {
-  width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  font: inherit;
-  font-weight: 600;
+
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
 }
 .password-input {
   position: relative;
@@ -7512,14 +7513,17 @@ background: #fff;
   background: rgba(199, 106, 43, 0.08);
 }
 .password-input input {
-  padding-left: 44px;
+  padding-left: 28px;
   padding-right: 44px; /* space for eye icon */
 }
 .password-input .password-toggle {
   position: absolute;
-  right: 14px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
+}
+.input-icon {
+  left: 14px;  /* adjust if needed */
 }
 .password-toggle:focus {
   outline: 2px solid rgba(199, 106, 43, 0.35);
@@ -7763,7 +7767,7 @@ background: #fff;
 }
 
 .login-page .password-input input {
-  padding-left: 34px;
+  padding-left: 8px;
 }
 
 .login-page .forgot-link {
@@ -7820,7 +7824,7 @@ background: #fff;
 }
 
 .signup-page .password-input input {
-  padding-left: 35px;
+  padding-left: 8px;
 }
 
 .signup-page .auth-field label {
