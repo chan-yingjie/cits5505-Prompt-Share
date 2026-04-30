@@ -7606,6 +7606,146 @@ background: #fff;
 .signup-page .auth-copy {
   margin-top: 0 !important;
 }
+
+.login-page .auth-layout {
+  grid-template-columns: 1fr 540px;
+  gap: 56px;
+}
+
+.login-page .auth-card {
+  max-width: 540px;
+  padding: 44px 40px;
+  border-radius: 24px;
+  justify-self: center;
+  margin-top: 108px;
+  transform: translateX(-130px);
+}
+
+.login-page .auth-card h2 {
+  font-size: 36px;
+}
+
+.login-page .auth-switch {
+  margin-bottom: 28px;
+}
+
+.login-page .auth-card form {
+  gap: 20px;
+}
+
+.login-page .auth-input,
+.login-page .auth-main-btn {
+  min-height: 56px;
+}
+
+.login-page .password-input input {
+  padding-left: 34px;
+}
+
+.login-page .forgot-link {
+  margin: -4px 0 8px;
+}
+
+.login-page .auth-terms {
+  max-width: 100%;
+  font-size: 12px;
+}
+
+.signup-page .auth-layout {
+  grid-template-columns: 1fr 540px;
+  gap: 56px;
+}
+
+.signup-page .auth-left {
+  padding-top: 80px;
+}
+
+.signup-page .auth-card {
+  max-width: 540px;
+  padding: 34px 30px;
+  border-radius: 24px;
+  justify-self: center;
+  margin-top: 84px;
+  transform: translateX(-72px);
+}
+
+.signup-page .auth-card h2 {
+  font-size: 34px;
+}
+
+.signup-page .auth-switch {
+  margin-bottom: 20px;
+}
+
+.signup-page .auth-card form {
+  gap: 14px;
+}
+
+.signup-page .auth-row {
+  column-gap: 14px;
+  row-gap: 14px;
+}
+
+.signup-page .auth-input,
+.signup-page .auth-main-btn {
+  min-height: 48px;
+}
+
+.signup-page .auth-input {
+  gap: 7px;
+}
+
+.signup-page .password-input input {
+  padding-left: 35px;
+}
+
+.signup-page .auth-field label {
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.signup-page .auth-section-title {
+  margin: 4px 0 8px;
+  font-size: 12px;
+}
+
+.signup-page .interest-pills {
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.signup-page .interest-pills span {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 12px;
+}
+
+.signup-page .auth-terms {
+  max-width: 100%;
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  .login-page .auth-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .login-page .auth-card {
+    max-width: 100%;
+  }
+
+  .signup-page .auth-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 44px;
+  }
+
+  .signup-page .auth-card {
+    max-width: 100%;
+  }
+}
+
 .auth-badge {
   margin-bottom: 16px;
 }
