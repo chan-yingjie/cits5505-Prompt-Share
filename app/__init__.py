@@ -19,7 +19,7 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     csrf.init_app(app)
 
-    login_manager.login_view = "main.index"
+    login_manager.login_view = "main.login"
 
     app.register_blueprint(main_bp)
 

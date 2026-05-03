@@ -35,6 +35,13 @@
         </header>
 
         <main class="layout submit-stage">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="page-flash {{ 'is-error' if messages[-1][0] == 'error' else 'is-success' }}">
+                {{ messages[-1][1] }}
+            </div>
+            {% endif %}
+            {% endwith %}
 
             <section class="submit-hero">
                 <div class="submit-hero-text">
@@ -117,7 +124,8 @@
 
             <!-- RIGHT: Form -->
             <section class="content-block submit-main">
-                <form class="form-stack submit-form" id="submit-prompt-form">
+                <form class="form-stack submit-form" id="submit-prompt-form" method="post" action="{{ url_for('main.submit_prompt') }}" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                     <div class="form-stack submit-field">
                         <label class="form-label" for="prompt-title">Prompt Title</label>
@@ -127,43 +135,44 @@
                             name="prompt-title"
                             type="text"
                             placeholder="e.g. Generate revision questions from lecture notes"
+                            value="{{ form_data.title if form_data else '' }}"
                             required
                         >
                     </div>
 
-                    <div class="form-stack submit-field">
+                    <div class="form-stack submit-field" id="submit-category-field">
                         <label class="form-label">Categories</label>
                         <div class="category-select-grid">
                             <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Writing">
+                                <input type="checkbox" name="categories" value="Writing" {% if form_data and 'Writing' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">✍️</span>Writing</span>
                             </label>
                             <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Education">
+                                <input type="checkbox" name="categories" value="Education" {% if form_data and 'Education' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">🎓</span>Education</span>
                             </label>
                             <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Coding">
+                                <input type="checkbox" name="categories" value="Coding" {% if form_data and 'Coding' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">💻</span>Coding</span>
                             </label>
                             <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Image Generation">
+                                <input type="checkbox" name="categories" value="Image Generation" {% if form_data and 'Image Generation' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">🎨</span>Image Generation</span>
                             </label>
                             <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Video Generation">
+                                <input type="checkbox" name="categories" value="Video Generation" {% if form_data and 'Video Generation' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">🎬</span>Video Generation</span>
                             </label>
                             <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Marketing">
+                                <input type="checkbox" name="categories" value="Marketing" {% if form_data and 'Marketing' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">📣</span>Marketing</span>
                             </label>
                             <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Productivity">
+                                <input type="checkbox" name="categories" value="Productivity" {% if form_data and 'Productivity' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">⚡</span>Productivity</span>
                             </label>
                             <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Artificial Intelligence">
+                                <input type="checkbox" name="categories" value="Artificial Intelligence" {% if form_data and 'Artificial Intelligence' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">🤖</span>Artificial Intelligence</span>
                             </label>
                         </div>
@@ -179,7 +188,7 @@
                             rows="4"
                             placeholder="What does this prompt help users do? What kind of output does it produce?"
                             required
-                        ></textarea>
+                        >{{ form_data.description if form_data else '' }}</textarea>
                     </div>
 
                     <div class="form-stack submit-field">
@@ -191,7 +200,7 @@
                             rows="8"
                             placeholder="Write the full prompt here…"
                             required
-                        ></textarea>
+                        >{{ form_data.body if form_data else '' }}</textarea>
                     </div>
 
                     <div class="form-stack submit-field">
@@ -205,7 +214,7 @@
                             name="prompt-output"
                             rows="5"
                             placeholder="Paste or write an example of the output this prompt produces…"
-                        ></textarea>
+                        >{{ form_data.output_preview if form_data else '' }}</textarea>
                     </div>
 
                     <div class="submit-actions">

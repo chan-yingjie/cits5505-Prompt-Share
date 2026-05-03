@@ -17,8 +17,11 @@ class User(UserMixin, db.Model):
 class Prompt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    category = db.Column(db.String(80), nullable=False)
+    subcategory = db.Column(db.String(80), nullable=True)
     description = db.Column(db.Text, nullable=False)
     body = db.Column(db.Text, nullable=False)
+    output_preview = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 

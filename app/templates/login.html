@@ -16,11 +16,10 @@
   <nav class="topnav" aria-label="Primary navigation">
     <a href="index.html">Home</a>
     <a href="feed.html">Feed</a>
-    <a href="leaderboard.html">Leaderboard</a>
     <a href="submit-prompt.html">Submit Prompt</a>
+    <a href="leaderboard.html">Leaderboard</a>
     <a href="profile.html">Profile</a>
     <a class="active" href="login.html">Login</a>
-<a href="signup.html">Sign Up</a>
   </nav>
   <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
     <span></span>
@@ -96,6 +95,7 @@
 
       <form id="login-form" method="post" action="{{ url_for('main.login') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ form_data.next if form_data else '' }}">
 
         <div class="auth-field">
           <label>Email address</label>

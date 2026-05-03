@@ -1,9 +1,9 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .extensions import db
-from .models import User
+from .models import Prompt, User
 
 
 main_bp = Blueprint("main", __name__)
@@ -35,13 +35,16 @@ def login():
 
     form_data = {
         "email": "",
+        "next": request.args.get("next", ""),
     }
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
+        next_page = request.form.get("next", "").strip()
 
         form_data["email"] = email
+        form_data["next"] = next_page
 
         if not email or not password:
             flash("Please enter both email and password.", "error")
@@ -53,6 +56,8 @@ def login():
             else:
                 login_user(user)
                 flash("Logged in successfully.", "success")
+                if next_page.startswith("/"):
+                    return redirect(next_page)
                 return redirect(url_for("main.profile", user=user.username))
 
     return render_template("login.html", form_data=form_data)
@@ -121,10 +126,55 @@ def prompt_detail():
     return render_template("prompt-detail.html")
 
 
-@main_bp.route("/submit-prompt")
-@main_bp.route("/submit-prompt.html")
+@main_bp.route("/submit-prompt", methods=["GET", "POST"])
+@main_bp.route("/submit-prompt.html", methods=["GET", "POST"])
+@login_required
 def submit_prompt():
-    return render_template("submit-prompt.html")
+    form_data = {
+        "title": "",
+        "categories": [],
+        "description": "",
+        "body": "",
+        "output_preview": "",
+    }
+
+    if request.method == "POST":
+        title = request.form.get("prompt-title", "").strip()
+        categories = request.form.getlist("categories")
+        description = request.form.get("prompt-description", "").strip()
+        body = request.form.get("prompt-body", "").strip()
+        output_preview = request.form.get("prompt-output", "").strip()
+
+        form_data = {
+            "title": title,
+            "categories": categories,
+            "description": description,
+            "body": body,
+            "output_preview": output_preview,
+        }
+
+        if not title or not description or not body:
+            flash("Please complete all required fields.", "error")
+        elif not categories:
+            flash("Please select at least 1 category.", "error")
+        elif len(categories) > 3:
+            flash("You can select up to 3 categories only.", "error")
+        else:
+            prompt = Prompt(
+                title=title,
+                category=categories[0],
+                subcategory=categories[1] if len(categories) > 1 else None,
+                description=description,
+                body=body,
+                output_preview=output_preview or None,
+                author=current_user,
+            )
+            db.session.add(prompt)
+            db.session.commit()
+            flash("Prompt published successfully.", "success")
+            return redirect(url_for("main.submit_prompt"))
+
+    return render_template("submit-prompt.html", form_data=form_data)
 
 
 @main_bp.route("/logout", methods=["POST"])

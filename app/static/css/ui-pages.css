@@ -427,6 +427,7 @@ a {
     color:  #777777;
     font-size: 0.94rem;
     font-weight: 500;
+    font-family: "Poppins", sans-serif;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
@@ -5488,6 +5489,7 @@ body.modal-open {
     font-size: 0.82rem;
     font-weight: 600;
 }
+
 
 .submit-prompt-area {
     min-height: 180px;
