@@ -5889,6 +5889,10 @@ body.profile-page .page-shell {
     justify-content: flex-end;
 }
 
+.profile-logout-form {
+    margin: 0;
+}
+
 .pf-btn {
     font-size: 0.82rem;
     padding: 7px 16px;
@@ -8007,6 +8011,31 @@ background: #fff;
 
 .auth-status.is-success {
   color: #1f7a45;
+}
+
+.page-flash {
+  max-width: 1180px;
+  margin: 0 auto 18px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: 1px solid #e7d8cd;
+  background: #fff8f2;
+  color: #9a4f1f;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 14px 32px rgba(171, 107, 57, 0.08);
+}
+
+.page-flash.is-success {
+  border-color: #cfe7d6;
+  background: #f4fbf6;
+  color: #1f7a45;
+}
+
+.page-flash.is-error {
+  border-color: #f1c5b5;
+  background: #fff5f0;
+  color: #c65427;
 }
 
 .interest-pills {

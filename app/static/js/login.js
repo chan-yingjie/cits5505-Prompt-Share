@@ -21,6 +21,8 @@ const closeResetModal = document.getElementById("close-reset-modal");
 const sendCodeBtn = document.getElementById("send-code-btn");
 const resetEmail = document.getElementById("reset-email");
 const resetStatus = document.getElementById("reset-status");
+const loginForm = document.getElementById("login-form");
+const loginStatus = document.querySelector(".auth-card .auth-status");
 
 if (forgotBtn && resetModal) {
   forgotBtn.addEventListener("click", function () {
@@ -45,5 +47,23 @@ if (sendCodeBtn) {
     }
 
     resetStatus.textContent = "Verification code sent to your email.";
+  });
+}
+
+if (loginForm) {
+  loginForm.addEventListener("submit", function (event) {
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const email = emailInput ? emailInput.value.trim() : "";
+    const password = passwordInput ? passwordInput.value : "";
+
+    if (!email || !password) {
+      event.preventDefault();
+
+      if (loginStatus) {
+        loginStatus.textContent = "Please enter both email and password.";
+        loginStatus.className = "auth-status is-error";
+      }
+    }
   });
 }

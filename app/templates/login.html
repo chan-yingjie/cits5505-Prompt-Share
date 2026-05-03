@@ -94,12 +94,13 @@
       {% endif %}
       {% endwith %}
 
-      <form id="login-form">
+      <form id="login-form" method="post" action="{{ url_for('main.login') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="auth-field">
           <label>Email address</label>
           <div class="auth-input">
-            <input type="email" placeholder="Email address">
+            <input id="email" name="email" type="email" placeholder="Email address" value="{{ form_data.email if form_data else '' }}">
           </div>
         </div>
 
@@ -112,7 +113,7 @@
     </svg>
   </span>
 
-  <input type="password" placeholder="Password">
+  <input id="password" name="password" type="password" placeholder="Password">
 
   <button type="button" class="password-toggle">
     <!-- eye-off -->
@@ -133,7 +134,7 @@
   Forgot password?
 </button>
 
-        <button class="auth-main-btn">Log In</button>
+        <button class="auth-main-btn" type="submit">Log In</button>
 
 
       

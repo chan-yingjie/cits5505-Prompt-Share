@@ -33,6 +33,13 @@
         </header>
 
         <main class="profile-layout">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="page-flash {{ 'is-error' if messages[-1][0] == 'error' else 'is-success' }}">
+                {{ messages[-1][1] }}
+            </div>
+            {% endif %}
+            {% endwith %}
 
             <!-- ════ 1. Profile Banner ════ -->
             <section class="content-block profile-banner" aria-label="Profile overview">
@@ -44,6 +51,12 @@
                 <div class="profile-banner-actions">
                     <a class="button-link secondary pf-btn" href="submit-prompt.html">Submit Prompt</a>
                     <a class="button-link primary pf-btn" href="feed.html">Explore Feed</a>
+                    {% if current_user.is_authenticated %}
+                    <form class="profile-logout-form" method="post" action="{{ url_for('main.logout') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="button-link secondary pf-btn" type="submit">Log out</button>
+                    </form>
+                    {% endif %}
                 </div>
 
                 <!-- User identity: left side -->

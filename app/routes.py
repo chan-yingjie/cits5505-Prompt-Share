@@ -1,5 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from werkzeug.security import generate_password_hash
+from flask_login import current_user, login_user, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from .extensions import db
 from .models import User
@@ -26,15 +27,43 @@ def leaderboard():
     return render_template("leaderboard.html")
 
 
-@main_bp.route("/login")
-@main_bp.route("/login.html")
+@main_bp.route("/login", methods=["GET", "POST"])
+@main_bp.route("/login.html", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    if current_user.is_authenticated:
+        return redirect(url_for("main.profile", user=current_user.username))
+
+    form_data = {
+        "email": "",
+    }
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        form_data["email"] = email
+
+        if not email or not password:
+            flash("Please enter both email and password.", "error")
+        else:
+            user = User.query.filter_by(email=email).first()
+
+            if user is None or not check_password_hash(user.password_hash, password):
+                flash("Invalid email or password.", "error")
+            else:
+                login_user(user)
+                flash("Logged in successfully.", "success")
+                return redirect(url_for("main.profile", user=user.username))
+
+    return render_template("login.html", form_data=form_data)
 
 
 @main_bp.route("/signup", methods=["GET", "POST"])
 @main_bp.route("/signup.html", methods=["GET", "POST"])
 def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for("main.profile", user=current_user.username))
+
     form_data = {
         "name": "",
         "email": "",
@@ -96,3 +125,10 @@ def prompt_detail():
 @main_bp.route("/submit-prompt.html")
 def submit_prompt():
     return render_template("submit-prompt.html")
+
+
+@main_bp.route("/logout", methods=["POST"])
+def logout():
+    logout_user()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("main.login"))
