@@ -86,6 +86,14 @@
         No account? <a href="signup.html">Sign up</a>
       </p>
 
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="auth-status {{ 'is-error' if messages[-1][0] == 'error' else 'is-success' }}">
+        {{ messages[-1][1] }}
+      </div>
+      {% endif %}
+      {% endwith %}
+
       <form id="login-form">
 
         <div class="auth-field">

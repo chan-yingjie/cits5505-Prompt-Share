@@ -7978,8 +7978,8 @@ background: #fff;
 .auth-status {
   text-align: center;
   font-size: 13px;
-  color: #e85012;
   font-weight: 700;
+  color: #e85012;
 }
 
 .auth-terms {
@@ -7999,6 +7999,14 @@ background: #fff;
 .auth-status {
   color: #e85012;
   font-weight: 700;
+}
+
+.auth-status.is-error {
+  color: #e85012;
+}
+
+.auth-status.is-success {
+  color: #1f7a45;
 }
 
 .interest-pills {

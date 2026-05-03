@@ -59,8 +59,6 @@ interestInputs.forEach(function (input) {
 
 if (signupForm) {
   signupForm.addEventListener("submit", function (event) {
-    event.preventDefault();
-
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
@@ -75,20 +73,27 @@ if (signupForm) {
       });
 
     if (!name || !email || !password || !confirm) {
+      event.preventDefault();
       signupStatus.textContent = "Please fill all fields.";
+      signupStatus.className = "auth-status is-error";
       return;
     }
 
     if (password !== confirm) {
+      event.preventDefault();
       signupStatus.textContent = "Passwords do not match.";
+      signupStatus.className = "auth-status is-error";
       return;
     }
 
     if (selectedInterests.length === 0) {
+      event.preventDefault();
       signupStatus.textContent = "Please select at least one interest.";
+      signupStatus.className = "auth-status is-error";
       return;
     }
 
-    signupStatus.textContent = "Account created successfully!";
+    signupStatus.textContent = "";
+    signupStatus.className = "auth-status";
   });
 }
