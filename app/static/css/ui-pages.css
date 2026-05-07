@@ -437,12 +437,6 @@ a {
 
 .topnav a[href="feed.html"] {
     order: 2;
-    font-size: 0;
-}
-
-.topnav a[href="feed.html"]::after {
-    content: "Explore";
-    font-size: 0.94rem;
 }
 
 .topnav a[href="leaderboard.html"] {
@@ -451,12 +445,6 @@ a {
 
 .topnav a[href="submit-prompt.html"] {
     order: 4;
-    font-size: 0;
-}
-
-.topnav a[href="submit-prompt.html"]::after {
-    content: "Submit";
-    font-size: 0.94rem;
 }
 
 .topnav a[href="profile.html"] {
@@ -508,9 +496,7 @@ a {
         display: flex;
     }
 
-    .topnav a,
-    .topnav a[href="feed.html"]::after,
-    .topnav a[href="submit-prompt.html"]::after {
+    .topnav a {
         font-size: 0.94rem;
     }
 
