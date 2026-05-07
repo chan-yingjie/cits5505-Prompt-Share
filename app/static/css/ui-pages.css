@@ -280,6 +280,14 @@ a {
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.08em;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.site-footer-bottom-badge:hover,
+.site-footer-bottom-badge:focus-visible {
+    background: rgba(201, 107, 49, 0.12);
+    border-color: rgba(201, 107, 49, 0.48);
+    color: rgba(240, 196, 138, 0.9);
 }
 
 @media (max-width: 860px) {

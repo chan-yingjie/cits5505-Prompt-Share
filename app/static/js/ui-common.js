@@ -72,7 +72,14 @@ function buildSharedFooterMarkup() {
         </div>
         <div class="site-footer-bottom">
             <span>&copy; 2026 Prompt Share. All rights reserved.</span>
-            <span class="site-footer-bottom-badge">CITS5505 · UWA</span>
+            <a
+                class="site-footer-bottom-badge"
+                href="https://www.handbooks.uwa.edu.au/unitdetails?code=CITS5505"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                CITS5505 · UWA
+            </a>
             <span>Built for a better prompt-sharing workflow.</span>
         </div>
     `;
