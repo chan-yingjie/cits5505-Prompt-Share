@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -7,6 +9,8 @@ from .models import Prompt, User
 
 
 main_bp = Blueprint("main", __name__)
+
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 @main_bp.route("/")
@@ -48,6 +52,8 @@ def login():
 
         if not email or not password:
             flash("Please enter both email and password.", "error")
+        elif not EMAIL_PATTERN.match(email):
+            flash("Please enter a valid email address.", "error")
         else:
             user = User.query.filter_by(email=email).first()
 
@@ -90,6 +96,8 @@ def signup():
 
         if not name or not email or not password or not confirm:
             flash("Please fill all fields.", "error")
+        elif not EMAIL_PATTERN.match(email):
+            flash("Please enter a valid email address.", "error")
         elif password != confirm:
             flash("Passwords do not match.", "error")
         elif not interests:

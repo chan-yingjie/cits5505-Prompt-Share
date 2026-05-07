@@ -2,6 +2,7 @@ const signupForm = document.getElementById("signup-form");
 const signupStatus = document.getElementById("signup-status");
 const interestInputs = document.querySelectorAll('input[name="interests"]');
 const passwordToggles = document.querySelectorAll(".password-toggle");
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 passwordToggles.forEach(function (button) {
   button.addEventListener("click", function () {
@@ -75,6 +76,13 @@ if (signupForm) {
     if (!name || !email || !password || !confirm) {
       event.preventDefault();
       signupStatus.textContent = "Please fill all fields.";
+      signupStatus.className = "auth-status is-error";
+      return;
+    }
+
+    if (!emailPattern.test(email)) {
+      event.preventDefault();
+      signupStatus.textContent = "Please enter a valid email address.";
       signupStatus.className = "auth-status is-error";
       return;
     }

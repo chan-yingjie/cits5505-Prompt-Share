@@ -23,6 +23,7 @@ const resetEmail = document.getElementById("reset-email");
 const resetStatus = document.getElementById("reset-status");
 const loginForm = document.getElementById("login-form");
 const loginStatus = document.querySelector(".auth-card .auth-status");
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 if (forgotBtn && resetModal) {
   forgotBtn.addEventListener("click", function () {
@@ -62,6 +63,16 @@ if (loginForm) {
 
       if (loginStatus) {
         loginStatus.textContent = "Please enter both email and password.";
+        loginStatus.className = "auth-status is-error";
+      }
+      return;
+    }
+
+    if (!emailPattern.test(email)) {
+      event.preventDefault();
+
+      if (loginStatus) {
+        loginStatus.textContent = "Please enter a valid email address.";
         loginStatus.className = "auth-status is-error";
       }
     }

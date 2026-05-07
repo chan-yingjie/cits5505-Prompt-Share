@@ -95,7 +95,7 @@
       {% endif %}
       {% endwith %}
 
-      <form id="signup-form" method="post" action="{{ url_for('main.signup') }}">
+      <form id="signup-form" method="post" action="{{ url_for('main.signup') }}" novalidate>
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="auth-row">
@@ -193,7 +193,7 @@
   </main>
 </div>
 
-<script src="../static/js/signup.js"></script>
-<script src="../static/js/ui-common.js"></script>
+<script src="{{ url_for('static', filename='js/signup.js') }}?v=2"></script>
+<script src="{{ url_for('static', filename='js/ui-common.js') }}?v=2"></script>
 </body>
 </html>
