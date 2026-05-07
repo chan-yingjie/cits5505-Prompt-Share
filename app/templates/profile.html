@@ -15,7 +15,7 @@
         <header class="topbar">
             <nav class="topnav" aria-label="Primary navigation">
                 <a href="index.html">Home</a>
-                <a href="feed.html">Feed</a>
+                <a href="feed.html">Explore</a>
                 <a href="submit-prompt.html">Submit Prompt</a>
                 <a href="leaderboard.html">Leaderboard</a>
                 <a class="active" href="profile.html">Profile</a>
@@ -50,7 +50,7 @@
                 <!-- Action buttons: float top-right, above illustration -->
                 <div class="profile-banner-actions">
                     <a class="button-link secondary pf-btn" href="submit-prompt.html">Submit Prompt</a>
-                    <a class="button-link primary pf-btn" href="feed.html">Explore Feed</a>
+                    <a class="button-link primary pf-btn" href="feed.html">Explore</a>
                     {% if current_user.is_authenticated %}
                     <form class="profile-logout-form" method="post" action="{{ url_for('main.logout') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
