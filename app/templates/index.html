@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Share | Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/ui-pages.css">
+</head>
+<body class="home-page minimal-home-page">
+    <div class="page-shell">
+        <header class="topbar">
+            <nav class="topnav" aria-label="Primary navigation">
+                <a class="active" href="index.html">Home</a>
+                <a href="feed.html">Feed</a>
+                <a href="submit-prompt.html">Submit Prompt</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="login.html">Login</a>
+             
+            </nav>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <a class="brand" href="index.html">Prompt Share</a>
+        </header>
+
+        <main class="minimal-home-layout">
+            <section class="minimal-home-hero">
+                <div class="minimal-hero-visual" aria-hidden="true">
+                    <img src="../static/images/pic3-transparent.png" alt="" class="minimal-hero-image">
+                </div>
+
+                <section class="minimal-hero-content">
+                    <p class="minimal-home-label">Prompt Sharing Platform</p>
+                    <h1 class="minimal-home-title">
+                        <span class="typewriter-line" id="typewriter-line-1" data-text="Built for better prompting."></span>
+                        <span class="typewriter-line" id="typewriter-line-2" data-text="Make AI work smarter." data-emphasis="smarter."></span>
+                    </h1>
+
+                    <p class="minimal-home-subtitle">
+                        Discover, share, and improve prompts together.
+                    </p>
+
+                    <div class="minimal-home-actions">
+                        <a class="button-link primary" href="feed.html">Explore Prompts</a>
+                        <a class="button-link secondary" href="login.html">Login</a>
+                    </div>
+                </section>
+                <div class="hero-scroll-hint" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 5.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </section>
+
+            <div class="home-stats" aria-label="Platform statistics">
+                <div class="home-stat-item">
+                    <span class="home-stat-number" data-target="1200" data-suffix="+">0+</span>
+                    <span class="home-stat-label">Prompts Shared</span>
+                </div>
+                <div class="home-stat-item">
+                    <span class="home-stat-number" data-target="420" data-suffix="+">0+</span>
+                    <span class="home-stat-label">Community Members</span>
+                </div>
+                <div class="home-stat-item">
+                    <span class="home-stat-number" data-target="50" data-suffix="+">0+</span>
+                    <span class="home-stat-label">Prompt Categories</span>
+                </div>
+                <div class="home-stat-item">
+                    <span class="home-stat-number" data-target="4.9" data-suffix="★">0★</span>
+                    <span class="home-stat-label">Average Rating</span>
+                </div>
+            </div>
+
+            <section class="minimal-home-how-it-works" aria-labelledby="how-it-works-title">
+                <div class="minimal-home-section-head">
+                    <p class="eyebrow">How It Works</p>
+                    <h2 id="how-it-works-title">A simple loop for better prompts.</h2>
+                </div>
+
+                <div class="minimal-home-steps">
+                    <article class="minimal-step-card">
+                        <div class="minimal-step-header">
+                            <div class="minimal-step-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                    <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.7"/>
+                                    <path d="M13 13l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <h3>Discover</h3>
+                            <span class="minimal-step-number">01</span>
+                        </div>
+                        <p>Browse the Explore feed to find useful prompts, trending ideas, and patterns worth reusing.</p>
+                    </article>
+
+                    <article class="minimal-step-card">
+                        <div class="minimal-step-header">
+                            <div class="minimal-step-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                    <path d="M10 13V4M6.5 7.5L10 4l3.5 3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M3.5 13.5v1.5a2 2 0 002 2h9a2 2 0 002-2v-1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <h3>Share</h3>
+                            <span class="minimal-step-number">02</span>
+                        </div>
+                        <p>Publish your own prompt workflows so others can learn from them, test them, and build on them.</p>
+                    </article>
+
+                    <article class="minimal-step-card">
+                        <div class="minimal-step-header">
+                            <div class="minimal-step-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                    <path d="M2.5 14.5l4.5-4.5 3.5 3.5 5.5-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M13 6.5h4v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <h3>Improve</h3>
+                            <span class="minimal-step-number">03</span>
+                        </div>
+                        <p>Iterate together through feedback, comparisons, and community insight to make each version stronger.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="home-featured-section" aria-labelledby="featured-prompts-title">
+                <div class="minimal-home-section-head">
+                    <p class="eyebrow">Community Favorites</p>
+                    <h2 id="featured-prompts-title">Trending this week.</h2>
+                </div>
+
+                <div class="home-featured-tabs" role="group" aria-label="Filter prompts by category">
+                    <button class="home-featured-tab active" data-filter="all">All</button>
+                    <button class="home-featured-tab" data-filter="Writing">Writing</button>
+                    <button class="home-featured-tab" data-filter="Code">Code</button>
+                    <button class="home-featured-tab" data-filter="Research">Research</button>
+                </div>
+
+                <div class="home-featured-grid">
+                    <article class="home-preview-card">
+                        <div class="home-preview-card-meta">
+                            <span class="home-preview-tag">Writing</span>
+                            <span class="home-preview-upvotes">↑ 142</span>
+                        </div>
+                        <h3>The Perfect Blog Post Outline Generator</h3>
+                        <p>Generate a well-structured blog post outline for any topic with clear sections, subheadings, and key points to cover.</p>
+                        <a href="feed.html" class="home-preview-link">View prompt →</a>
+                    </article>
+
+                    <article class="home-preview-card">
+                        <div class="home-preview-card-meta">
+                            <span class="home-preview-tag">Code</span>
+                            <span class="home-preview-upvotes">↑ 98</span>
+                        </div>
+                        <h3>Code Review Assistant</h3>
+                        <p>A systematic code review prompt that checks for correctness, performance, security issues, and code style consistency.</p>
+                        <a href="feed.html" class="home-preview-link">View prompt →</a>
+                    </article>
+
+                    <article class="home-preview-card">
+                        <div class="home-preview-card-meta">
+                            <span class="home-preview-tag">Research</span>
+                            <span class="home-preview-upvotes">↑ 76</span>
+                        </div>
+                        <h3>Literature Review Synthesizer</h3>
+                        <p>Transform multiple research papers into a concise, structured literature review with key themes and gaps identified.</p>
+                        <a href="feed.html" class="home-preview-link">View prompt →</a>
+                    </article>
+                </div>
+
+                <div class="home-featured-footer">
+                    <a href="feed.html" class="button-link secondary">Browse all prompts</a>
+                </div>
+            </section>
+
+            <section class="home-cta-strip" aria-labelledby="cta-strip-title">
+                <div class="home-cta-content">
+                    <h2 id="cta-strip-title" class="typewriter-line cta-typewriter-line" data-text="Ready to level up your AI prompts?"></h2>
+                    <p>Join the community. Share what works. Build on what others create.</p>
+                    <div class="minimal-home-actions home-cta-actions">
+                        <a class="button-link primary" href="signup.html">Get Started Free</a>
+                        <a class="button-link home-cta-secondary" href="feed.html">Explore First</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer" data-shared-footer aria-labelledby="site-footer-title"></footer>
+    </div>
+
+    <script>
+        (function () {
+
+            /* --- Typewriter --- */
+            const lines = Array.from(document.querySelectorAll(".minimal-home-title .typewriter-line"));
+            const ctaTitle = document.querySelector(".cta-typewriter-line");
+
+            function typeLine(element, delay) {
+                const text = element.dataset.text || "";
+                const emphasis = element.dataset.emphasis || "";
+                const stepMs = 52;
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        element.classList.add("is-typing");
+                        const start = performance.now();
+
+                        function frame(now) {
+                            const index = Math.min(text.length, Math.floor((now - start) / stepMs) + 1);
+                            element.textContent = text.slice(0, index);
+
+                            if (index >= text.length) {
+                                if (emphasis && text.endsWith(emphasis)) {
+                                    const plainText = text.slice(0, -emphasis.length);
+                                    element.innerHTML = plainText + '<span class="smarter-word">' + emphasis + "</span>";
+                                }
+                                element.classList.remove("is-typing");
+                                resolve();
+                                return;
+                            }
+
+                            window.requestAnimationFrame(frame);
+                        }
+
+                        window.requestAnimationFrame(frame);
+                    }, delay);
+                });
+            }
+
+            async function playTypewriter() {
+                for (let i = 0; i < lines.length; i += 1) {
+                    await typeLine(lines[i], i === 0 ? 250 : 120);
+                }
+            }
+            playTypewriter();
+
+            if (ctaTitle) {
+                const ctaTypeObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && !entry.target.dataset.typed) {
+                            entry.target.dataset.typed = "true";
+                            typeLine(entry.target, 120);
+                            ctaTypeObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.35 });
+
+                ctaTypeObserver.observe(ctaTitle);
+            }
+
+            const heroSection = document.querySelector(".minimal-home-hero");
+            const heroScrollHint = document.querySelector(".hero-scroll-hint");
+
+            if (heroSection && heroScrollHint) {
+                const heroHintObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        heroScrollHint.classList.toggle("is-hidden", !entry.isIntersecting);
+                    });
+                }, { threshold: 0.2 });
+
+                heroHintObserver.observe(heroSection);
+            }
+
+            /* --- Scroll reveal --- */
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                    }
+                });
+            }, { threshold: 0.08, rootMargin: "0px 0px -32px 0px" });
+
+            document.querySelectorAll(
+                ".home-stats, .minimal-home-how-it-works, .home-featured-section, .home-cta-strip"
+            ).forEach((el) => {
+                el.classList.add("scroll-reveal");
+                revealObserver.observe(el);
+            });
+
+            document.querySelectorAll(".minimal-step-card, .home-preview-card").forEach((el, i) => {
+                el.classList.add("scroll-reveal-item");
+                el.style.transitionDelay = (i % 3) * 0.1 + "s";
+                revealObserver.observe(el);
+            });
+
+            /* --- Stat counter animation --- */
+            function animateCounter(el) {
+                const target = parseFloat(el.dataset.target);
+                const suffix = el.dataset.suffix || "";
+                const isFloat = el.dataset.target.includes(".");
+                const duration = 1400;
+                const start = performance.now();
+
+                function step(now) {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const value = target * eased;
+                    el.textContent = isFloat
+                        ? value.toFixed(1) + suffix
+                        : Math.floor(value).toLocaleString() + suffix;
+                    if (progress < 1) requestAnimationFrame(step);
+                    else el.textContent = (isFloat ? target.toFixed(1) : target.toLocaleString()) + suffix;
+                }
+                requestAnimationFrame(step);
+            }
+
+            const statsObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.querySelectorAll(".home-stat-number[data-target]").forEach(animateCounter);
+                        statsObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.4 });
+
+            const statsEl = document.querySelector(".home-stats");
+            if (statsEl) statsObserver.observe(statsEl);
+
+            /* --- Featured prompts filter tabs --- */
+            const tabs = document.querySelectorAll(".home-featured-tab");
+            const cards = document.querySelectorAll(".home-preview-card");
+
+            tabs.forEach((tab) => {
+                tab.addEventListener("click", function () {
+                    tabs.forEach((t) => t.classList.remove("active"));
+                    this.classList.add("active");
+                    const filter = this.dataset.filter;
+
+                    cards.forEach((card) => {
+                        const tag = card.querySelector(".home-preview-tag").textContent.trim();
+                        if (filter === "all" || tag === filter) {
+                            card.classList.remove("is-hidden");
+                        } else {
+                            card.classList.add("is-hidden");
+                        }
+                    });
+                });
+            });
+
+        }());
+    </script>
+    <script src="../static/js/ui-common.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

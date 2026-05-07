@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | Prompt Share</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/ui-pages.css">
+</head>
+
+<body class="auth-page signup-page">
+<div class="auth-wrapper">
+<header class="topbar">
+ <nav class="topnav" aria-label="Primary navigation">
+  <a href="index.html">Home</a>
+  <a href="feed.html">Explore</a>
+  <a href="leaderboard.html">Leaderboard</a>
+  <a href="submit-prompt.html">Submit</a>
+  <a href="profile.html">Profile</a>
+  <a href="login.html">Login</a>
+<a href="signup.html" class="active">Sign Up</a>
+</nav>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <a class="brand" href="index.html" aria-label="Prompt Share home">
+    <span>Prompt Share</span>
+    <span class="brand-mark" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+  </a>
+</header>
+  <main class="auth-layout">
+
+    <!-- LEFT -->
+    <section class="auth-left">
+      
+
+      <div class="auth-copy">
+        <p class="auth-pill">Create Account</p>
+
+        <h1>Create your<br>Prompt Share account<span class="brand-dot"></span></h1>
+
+        <p class="auth-subtitle">
+          Start sharing prompts and building your AI profile.
+        </p>
+
+        <div class="auth-feature">
+          <div class="auth-feature-icon">♥</div>
+          <div>
+            <h3>Share ideas</h3>
+            <p>Share prompts and get inspired</p>
+          </div>
+        </div>
+
+        <div class="auth-feature">
+          <div class="auth-feature-icon">☆</div>
+          <div>
+            <h3>Improve together</h3>
+            <p>Receive feedback and improve</p>
+          </div>
+        </div>
+
+        <div class="auth-feature">
+          <div class="auth-feature-icon">👥</div>
+          <div>
+            <h3>Build your profile</h3>
+            <p>Track your activity</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="auth-card">
+      <h2>Sign Up</h2>
+
+      <p class="auth-switch">
+        Already have an account?
+        <a href="login.html">Log in</a>
+      </p>
+
+      <form id="signup-form">
+
+        <div class="auth-row">
+          <div class="auth-field">
+            
+            <label>Full name</label>
+            <div class="auth-input">
+                  <span class="input-icon">👤</span>
+              <input type="text" placeholder="Your full name">
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label>Email address</label>
+            <div class="auth-input">
+                  <span class="input-icon">✉️</span>
+              <input type="email" placeholder="Email address">
+            </div>
+          </div>
+        </div>
+
+<div class="auth-input password-input">
+  <span class="input-icon">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <rect x="5" y="11" width="14" height="10" rx="2" stroke="#9aa0a6" stroke-width="1.5"/>
+      <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="#9aa0a6" stroke-width="1.5"/>
+    </svg>
+  </span>
+
+  <input id="password" type="password" placeholder="Password">
+
+  <button type="button" class="password-toggle" data-target="password">
+    <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M3 3l18 18" stroke="#9aa0a6" stroke-width="1.8"/>
+      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" stroke="#9aa0a6" stroke-width="1.8"/>
+      <path d="M3 12s4-7 9-7 9 7 9 7-4 7-9 7-9-7-9-7z" stroke="#9aa0a6" stroke-width="1.8"/>
+    </svg>
+
+    <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" style="display: none;">
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#9aa0a6" stroke-width="1.8"/>
+      <circle cx="12" cy="12" r="3" stroke="#9aa0a6" stroke-width="1.8"/>
+    </svg>
+  </button>
+</div>
+
+<div class="auth-input password-input">
+  <span class="input-icon">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <rect x="5" y="11" width="14" height="10" rx="2" stroke="#9aa0a6" stroke-width="1.5"/>
+      <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="#9aa0a6" stroke-width="1.5"/>
+    </svg>
+  </span>
+
+  <input id="confirm" type="password" placeholder="Confirm password">
+
+  <button type="button" class="password-toggle" data-target="confirm">
+    <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M3 3l18 18" stroke="#9aa0a6" stroke-width="1.8"/>
+      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" stroke="#9aa0a6" stroke-width="1.8"/>
+      <path d="M3 12s4-7 9-7 9 7 9 7-4 7-9 7-9-7-9-7z" stroke="#9aa0a6" stroke-width="1.8"/>
+    </svg>
+
+    <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" style="display: none;">
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#9aa0a6" stroke-width="1.8"/>
+      <circle cx="12" cy="12" r="3" stroke="#9aa0a6" stroke-width="1.8"/>
+    </svg>
+  </button>
+</div>
+
+
+        <p class="auth-section-title">Interests (select up to 3)</p>
+<div class="interest-pills">
+  <label><input type="checkbox" name="interests" value="All"><span>All</span></label>
+  <label><input type="checkbox" name="interests"  value="Coding"><span>Coding</span></label>
+  <label><input type="checkbox" name="interests"  value="Education"><span>Education</span></label>
+  <label><input type="checkbox" name="interests" value="Image Generation"><span>Image Generation</span></label>
+  <label><input type="checkbox" name="interests" value="Marketing"><span>Marketing</span></label>
+  <label><input type="checkbox" name="interests" value="Productivity"><span>Productivity</span></label>
+  <label><input type="checkbox" name="interests" value="Video Generation"><span>Video Generation</span></label>
+  <label><input type="checkbox" name="interests" value="Writing"><span>Writing</span></label>
+  <label><input type="checkbox" name="interests" value="Other"><span>Other</span></label>
+</div>
+
+        <button class="auth-main-btn">Create your account</button>
+
+        <p class="auth-terms">
+          By creating an account, you agree to our
+          <a href="#">Terms of Service</a> and
+          <a href="#">Privacy Policy</a>.
+        </p>
+
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<script src="../static/js/signup.js"></script>
+<script src="../static/js/ui-common.js"></script>
+</body>
+</html>
