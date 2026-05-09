@@ -87,7 +87,44 @@
                         </div>
                         <p class="filter-status is-hidden" id="filter-status" aria-live="polite"></p>
                     </div>
-                    <div class="prompt-list" id="feed-list" aria-live="polite"></div>
+                  <div class="prompt-list" id="feed-list" aria-live="polite">
+
+{% if prompts %}
+  {% for prompt in prompts %}
+
+    <article class="prompt-card">
+
+      <h3>{{ prompt.title }}</h3>
+
+      <p>{{ prompt.description }}</p>
+
+      <div class="prompt-meta">
+
+        <span>{{ prompt.category }}</span>
+
+        {% if prompt.subcategory %}
+          <span>{{ prompt.subcategory }}</span>
+        {% endif %}
+
+        <span>By {{ prompt.author.username }}</span>
+
+      </div>
+
+      <a href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">
+          View prompt
+      </a>
+
+    </article>
+
+  {% endfor %}
+
+{% else %}
+
+  <p>No prompts have been submitted yet.</p>
+
+{% endif %}
+
+</div>
                     <nav class="feed-pagination" id="feed-pagination" aria-label="Page navigation"></nav>
                 </section>
             </section>
@@ -102,8 +139,7 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../static/js/prompt-data.js"></script>
-    <script src="../static/js/feed.js"></script>
+   
     <script src="../static/js/ui-common.js"></script>
 </body>
 </html>

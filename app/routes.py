@@ -22,7 +22,8 @@ def index():
 @main_bp.route("/feed")
 @main_bp.route("/feed.html")
 def feed():
-    return render_template("feed.html")
+    prompts = Prompt.query.order_by(Prompt.created_at.desc()).all()
+    return render_template("feed.html", prompts=prompts)
 
 
 @main_bp.route("/leaderboard")
@@ -127,11 +128,10 @@ def signup():
 def profile():
     return render_template("profile.html")
 
-
-@main_bp.route("/prompt-detail")
-@main_bp.route("/prompt-detail.html")
-def prompt_detail():
-    return render_template("prompt-detail.html")
+@main_bp.route("/prompt/<int:prompt_id>")
+def prompt_detail(prompt_id):
+    prompt = Prompt.query.get_or_404(prompt_id)
+    return render_template("prompt-detail.html", prompt=prompt)
 
 
 @main_bp.route("/submit-prompt", methods=["GET", "POST"])
