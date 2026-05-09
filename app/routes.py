@@ -22,7 +22,8 @@ def index():
 @main_bp.route("/feed")
 @main_bp.route("/feed.html")
 def feed():
-    return render_template("feed.html")
+    prompts = Prompt.query.order_by(Prompt.created_at.desc()).all()
+    return render_template("feed.html", prompts=prompts)
 
 
 @main_bp.route("/leaderboard")

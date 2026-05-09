@@ -87,7 +87,56 @@
                         </div>
                         <p class="filter-status is-hidden" id="filter-status" aria-live="polite"></p>
                     </div>
-                    <div class="prompt-list" id="feed-list" aria-live="polite"></div>
+                 <div class="prompt-list" id="feed-list" aria-live="polite">
+
+    {% if prompts %}
+        {% for prompt in prompts %}
+
+        <article class="prompt-card">
+            <div class="prompt-card-content">
+
+                <div class="prompt-card-header">
+                    <span class="prompt-category">
+                        {{ prompt.category }}
+                    </span>
+
+                    {% if prompt.subcategory %}
+                    <span class="prompt-subcategory">
+                        {{ prompt.subcategory }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <h3 class="prompt-title">
+                    {{ prompt.title }}
+                </h3>
+
+                <p class="prompt-description">
+                    {{ prompt.description }}
+                </p>
+
+                <div class="prompt-meta">
+                    <span>
+                        By {{ prompt.author.username }}
+                    </span>
+
+                    <span>
+                        {{ prompt.created_at.strftime("%d %b %Y") }}
+                    </span>
+                </div>
+
+            </div>
+        </article>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No prompts have been submitted yet.</p>
+
+    {% endif %}
+
+</div>
                     <nav class="feed-pagination" id="feed-pagination" aria-label="Page navigation"></nav>
                 </section>
             </section>
@@ -102,8 +151,7 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../static/js/prompt-data.js"></script>
-    <script src="../static/js/feed.js"></script>
+   
     <script src="../static/js/ui-common.js"></script>
 </body>
 </html>
