@@ -3,9 +3,9 @@ import re
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
+from .models import Comment, Prompt, User
+from .extensions import csrf, db
 
-from .extensions import db
-from .models import Prompt, User
 
 
 main_bp = Blueprint("main", __name__)
@@ -133,6 +133,28 @@ def prompt_detail(prompt_id):
     prompt = Prompt.query.get_or_404(prompt_id)
     return render_template("prompt-detail.html", prompt=prompt)
 
+@main_bp.route("/prompt/<int:prompt_id>/comment", methods=["POST"])
+@csrf.exempt
+@login_required
+def add_comment(prompt_id):
+    prompt = Prompt.query.get_or_404(prompt_id)
+    body = request.form.get("comment", "").strip()
+
+    if not body:
+        flash("Comment cannot be empty.", "error")
+        return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
+
+    comment = Comment(
+        body=body,
+        author=current_user,
+        prompt=prompt,
+    )
+
+    db.session.add(comment)
+    db.session.commit()
+
+    flash("Comment added successfully.", "success")
+    return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
 
 @main_bp.route("/submit-prompt", methods=["GET", "POST"])
 @main_bp.route("/submit-prompt.html", methods=["GET", "POST"])
