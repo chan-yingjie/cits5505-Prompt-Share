@@ -122,11 +122,21 @@ def signup():
 
     return render_template("signup.html", form_data=form_data)
 
+@main_bp.route("/profile/<string:user>")
+@login_required
+def profile(user):
 
-@main_bp.route("/profile")
-@main_bp.route("/profile.html")
-def profile():
-    return render_template("profile.html")
+    profile_user = User.query.filter_by(username=user).first_or_404()
+
+    prompts = Prompt.query.filter_by(author=profile_user)\
+        .order_by(Prompt.created_at.desc())\
+        .all()
+
+    return render_template(
+        "profile.html",
+        profile_user=profile_user,
+        prompts=prompts
+    )
 
 @main_bp.route("/prompt/<int:prompt_id>")
 def prompt_detail(prompt_id):
