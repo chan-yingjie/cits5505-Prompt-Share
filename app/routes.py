@@ -131,7 +131,8 @@ def profile():
 @main_bp.route("/prompt/<int:prompt_id>")
 def prompt_detail(prompt_id):
     prompt = Prompt.query.get_or_404(prompt_id)
-    return render_template("prompt-detail.html", prompt=prompt)
+    comments = Comment.query.filter_by(prompt_id=prompt.id).order_by(Comment.created_at.asc()).all()
+    return render_template("prompt-detail.html", prompt=prompt, comments=comments)
 
 @main_bp.route("/prompt/<int:prompt_id>/comment", methods=["POST"])
 @csrf.exempt

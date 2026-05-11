@@ -140,9 +140,8 @@
                         </form>
                        <div class="comment-list" id="comment-list" aria-live="polite">
 
-    {% if prompt.comments %}
-
-        {% for comment in prompt.comments %}
+  {% if comments %}
+    {% for comment in comments %}
 
             <div class="comment-item">
 
