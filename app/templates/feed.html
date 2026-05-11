@@ -106,33 +106,28 @@
     {% if prompts %}
         {% for prompt in prompts %}
 
-            <article class="prompt-card">
+       <a class="prompt-card-link"
+   href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">
 
-                <h3>{{ prompt.title }}</h3>
-      <h3 class="card-title">
-    <a class="card-title-link"
-       href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">
-        {{ prompt.title }}
-    </a>
-</h3>
+    <article class="prompt-card">
 
-                <p>{{ prompt.description }}</p>
+        <h3>{{ prompt.title }}</h3>
 
-                <div class="prompt-meta">
-                    <span>{{ prompt.category }}</span>
+        <p>{{ prompt.description }}</p>
 
-                    {% if prompt.subcategory %}
-                        <span>{{ prompt.subcategory }}</span>
-                    {% endif %}
+        <div class="prompt-meta">
+            <span>{{ prompt.category }}</span>
 
-                    <span>By {{ prompt.author.username }}</span>
-                </div>
+            {% if prompt.subcategory %}
+                <span>{{ prompt.subcategory }}</span>
+            {% endif %}
 
-                <a href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">
-                    View prompt
-                </a>
+            <span>By {{ prompt.author.username }}</span>
+        </div>
 
-            </article>
+    </article>
+
+</a>
 
         {% endfor %}
     {% else %}
