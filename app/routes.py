@@ -4,7 +4,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from .models import Comment, Prompt, User
-from .extensions import csrf, db
+from .extensions import db
 
 
 
@@ -137,6 +137,23 @@ def profile(user):
         profile_user=profile_user,
         prompts=prompts
     )
+@main_bp.route("/profile")
+@main_bp.route("/profile.html")
+@login_required
+def profile_redirect():
+    username = request.args.get("user") or current_user.username
+    return redirect(url_for("main.profile", user=username))
+
+
+@main_bp.route("/prompt-detail")
+@main_bp.route("/prompt-detail.html")
+def prompt_detail_redirect():
+    prompt_id = request.args.get("prompt", type=int)
+
+    if prompt_id is None:
+        return redirect(url_for("main.feed"))
+
+    return redirect(url_for("main.prompt_detail", prompt_id=prompt_id))
 
 @main_bp.route("/prompt/<int:prompt_id>")
 def prompt_detail(prompt_id):
@@ -145,7 +162,6 @@ def prompt_detail(prompt_id):
     return render_template("prompt-detail.html", prompt=prompt, comments=comments)
 
 @main_bp.route("/prompt/<int:prompt_id>/comment", methods=["POST"])
-@csrf.exempt
 @login_required
 def add_comment(prompt_id):
     prompt = Prompt.query.get_or_404(prompt_id)
