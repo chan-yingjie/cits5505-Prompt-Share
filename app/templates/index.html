@@ -22,16 +22,11 @@
     <a href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
 
     <a href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
-
-   
-
     {% if current_user.is_authenticated %}
         <a href="{{ url_for('main.profile', user=current_user.username) }}">Profile</a>
     {% else %}
-        <a href="{{ url_for('main.login') }}">Profile</a>
+        <a href="{{ url_for('main.login') }}">Login</a>
     {% endif %}
-
-    <a href="{{ url_for('main.login') }}">Login</a>
 </nav>
             <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
                 <span></span>
@@ -66,8 +61,10 @@
                     </p>
 
                     <div class="minimal-home-actions">
-                        <a class="button-link primary" href="feed.html">Explore Prompts</a>
-                        <a class="button-link secondary" href="login.html">Login</a>
+                        <a class="button-link primary" href="{{ url_for('main.feed') }}">Explore Prompts</a>
+                        {% if not current_user.is_authenticated %}
+                        <a class="button-link secondary" href="{{ url_for('main.login') }}">Login</a>
+                        {% endif %}
                     </div>
                 </section>
                 <div class="hero-scroll-hint" aria-hidden="true">

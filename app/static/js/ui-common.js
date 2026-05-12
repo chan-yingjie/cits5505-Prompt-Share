@@ -190,3 +190,40 @@ document.querySelectorAll(".topbar").forEach((topbar) => {
         }
     });
 });
+
+const outputToggleButton = document.getElementById("output-toggle-button");
+const outputPreviewPanel = document.getElementById("detail-output-preview");
+
+if (outputToggleButton && outputPreviewPanel) {
+    const outputToggleLabel = outputToggleButton.querySelector(".output-toggle-label");
+
+    outputToggleButton.addEventListener("click", () => {
+        const isExpanded = outputToggleButton.getAttribute("aria-expanded") === "true";
+        const nextExpanded = !isExpanded;
+
+        outputToggleButton.setAttribute("aria-expanded", String(nextExpanded));
+        outputPreviewPanel.classList.toggle("is-hidden", !nextExpanded);
+
+        if (outputToggleLabel) {
+            outputToggleLabel.textContent = nextExpanded ? "Hide example output" : "Show example output";
+        }
+    });
+}
+
+document.querySelectorAll(".pf-collapsible").forEach((section) => {
+    const button = section.querySelector(".pf-toggle-btn");
+    const label = section.querySelector(".pf-toggle-label");
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener("click", () => {
+        const isOpen = section.classList.toggle("is-open");
+        button.setAttribute("aria-expanded", String(isOpen));
+
+        if (label) {
+            label.textContent = isOpen ? "Hide details" : "Show details";
+        }
+    });
+});
