@@ -3,9 +3,9 @@ import re
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from .models import Comment, Prompt, User
 from .extensions import db
-from .models import Prompt, User
+
 
 
 main_bp = Blueprint("main", __name__)
@@ -22,7 +22,8 @@ def index():
 @main_bp.route("/feed")
 @main_bp.route("/feed.html")
 def feed():
-    return render_template("feed.html")
+    prompts = Prompt.query.order_by(Prompt.created_at.desc()).all()
+    return render_template("feed.html", prompts=prompts)
 
 
 @main_bp.route("/leaderboard")
@@ -121,18 +122,66 @@ def signup():
 
     return render_template("signup.html", form_data=form_data)
 
+@main_bp.route("/profile/<string:user>")
+@login_required
+def profile(user):
 
+    profile_user = User.query.filter_by(username=user).first_or_404()
+
+    prompts = Prompt.query.filter_by(author=profile_user)\
+        .order_by(Prompt.created_at.desc())\
+        .all()
+
+    return render_template(
+        "profile.html",
+        profile_user=profile_user,
+        prompts=prompts
+    )
 @main_bp.route("/profile")
 @main_bp.route("/profile.html")
-def profile():
-    return render_template("profile.html")
+@login_required
+def profile_redirect():
+    username = request.args.get("user") or current_user.username
+    return redirect(url_for("main.profile", user=username))
 
 
 @main_bp.route("/prompt-detail")
 @main_bp.route("/prompt-detail.html")
-def prompt_detail():
-    return render_template("prompt-detail.html")
+def prompt_detail_redirect():
+    prompt_id = request.args.get("prompt", type=int)
 
+    if prompt_id is None:
+        return redirect(url_for("main.feed"))
+
+    return redirect(url_for("main.prompt_detail", prompt_id=prompt_id))
+
+@main_bp.route("/prompt/<int:prompt_id>")
+def prompt_detail(prompt_id):
+    prompt = Prompt.query.get_or_404(prompt_id)
+    comments = Comment.query.filter_by(prompt_id=prompt.id).order_by(Comment.created_at.asc()).all()
+    return render_template("prompt-detail.html", prompt=prompt, comments=comments)
+
+@main_bp.route("/prompt/<int:prompt_id>/comment", methods=["POST"])
+@login_required
+def add_comment(prompt_id):
+    prompt = Prompt.query.get_or_404(prompt_id)
+    body = request.form.get("comment", "").strip()
+
+    if not body:
+        flash("Comment cannot be empty.", "error")
+        return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
+
+    comment = Comment(
+        body=body,
+        author=current_user,
+        prompt=prompt,
+    )
+
+    db.session.add(comment)
+    db.session.commit()
+
+    flash("Comment added successfully.", "success")
+    return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
 
 @main_bp.route("/submit-prompt", methods=["GET", "POST"])
 @main_bp.route("/submit-prompt.html", methods=["GET", "POST"])

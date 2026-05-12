@@ -13,20 +13,30 @@
 <body class="profile-page">
     <div class="page-shell">
         <header class="topbar">
-            <nav class="topnav" aria-label="Primary navigation">
-                <a href="index.html">Home</a>
-                <a href="feed.html">Explore</a>
-                <a href="submit-prompt.html">Submit Prompt</a>
-                <a href="leaderboard.html">Leaderboard</a>
-                <a class="active" href="profile.html">Profile</a>
-                <a href="login.html">Login</a>
-            </nav>
+       <nav class="topnav" aria-label="Primary navigation">
+
+    <a href="{{ url_for('main.index') }}">Home</a>
+
+    <a href="{{ url_for('main.feed') }}">Explore</a>
+
+    <a href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
+
+    <a href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
+
+    
+  {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.profile', user=current_user.username) }}">Profile</a>
+    {% else %}
+        <a href="{{ url_for('main.login') }}">Profile</a>
+        <a href="{{ url_for('main.login') }}">Login</a>
+    {% endif %}
+</nav>
             <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
-            <a class="brand" href="index.html" aria-label="Prompt Share home">
+           <a class="brand" href="{{ url_for('main.index') }}" aria-label="Prompt Share home">
                 <span>Prompt Share</span>
                 <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
             </a>
@@ -49,8 +59,8 @@
 
                 <!-- Action buttons: float top-right, above illustration -->
                 <div class="profile-banner-actions">
-                    <a class="button-link secondary pf-btn" href="submit-prompt.html">Submit Prompt</a>
-                    <a class="button-link primary pf-btn" href="feed.html">Explore</a>
+                    <a class="button-link secondary pf-btn" href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
+                    <a class="button-link primary pf-btn" href="{{ url_for('main.feed') }}">Explore</a>
                     {% if current_user.is_authenticated %}
                     <form class="profile-logout-form" method="post" action="{{ url_for('main.logout') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -66,7 +76,7 @@
                             <img id="profileAvatarImg" src="../static/images/pic3.png" alt="Profile photo">
                         </div>
                         <input type="file" id="avatarFileInput" accept="image/*" style="display:none" aria-hidden="true">
-                        <button class="avatar-upload-btn" type="button" aria-label="Change photo" id="avatarUploadBtn">
+                        <button class="avatar-upload-btn" type="button" aria-label="Change photo" id="avatarUploadBtn" style="display:none;">
                             <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                                 <rect x="1" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
                                 <circle cx="7" cy="8.5" r="2.1" stroke="currentColor" stroke-width="1.5"/>
@@ -74,16 +84,16 @@
                             </svg>
                         </button>
                     </div>
-
+                    
                     <div class="profile-identity-text">
                         <div class="profile-name-row">
-                            <span class="profile-name" id="profileUsername">demo_user</span>
+                            <span class="profile-name" id="profileUsername">{{ profile_user.username }}</span>
                             <span class="profile-badge">
                                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 1l1.12 2.26L9 3.64 7 5.58l.47 2.74L5 7.1l-2.47 1.22L3 5.58 1 3.64l2.88-.38L5 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
                                 New user
                             </span>
                         </div>
-                        <span class="profile-handle" id="profileHandle">@demo_user</span>
+                        <span class="profile-handle" id="profileHandle">@{{ profile_user.username }}</span>
                         <p class="profile-bio-text" id="profileBio">Share great prompts and help the community learn together.</p>
                         <div class="profile-meta-row">
                             <span class="profile-meta-item">
@@ -106,7 +116,7 @@
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 6h6M6 9h6M6 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                         </div>
                         <div class="stat-info">
-                            <strong class="stat-value" id="statTotalPrompts">0</strong>
+                            <strong class="stat-value" id="statTotalPrompts">{{ prompts|length }}</strong>
                             <span class="stat-label">Total prompts</span>
                         </div>
                     </div>
@@ -147,7 +157,7 @@
                             <div class="pf-title-action-row">
                                 <h2>Personal information</h2>
                                 <div id="profileInfoActions">
-                                    <button class="button-link primary pf-btn profile-edit-trigger" id="editInfoBtn" type="button">
+<button class="button-link primary pf-btn profile-edit-trigger" id="editInfoBtn" type="button" style="display:none;">
                                         <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5 5 11H3V9l6.5-6.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
                                         Edit Profile
                                     </button>
@@ -164,7 +174,7 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Name</span>
-                                <span class="info-value" id="infoName">—</span>
+                                <span class="info-value" id="infoName">{{ profile_user.username }}</span>
                             </div>
                         </div>
                         <div class="profile-info-field">
@@ -173,7 +183,7 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Username</span>
-                                <span class="info-value" id="infoUsername">—</span>
+                                <span class="info-value" id="infoUsername">@{{ profile_user.username }}</span>
                             </div>
                         </div>
                         <div class="profile-info-field">
@@ -191,7 +201,13 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Email <span style="font-weight:400;text-transform:none;">(optional)</span></span>
-                                <span class="info-value" id="infoEmail">—</span>
+                                <span class="info-value" id="infoEmail">
+    {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+        {{ profile_user.email }}
+    {% else %}
+        Hidden
+    {% endif %}
+</span>
                             </div>
                         </div>
                         <div class="profile-info-field profile-info-field-full">
@@ -254,7 +270,31 @@
                     </div>
                     <div id="userPromptsBody" class="pf-collapse-body">
                         <div class="pf-collapse-inner">
-                            <div id="userPrompts" aria-live="polite"></div>
+                           <div id="userPrompts" aria-live="polite">
+    {% if prompts %}
+        {% for prompt in prompts %}
+            <article class="prompt-card" style="margin-bottom:12px">
+                <h3 class="card-title">{{ prompt.title }}</h3>
+                <p class="card-description">{{ prompt.description }}</p>
+
+                <div class="card-tags">
+                    <span class="tag-pill tag-pill-primary">{{ prompt.category }}</span>
+
+                    {% if prompt.subcategory %}
+                        <span class="tag-pill tag-pill-secondary">{{ prompt.subcategory }}</span>
+                    {% endif %}
+                </div>
+
+                <a class="button-link secondary pf-btn"
+                   href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">
+                    View prompt
+                </a>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>No prompts submitted yet.</p>
+    {% endif %}
+</div>
                         </div>
                     </div>
                 </section>
@@ -382,190 +422,7 @@
         <footer class="site-footer" data-shared-footer aria-labelledby="site-footer-title"></footer>
     </div>
 
-    <script src="../static/js/prompt-data.js"></script>
-    <script>
-        (function () {
-            function escapeHtml(v) {
-                return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;")
-                    .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
-            }
-            function truncate(text, max) {
-                const t = String(text);
-                return t.length <= max ? t : t.slice(0, max - 1).trimEnd() + "…";
-            }
-
-            const params      = new URLSearchParams(window.location.search);
-            const requested   = (params.get("user") || "demo_user").trim();
-            const dataset     = Array.isArray(window.promptFeedData) ? window.promptFeedData : [];
-            const userPrompts = dataset.filter(p => (p.author || "").toLowerCase() === requested.toLowerCase());
-            const primary     = userPrompts[0] || null;
-
-            const username = primary?.author  || requested || "demo_user";
-            const handle   = primary?.authorHandle  || "@" + username.toLowerCase().replace(/\s+/g, "_");
-            const bio      = primary?.authorBio      || "Share great prompts and help the community learn together.";
-            const location = primary?.authorLocation || "Australia";
-            const email    = primary?.authorEmail    || "";
-
-            const initials = String(username).split(/[\s._-]+/).filter(Boolean)
-                             .slice(0,2).map(p => p[0].toUpperCase()).join("") || "U";
-
-            /* banner */
-            const avatarEl = document.getElementById("profileAvatar");
-            if (!avatarEl.querySelector("img")) avatarEl.textContent = initials;
-            document.getElementById("profileUsername").textContent = username;
-            document.getElementById("profileHandle").textContent   = handle.startsWith("@") ? handle : "@" + handle;
-            document.getElementById("profileBio").textContent      = bio;
-
-            /* info view */
-            document.getElementById("infoName").textContent     = username;
-            document.getElementById("infoUsername").textContent = handle.startsWith("@") ? handle : "@" + handle;
-            document.getElementById("infoLocation").textContent = location;
-            document.getElementById("infoEmail").textContent    = email || "—";
-            document.getElementById("infoBio").textContent      = bio;
-
-            /* edit form prefill */
-            document.getElementById("editName").value     = username;
-            document.getElementById("editUsername").value = handle.replace(/^@/, "");
-            document.getElementById("editLocation").value = location;
-            document.getElementById("editEmail").value    = email;
-            document.getElementById("editBio").value      = bio;
-
-            /* stats */
-            const totals = userPrompts.reduce((a, p) => ({
-                prompts:   a.prompts   + 1,
-                likes:     a.likes     + Number(p.likes     || 0),
-                views:     a.views     + Number(p.viewCount || 0),
-                favorites: a.favorites + Number(p.favorites || 0)
-            }), { prompts:0, likes:0, views:0, favorites:0 });
-
-            document.getElementById("statTotalPrompts").textContent   = totals.prompts;
-            document.getElementById("statTotalLikes").textContent     = totals.likes;
-            document.getElementById("statTotalViews").textContent     = totals.views;
-            document.getElementById("statTotalFavorites").textContent = totals.favorites;
-
-            /* prompts grid */
-            const promptsEl = document.getElementById("userPrompts");
-            if (!userPrompts.length) {
-                promptsEl.innerHTML = `
-                    <div class="pf-empty-state">
-                        <div class="pf-empty-icon pf-empty-icon-doc">
-                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-                                <rect x="4" y="2" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.7"/>
-                                <path d="M8 8h6M8 11h6M8 14h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-                                <path d="M15 2v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <div class="pf-empty-text">
-                            <p class="pf-empty-title">You haven't shared any prompts yet</p>
-                            <p class="pf-empty-desc">Start by creating your first prompt and share your ideas with the community.</p>
-                            <a class="button-link primary pf-btn" href="submit-prompt.html">+ Create your first prompt</a>
-                        </div>
-                    </div>`;
-            } else {
-                promptsEl.innerHTML = userPrompts.map(p => {
-                    const href = `prompt-detail.html?prompt=${encodeURIComponent(p.id || "")}`;
-                    return `
-                        <article class="prompt-card" style="margin-bottom:12px">
-                            <div class="prompt-card-header">
-                                <h3 class="card-title">
-                                    <a class="card-title-link" href="${href}">${escapeHtml(p.title || "Untitled")}</a>
-                                </h3>
-                                <div class="card-stats">
-                                    <div class="card-stat"><strong>${Number(p.viewCount||0)}</strong> views</div>
-                                    <div class="card-stat"><strong>${Number(p.likes||0)}</strong> likes</div>
-                                </div>
-                            </div>
-                            <p class="card-description">${escapeHtml(truncate(p.prompt||"",200))}</p>
-                            <div class="card-tags">
-                                <span class="tag-pill tag-pill-primary">${escapeHtml(p.category||"General")}</span>
-                                <span class="tag-pill tag-pill-secondary">${escapeHtml(p.subcategory||"Prompt")}</span>
-                            </div>
-                        </article>`;
-                }).join("");
-            }
-
-            /* inline edit toggle */
-            const infoCard    = document.getElementById("personalInfoCard");
-            const infoView    = document.getElementById("profileInfoView");
-            const editForm    = document.getElementById("profileEditForm");
-            const infoActions = document.getElementById("profileInfoActions");
-
-            function enterEdit() {
-                infoView.classList.add("is-hidden");
-                editForm.classList.add("is-active");
-                infoCard.classList.add("is-editing");
-                infoActions.classList.add("is-hidden");
-                document.getElementById("editName").focus();
-            }
-            function exitEdit() {
-                editForm.classList.remove("is-active");
-                infoView.classList.remove("is-hidden");
-                infoCard.classList.remove("is-editing");
-                infoActions.classList.remove("is-hidden");
-            }
-
-            document.querySelectorAll(".profile-edit-trigger").forEach(b => b.addEventListener("click", enterEdit));
-            document.getElementById("cancelEditBtn").addEventListener("click", exitEdit);
-
-            editForm.addEventListener("submit", e => {
-                e.preventDefault();
-                const n  = document.getElementById("editName").value.trim();
-                const u  = document.getElementById("editUsername").value.trim();
-                const lo = document.getElementById("editLocation").value.trim();
-                const em = document.getElementById("editEmail").value.trim();
-                const bi = document.getElementById("editBio").value.trim();
-
-                document.getElementById("infoName").textContent     = n  || "—";
-                document.getElementById("infoUsername").textContent = u  ? "@" + u : "—";
-                document.getElementById("infoLocation").textContent = lo || "—";
-                document.getElementById("infoEmail").textContent    = em || "—";
-                document.getElementById("infoBio").textContent      = bi || "—";
-
-                document.getElementById("profileUsername").textContent = n  || username;
-                document.getElementById("profileHandle").textContent   = u  ? "@" + u : handle;
-                document.getElementById("profileBio").textContent      = bi || bio;
-
-                exitEdit();
-            });
-
-            /* avatar upload */
-            const avatarImg   = document.getElementById("profileAvatarImg");
-            const fileInput   = document.getElementById("avatarFileInput");
-            const uploadBtn   = document.getElementById("avatarUploadBtn");
-
-            const AVATAR_KEY  = "profile_avatar_" + requested;
-
-            const saved = localStorage.getItem(AVATAR_KEY);
-            if (saved) avatarImg.src = saved;
-
-            uploadBtn.addEventListener("click", () => fileInput.click());
-
-            fileInput.addEventListener("change", () => {
-                const file = fileInput.files[0];
-                if (!file || !file.type.startsWith("image/")) return;
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const dataUrl = e.target.result;
-                    avatarImg.src = dataUrl;
-                    try { localStorage.setItem(AVATAR_KEY, dataUrl); } catch (_) {}
-                };
-                reader.readAsDataURL(file);
-                fileInput.value = "";
-            });
-
-            /* collapsible sections */
-            document.querySelectorAll(".pf-collapsible").forEach(section => {
-                const btn = section.querySelector(".pf-toggle-btn");
-                if (!btn) return;
-                const label = btn.querySelector(".pf-toggle-label");
-                btn.addEventListener("click", () => {
-                    const isOpen = section.classList.toggle("is-open");
-                    btn.setAttribute("aria-expanded", isOpen);
-                    label.textContent = isOpen ? "Hide details" : "Show details";
-                });
-            });
-        })();
-    </script>
+   
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../static/js/ui-common.js"></script>
