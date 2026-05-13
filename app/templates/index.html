@@ -1,52 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Share | Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/css/ui-pages.css">
-</head>
-<body class="home-page minimal-home-page">
-    <div class="page-shell">
-        <header class="topbar">
-        <nav class="topnav" aria-label="Primary navigation">
+{% extends "base.html" %}
 
-    <a href="{{ url_for('main.index') }}">Home</a>
+{% block title %}Prompt Share | Home{% endblock %}
 
-    <a href="{{ url_for('main.feed') }}">Explore</a>
+{% block body_class %}home-page minimal-home-page{% endblock %}
 
-    <a href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
+{% block main_class %}minimal-home-layout{% endblock %}
 
-    <a href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
-    {% if current_user.is_authenticated %}
-        <a href="{{ url_for('main.profile', user=current_user.username) }}">Profile</a>
-    {% else %}
-        <a href="{{ url_for('main.login') }}">Login</a>
-    {% endif %}
-</nav>
-            <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-          <a class="brand" href="{{ url_for('main.index') }}" aria-label="Prompt Share home">
-                <span>Prompt Share</span>
-                <span class="brand-mark" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
-            </a>
-        </header>
-
-        <main class="minimal-home-layout">
+{% block content %}
             <section class="minimal-home-hero">
                 <div class="minimal-hero-visual" aria-hidden="true">
-                    <img src="../static/images/pic3-transparent.png" alt="" class="minimal-hero-image">
+                    <img src="{{ url_for('static', filename='images/pic3-transparent.png') }}" alt="" class="minimal-hero-image">
                 </div>
 
                 <section class="minimal-hero-content">
@@ -165,7 +128,7 @@
                         </div>
                         <h3>The Perfect Blog Post Outline Generator</h3>
                         <p>Generate a well-structured blog post outline for any topic with clear sections, subheadings, and key points to cover.</p>
-                        <a href="feed.html" class="home-preview-link">View prompt →</a>
+                        <a href="{{ url_for('main.feed') }}" class="home-preview-link">View prompt →</a>
                     </article>
 
                     <article class="home-preview-card">
@@ -175,7 +138,7 @@
                         </div>
                         <h3>Code Review Assistant</h3>
                         <p>A systematic code review prompt that checks for correctness, performance, security issues, and code style consistency.</p>
-                        <a href="feed.html" class="home-preview-link">View prompt →</a>
+                        <a href="{{ url_for('main.feed') }}" class="home-preview-link">View prompt →</a>
                     </article>
 
                     <article class="home-preview-card">
@@ -185,12 +148,12 @@
                         </div>
                         <h3>Literature Review Synthesizer</h3>
                         <p>Transform multiple research papers into a concise, structured literature review with key themes and gaps identified.</p>
-                        <a href="feed.html" class="home-preview-link">View prompt →</a>
+                        <a href="{{ url_for('main.feed') }}" class="home-preview-link">View prompt →</a>
                     </article>
                 </div>
 
                 <div class="home-featured-footer">
-                    <a href="feed.html" class="button-link secondary">Browse all prompts</a>
+                    <a href="{{ url_for('main.feed') }}" class="button-link secondary">Browse all prompts</a>
                 </div>
             </section>
 
@@ -199,16 +162,14 @@
                     <h2 id="cta-strip-title" class="typewriter-line cta-typewriter-line" data-text="Ready to level up your AI prompts?"></h2>
                     <p>Join the community. Share what works. Build on what others create.</p>
                     <div class="minimal-home-actions home-cta-actions">
-                        <a class="button-link primary" href="signup.html">Get Started Free</a>
-                        <a class="button-link home-cta-secondary" href="feed.html">Explore First</a>
+                        <a class="button-link primary" href="{{ url_for('main.signup') }}">Get Started Free</a>
+                        <a class="button-link home-cta-secondary" href="{{ url_for('main.feed') }}">Explore First</a>
                     </div>
                 </div>
             </section>
-        </main>
+{% endblock %}
 
-        <footer class="site-footer" data-shared-footer aria-labelledby="site-footer-title"></footer>
-    </div>
-
+{% block scripts %}
     <script>
         (function () {
 
@@ -359,8 +320,5 @@
 
         }());
     </script>
-    <script src="../static/js/ui-common.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    {{ super() }}
+{% endblock %}
