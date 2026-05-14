@@ -9,8 +9,8 @@ The current design keeps the user interface simple and task-focused. The feed pa
 | UWA ID | Name | GitHub username |
 | --- | --- | --- |
 | 24262634 | Qian Yingjie | chan-yingjie |
-| 24771727 | Armin Islam | TODO |
-| 23864156 | Chinmai Ravindran | TODO |
+| 24771727 | Armin Islam | Armin312 |
+| 23864156 | Chinmai Ravindran | chinmaiii |
 
 ## Launch Instructions
 

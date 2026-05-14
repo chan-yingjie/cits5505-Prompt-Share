@@ -178,6 +178,10 @@ document.querySelectorAll(".topbar").forEach((topbar) => {
         link.addEventListener("click", closeNav);
     });
 
+    nav.querySelectorAll(".topnav-logout-btn").forEach((btn) => {
+        btn.addEventListener("click", closeNav);
+    });
+
     document.addEventListener("click", (event) => {
         if (!topbar.contains(event.target)) {
             closeNav();

@@ -27,6 +27,7 @@
                         <a class="button-link primary" href="{{ url_for('main.feed') }}">Explore Prompts</a>
                         {% if not current_user.is_authenticated %}
                         <a class="button-link secondary" href="{{ url_for('main.login') }}">Login</a>
+                        <a class="button-link secondary" href="{{ url_for('main.signup') }}">Sign up</a>
                         {% endif %}
                     </div>
                 </section>

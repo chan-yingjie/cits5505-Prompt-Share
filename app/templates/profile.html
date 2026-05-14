@@ -25,12 +25,6 @@
                 <div class="profile-banner-actions">
                     <a class="button-link secondary pf-btn" href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
                     <a class="button-link primary pf-btn" href="{{ url_for('main.feed') }}">Explore</a>
-                    {% if current_user.is_authenticated %}
-                    <form class="profile-logout-form" method="post" action="{{ url_for('main.logout') }}">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button class="button-link secondary pf-btn" type="submit">Log out</button>
-                    </form>
-                    {% endif %}
                 </div>
 
                 <!-- User identity: left side -->

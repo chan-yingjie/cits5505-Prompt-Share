@@ -426,7 +426,7 @@ a {
     
 }
 
-.topnav a {
+.topnav .topnav-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -437,36 +437,32 @@ a {
     font-weight: 500;
     font-family: "Poppins", sans-serif;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
-.topnav a[href="index.html"] {
-    order: 1;
-}
+.topnav-link--home { order: 1; }
+.topnav-link--explore { order: 2; }
+.topnav-link--submit { order: 3; }
+.topnav-link--leaderboard { order: 4; }
+.topnav-link--account { order: 5; }
+.topnav-link--signup { order: 6; }
 
-.topnav a[href="feed.html"] {
-    order: 2;
-}
-
-.topnav a[href="leaderboard.html"] {
-    order: 3;
-}
-
-.topnav a[href="submit-prompt.html"] {
-    order: 4;
-}
-
-.topnav a[href="profile.html"] {
-    order: 5;
-}
-
-.topnav a[href="login.html"] {
+.topnav-logout-form {
+    display: inline-flex;
+    margin: 0;
     order: 6;
 }
-.topnav a[href="signup.html"] {
-  order: 7;
+
+.topnav-logout-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    width: auto;
 }
-.topnav a:hover,
-.topnav a.active {
+
+.topnav .topnav-link:hover,
+.topnav .topnav-link.active {
     color: #111111;
     background: #f3e8df;
     transform: none;
@@ -504,16 +500,22 @@ a {
         display: flex;
     }
 
-    .topnav a {
+    .topnav .topnav-link,
+    .topnav-logout-btn {
         font-size: 0.94rem;
     }
 
-    .topnav a {
+    .topnav .topnav-link,
+    .topnav-logout-btn {
         width: 100%;
         justify-content: flex-start;
         padding: 12px 14px;
         background: rgba(255, 255, 255, 0.92);
         border: 1px solid #ece7e1;
+    }
+
+    .topnav-logout-form {
+        width: 100%;
     }
 }
 
@@ -1979,6 +1981,27 @@ p {
 
 .detail-comments-inline {
     padding-bottom: 150px;
+}
+
+.detail-comments-auth-hint {
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.78);
+    margin-bottom: 16px;
+}
+
+.detail-comments-auth-hint p {
+    margin: 0 0 12px 0;
+    font-size: 0.94rem;
+    color: #555;
+}
+
+.detail-comments-auth-hint-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
 }
 
 .comment-form {
@@ -5885,11 +5908,6 @@ body.profile-page .page-shell {
     justify-content: flex-end;
 }
 
-.profile-logout-form {
-    margin: 0;
-}
-
-.pf-btn {
     font-size: 0.82rem;
     padding: 7px 16px;
 }

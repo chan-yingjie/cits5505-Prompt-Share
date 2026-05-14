@@ -111,6 +111,7 @@
                     </div>
 
                     <div class="detail-section detail-comments-inline">
+                    {% if current_user.is_authenticated %}
                        <form class="form-stack comment-form" id="detail-comment-form"
       method="POST"
       action="{{ url_for('main.add_comment', prompt_id=prompt.id) }}">
@@ -157,6 +158,15 @@
                                 </div>
                             </div>
                         </form>
+                    {% else %}
+                        <div class="detail-comments-auth-hint" role="note">
+                            <p>Log in to leave a comment on this prompt.</p>
+                            <div class="detail-comments-auth-hint-actions">
+                                <a class="button-link primary" href="{{ url_for('main.login', next=request.path) }}">Log in</a>
+                                <a class="button-link secondary" href="{{ url_for('main.signup') }}">Sign up</a>
+                            </div>
+                        </div>
+                    {% endif %}
                        <div class="comment-list" id="comment-list" aria-live="polite">
 
   {% if comments %}

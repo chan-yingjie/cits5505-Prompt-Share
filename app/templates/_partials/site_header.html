@@ -1,13 +1,22 @@
 <header class="topbar">
     <nav class="topnav" aria-label="Primary navigation">
-        <a href="{{ url_for('main.index') }}">Home</a>
-        <a href="{{ url_for('main.feed') }}">Explore</a>
-        <a href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
-        <a href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
+        <a class="topnav-link topnav-link--home" href="{{ url_for('main.index') }}">Home</a>
+        <a class="topnav-link topnav-link--explore" href="{{ url_for('main.feed') }}">Explore</a>
         {% if current_user.is_authenticated %}
-            <a href="{{ url_for('main.profile', user=current_user.username) }}">Profile</a>
+            <a class="topnav-link topnav-link--submit" href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
         {% else %}
-            <a href="{{ url_for('main.login') }}">Login</a>
+            <a class="topnav-link topnav-link--submit" href="{{ url_for('main.login', next=url_for('main.submit_prompt')) }}" title="Log in to submit a prompt">Submit Prompt</a>
+        {% endif %}
+        <a class="topnav-link topnav-link--leaderboard" href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
+        {% if current_user.is_authenticated %}
+            <a class="topnav-link topnav-link--account" href="{{ url_for('main.profile', user=current_user.username) }}">Profile</a>
+            <form class="topnav-logout-form" method="post" action="{{ url_for('main.logout') }}" aria-label="Log out">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="topnav-link topnav-logout-btn">Log out</button>
+            </form>
+        {% else %}
+            <a class="topnav-link topnav-link--account" href="{{ url_for('main.login') }}">Login</a>
+            <a class="topnav-link topnav-link--signup" href="{{ url_for('main.signup') }}">Sign up</a>
         {% endif %}
     </nav>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
