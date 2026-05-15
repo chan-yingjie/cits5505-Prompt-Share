@@ -749,13 +749,3 @@ window.promptFeedData = [
         ]
     }
 ];
-
-// Merge user-submitted prompts from localStorage
-(function () {
-    try {
-        const stored = JSON.parse(localStorage.getItem("ps_user_prompts") || "[]");
-        if (Array.isArray(stored) && stored.length) {
-            window.promptFeedData = stored.concat(window.promptFeedData);
-        }
-    } catch (_) {}
-}());
