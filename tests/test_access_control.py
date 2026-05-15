@@ -89,6 +89,7 @@ def test_recent_profile_shows_recent_join_label(auth_client, registered_user):
 
     assert response.status_code == 200
     assert b"Joined recently" in response.data
+    assert b"New user" in response.data
 
 
 def test_older_profile_shows_join_month(auth_client):
@@ -100,6 +101,7 @@ def test_older_profile_shows_join_month(auth_client):
 
     assert response.status_code == 200
     assert b"Joined Jan 2024" in response.data
+    assert b"Member" in response.data
 
 
 def test_prompt_edit_requires_login(client, registered_user):

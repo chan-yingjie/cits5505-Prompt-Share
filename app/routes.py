@@ -66,6 +66,16 @@ def _profile_join_label(user):
     return f"Joined {user.created_at.strftime('%b %Y')}"
 
 
+def _profile_badge_label(user):
+    if user.created_at is None:
+        return "New user"
+
+    if datetime.now() - user.created_at <= timedelta(days=30):
+        return "New user"
+
+    return "Member"
+
+
 @main_bp.route("/")
 @main_bp.route("/index.html")
 def index():
@@ -190,6 +200,7 @@ def profile(user):
         profile_user=profile_user,
         prompts=prompts,
         join_label=_profile_join_label(profile_user),
+        badge_label=_profile_badge_label(profile_user),
     )
 @main_bp.route("/profile")
 @main_bp.route("/profile.html")

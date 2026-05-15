@@ -5914,12 +5914,14 @@ body.profile-page .page-shell {
 
 /* ─── User identity row ─── */
 .profile-banner-identity {
-    display: flex;
-    align-items: flex-start;
-    gap: 22px;
+    display: grid;
+    grid-template-columns: 124px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
     padding: 36px 36px 28px;
     position: relative;
     z-index: 1;
+    max-width: 720px;
 }
 
 /* Avatar */
@@ -5992,24 +5994,25 @@ body.profile-page .page-shell {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
+    justify-content: center;
 }
 
 .profile-name-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .profile-name {
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 2rem;
+    font-weight: 800;
     color: #111111;
-    letter-spacing: -0.03em;
     line-height: 1.15;
+    overflow-wrap: anywhere;
 }
 
 .profile-badge {
@@ -6041,6 +6044,11 @@ body.profile-page .page-shell {
     max-width: 440px;
 }
 
+.profile-bio-placeholder {
+    color: #888888;
+    font-style: italic;
+}
+
 .profile-meta-row {
     display: flex;
     flex-wrap: wrap;
@@ -6066,7 +6074,7 @@ body.profile-page .page-shell {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    padding: 0 32px 24px;
+    padding: 18px 32px 24px;
     position: relative;
     z-index: 1;
 }
@@ -6586,9 +6594,16 @@ body.profile-page .page-shell {
     }
 
     .profile-banner-identity {
-        flex-direction: column;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: 88px minmax(0, 1fr);
+        align-items: center;
+        gap: 14px;
         padding: 20px 16px;
+    }
+
+    .profile-avatar {
+        width: 88px;
+        height: 88px;
     }
 
     .profile-stats-row {
@@ -6602,6 +6617,7 @@ body.profile-page .page-shell {
 
     .profile-name {
         font-size: 1.25rem;
+        overflow-wrap: anywhere;
     }
 
     .profile-stat-card {
@@ -8538,4 +8554,29 @@ background: #fff;
 
 .modal-overlay.show {
   display: grid;
+}
+
+/* Profile identity override: keep avatar and username on one horizontal row. */
+.profile-page .profile-banner-identity {
+  display: grid !important;
+  grid-template-columns: 124px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 16px !important;
+}
+
+.profile-page .profile-avatar-wrap {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+}
+
+.profile-page .profile-identity-text {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: center !important;
+}
+
+@media (max-width: 560px) {
+  .profile-page .profile-banner-identity {
+    grid-template-columns: 88px minmax(0, 1fr) !important;
+  }
 }
