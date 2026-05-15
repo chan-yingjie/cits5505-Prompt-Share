@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Submit Prompt | Prompt Share{% endblock %}
+{% block title %}{{ form_title|default("Submit Prompt") }} | Prompt Share{% endblock %}
 
 {% block body_class %}submit-page{% endblock %}
 
@@ -21,7 +21,7 @@
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 1l1.5 3.5L12 6l-3.5 1.5L7 11l-1.5-3.5L2 6l3.5-1.5L7 1z" fill="currentColor"/></svg>
                         Community Prompts
                     </span>
-                    <h1 class="submit-hero-title">Create a&nbsp;<em>new prompt</em></h1>
+                    <h1 class="submit-hero-title">{{ hero_title|default("Create a new prompt") }}</h1>
                     <p class="submit-hero-sub">Share your best prompts with the community — clear, specific, and ready to use.</p>
                 </div>
                 <img class="submit-hero-figure" src="{{ url_for('static', filename='images/pic9-transparent.png') }}" alt="" aria-hidden="true">
@@ -96,7 +96,7 @@
 
             <!-- RIGHT: Form -->
             <section class="content-block submit-main">
-                <form class="form-stack submit-form" id="submit-prompt-form" method="post" action="{{ url_for('main.submit_prompt') }}" novalidate>
+                <form class="form-stack submit-form" id="submit-prompt-form" method="post" action="{{ form_action|default(url_for('main.submit_prompt')) }}" novalidate>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                     <div class="form-stack submit-field">
@@ -191,7 +191,7 @@
 
                     <div class="submit-actions">
                         <button class="button-link secondary button-submit" type="reset">Clear</button>
-                        <button class="button-link primary button-submit" type="submit">Publish Prompt</button>
+                        <button class="button-link primary button-submit" type="submit">{{ submit_label|default("Publish Prompt") }}</button>
                     </div>
 
                     <p class="status-note" id="submit-status" aria-live="polite"></p>

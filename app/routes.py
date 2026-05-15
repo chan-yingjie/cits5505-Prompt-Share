@@ -13,6 +13,48 @@ main_bp = Blueprint("main", __name__)
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
+def _prompt_form_data_from_request():
+    return {
+        "title": request.form.get("prompt-title", "").strip(),
+        "categories": request.form.getlist("categories"),
+        "description": request.form.get("prompt-description", "").strip(),
+        "body": request.form.get("prompt-body", "").strip(),
+        "output_preview": request.form.get("prompt-output", "").strip(),
+    }
+
+
+def _prompt_form_data_from_prompt(prompt):
+    categories = [prompt.category]
+    if prompt.subcategory:
+        categories.append(prompt.subcategory)
+
+    return {
+        "title": prompt.title,
+        "categories": categories,
+        "description": prompt.description,
+        "body": prompt.body,
+        "output_preview": prompt.output_preview or "",
+    }
+
+
+def _validate_prompt_form(form_data):
+    if not form_data["title"] or not form_data["description"] or not form_data["body"]:
+        return "Please complete all required fields."
+    if not form_data["categories"]:
+        return "Please select at least 1 category."
+    if len(form_data["categories"]) > 3:
+        return "You can select up to 3 categories only."
+    return None
+
+
+def _current_user_owns_prompt(prompt):
+    return current_user.is_authenticated and prompt.author_id == current_user.id
+
+
+def _current_user_owns_comment(comment):
+    return current_user.is_authenticated and comment.user_id == current_user.id
+
+
 @main_bp.route("/")
 @main_bp.route("/index.html")
 def index():
@@ -157,14 +199,14 @@ def prompt_detail_redirect():
 
 @main_bp.route("/prompt/<int:prompt_id>")
 def prompt_detail(prompt_id):
-    prompt = Prompt.query.get_or_404(prompt_id)
+    prompt = db.get_or_404(Prompt, prompt_id)
     comments = Comment.query.filter_by(prompt_id=prompt.id).order_by(Comment.created_at.asc()).all()
     return render_template("prompt-detail.html", prompt=prompt, comments=comments)
 
 @main_bp.route("/prompt/<int:prompt_id>/comment", methods=["POST"])
 @login_required
 def add_comment(prompt_id):
-    prompt = Prompt.query.get_or_404(prompt_id)
+    prompt = db.get_or_404(Prompt, prompt_id)
     body = request.form.get("comment", "").strip()
 
     if not body:
@@ -183,6 +225,45 @@ def add_comment(prompt_id):
     flash("Comment added successfully.", "success")
     return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
 
+
+@main_bp.route("/comment/<int:comment_id>/edit", methods=["POST"])
+@login_required
+def edit_comment(comment_id):
+    comment = db.get_or_404(Comment, comment_id)
+
+    if not _current_user_owns_comment(comment):
+        flash("You can only edit your own comments.", "error")
+        return redirect(url_for("main.prompt_detail", prompt_id=comment.prompt_id))
+
+    body = (request.form.get("comment") or request.form.get("body") or "").strip()
+
+    if not body:
+        flash("Comment cannot be empty.", "error")
+        return redirect(url_for("main.prompt_detail", prompt_id=comment.prompt_id))
+
+    comment.body = body
+    db.session.commit()
+
+    flash("Comment updated successfully.", "success")
+    return redirect(url_for("main.prompt_detail", prompt_id=comment.prompt_id))
+
+
+@main_bp.route("/comment/<int:comment_id>/delete", methods=["POST"])
+@login_required
+def delete_comment(comment_id):
+    comment = db.get_or_404(Comment, comment_id)
+    prompt_id = comment.prompt_id
+
+    if not _current_user_owns_comment(comment):
+        flash("You can only delete your own comments.", "error")
+        return redirect(url_for("main.prompt_detail", prompt_id=prompt_id))
+
+    db.session.delete(comment)
+    db.session.commit()
+
+    flash("Comment deleted successfully.", "success")
+    return redirect(url_for("main.prompt_detail", prompt_id=prompt_id))
+
 @main_bp.route("/submit-prompt", methods=["GET", "POST"])
 @main_bp.route("/submit-prompt.html", methods=["GET", "POST"])
 @login_required
@@ -196,34 +277,19 @@ def submit_prompt():
     }
 
     if request.method == "POST":
-        title = request.form.get("prompt-title", "").strip()
-        categories = request.form.getlist("categories")
-        description = request.form.get("prompt-description", "").strip()
-        body = request.form.get("prompt-body", "").strip()
-        output_preview = request.form.get("prompt-output", "").strip()
+        form_data = _prompt_form_data_from_request()
+        validation_error = _validate_prompt_form(form_data)
 
-        form_data = {
-            "title": title,
-            "categories": categories,
-            "description": description,
-            "body": body,
-            "output_preview": output_preview,
-        }
-
-        if not title or not description or not body:
-            flash("Please complete all required fields.", "error")
-        elif not categories:
-            flash("Please select at least 1 category.", "error")
-        elif len(categories) > 3:
-            flash("You can select up to 3 categories only.", "error")
+        if validation_error:
+            flash(validation_error, "error")
         else:
             prompt = Prompt(
-                title=title,
-                category=categories[0],
-                subcategory=categories[1] if len(categories) > 1 else None,
-                description=description,
-                body=body,
-                output_preview=output_preview or None,
+                title=form_data["title"],
+                category=form_data["categories"][0],
+                subcategory=form_data["categories"][1] if len(form_data["categories"]) > 1 else None,
+                description=form_data["description"],
+                body=form_data["body"],
+                output_preview=form_data["output_preview"] or None,
                 author=current_user,
             )
             db.session.add(prompt)
@@ -232,6 +298,61 @@ def submit_prompt():
             return redirect(url_for("main.submit_prompt"))
 
     return render_template("submit-prompt.html", form_data=form_data)
+
+
+@main_bp.route("/prompt/<int:prompt_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_prompt(prompt_id):
+    prompt = db.get_or_404(Prompt, prompt_id)
+
+    if not _current_user_owns_prompt(prompt):
+        flash("You can only edit your own prompts.", "error")
+        return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
+
+    form_data = _prompt_form_data_from_prompt(prompt)
+
+    if request.method == "POST":
+        form_data = _prompt_form_data_from_request()
+        validation_error = _validate_prompt_form(form_data)
+
+        if validation_error:
+            flash(validation_error, "error")
+        else:
+            prompt.title = form_data["title"]
+            prompt.category = form_data["categories"][0]
+            prompt.subcategory = form_data["categories"][1] if len(form_data["categories"]) > 1 else None
+            prompt.description = form_data["description"]
+            prompt.body = form_data["body"]
+            prompt.output_preview = form_data["output_preview"] or None
+            db.session.commit()
+
+            flash("Prompt updated successfully.", "success")
+            return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
+
+    return render_template(
+        "submit-prompt.html",
+        form_data=form_data,
+        form_action=url_for("main.edit_prompt", prompt_id=prompt.id),
+        form_title="Edit Prompt",
+        hero_title="Edit this prompt",
+        submit_label="Save Changes",
+    )
+
+
+@main_bp.route("/prompt/<int:prompt_id>/delete", methods=["POST"])
+@login_required
+def delete_prompt(prompt_id):
+    prompt = db.get_or_404(Prompt, prompt_id)
+
+    if not _current_user_owns_prompt(prompt):
+        flash("You can only delete your own prompts.", "error")
+        return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
+
+    db.session.delete(prompt)
+    db.session.commit()
+
+    flash("Prompt deleted successfully.", "success")
+    return redirect(url_for("main.feed"))
 
 
 @main_bp.route("/logout", methods=["POST"])

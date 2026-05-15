@@ -9,6 +9,14 @@
 {% block main_class %}layout{% endblock %}
 
 {% block content %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="page-flash {{ 'is-error' if messages[-1][0] == 'error' else 'is-success' }}">
+                {{ messages[-1][1] }}
+            </div>
+            {% endif %}
+            {% endwith %}
+
             <section class="detail-layout">
                 <article class="content-block detail-main">
                     <div class="detail-header">

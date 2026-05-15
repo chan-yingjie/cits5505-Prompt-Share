@@ -1,4 +1,45 @@
-from tests.conftest import login, signup
+from tests.conftest import assert_message_in_response, login, signup
+from app.extensions import db
+from app.models import Comment, Prompt, User
+
+
+def _create_user(name, email):
+    user = User(username=name, email=email, password_hash="hash")
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+
+def _create_prompt(author, title="Owned prompt"):
+    prompt = Prompt(
+        title=title,
+        category="Writing",
+        description="A useful prompt.",
+        body="Write something useful.",
+        author=author,
+    )
+    db.session.add(prompt)
+    db.session.commit()
+    return prompt
+
+
+def _create_comment(author, prompt, body="Original comment"):
+    comment = Comment(body=body, author=author, prompt=prompt)
+    db.session.add(comment)
+    db.session.commit()
+    return comment
+
+
+def _prompt_update_data(**overrides):
+    data = {
+        "prompt-title": "Updated prompt",
+        "categories": ["Education", "Coding"],
+        "prompt-description": "Updated description.",
+        "prompt-body": "Updated body.",
+        "prompt-output": "Updated output.",
+    }
+    data.update(overrides)
+    return data
 
 
 def test_submit_prompt_requires_login(client):
@@ -39,3 +80,175 @@ def test_authenticated_user_can_access_own_profile(auth_client, registered_user)
     )
 
     assert response.status_code == 200
+
+
+def test_prompt_edit_requires_login(client, registered_user):
+    prompt = _create_prompt(registered_user)
+
+    response = client.post(
+        f"/prompt/{prompt.id}/edit",
+        data=_prompt_update_data(),
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert "/login" in response.location
+
+
+def test_prompt_owner_can_edit_prompt(auth_client, registered_user):
+    prompt = _create_prompt(registered_user)
+
+    response = auth_client.post(
+        f"/prompt/{prompt.id}/edit",
+        data=_prompt_update_data(),
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert f"/prompt/{prompt.id}" in response.location
+
+    updated_prompt = db.session.get(Prompt, prompt.id)
+    assert updated_prompt.title == "Updated prompt"
+    assert updated_prompt.category == "Education"
+    assert updated_prompt.subcategory == "Coding"
+    assert updated_prompt.description == "Updated description."
+    assert updated_prompt.body == "Updated body."
+    assert updated_prompt.output_preview == "Updated output."
+
+
+def test_prompt_owner_can_access_edit_form(auth_client, registered_user):
+    prompt = _create_prompt(registered_user)
+
+    response = auth_client.get(f"/prompt/{prompt.id}/edit", follow_redirects=False)
+
+    assert response.status_code == 200
+    assert "Save Changes" in response.get_data(as_text=True)
+
+
+def test_non_owner_cannot_access_prompt_edit_form(auth_client):
+    other_user = _create_user("Other User", "other@example.com")
+    prompt = _create_prompt(other_user)
+
+    response = auth_client.get(f"/prompt/{prompt.id}/edit", follow_redirects=True)
+
+    assert response.status_code == 200
+    assert_message_in_response(response, "You can only edit your own prompts.")
+
+
+def test_non_owner_cannot_edit_prompt(auth_client, registered_user):
+    other_user = _create_user("Other User", "other@example.com")
+    prompt = _create_prompt(other_user)
+
+    response = auth_client.post(
+        f"/prompt/{prompt.id}/edit",
+        data=_prompt_update_data(),
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert_message_in_response(response, "You can only edit your own prompts.")
+
+    unchanged_prompt = db.session.get(Prompt, prompt.id)
+    assert unchanged_prompt.title == "Owned prompt"
+    assert unchanged_prompt.author_id == other_user.id
+
+
+def test_prompt_owner_can_delete_prompt(auth_client, registered_user):
+    prompt = _create_prompt(registered_user)
+
+    response = auth_client.post(
+        f"/prompt/{prompt.id}/delete",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert "/feed" in response.location
+    assert db.session.get(Prompt, prompt.id) is None
+
+
+def test_non_owner_cannot_delete_prompt(auth_client):
+    other_user = _create_user("Other User", "other@example.com")
+    prompt = _create_prompt(other_user)
+
+    response = auth_client.post(
+        f"/prompt/{prompt.id}/delete",
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert_message_in_response(response, "You can only delete your own prompts.")
+    assert db.session.get(Prompt, prompt.id) is not None
+
+
+def test_comment_edit_requires_login(client, registered_user):
+    prompt = _create_prompt(registered_user)
+    comment = _create_comment(registered_user, prompt)
+
+    response = client.post(
+        f"/comment/{comment.id}/edit",
+        data={"comment": "Updated comment"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert "/login" in response.location
+
+
+def test_comment_owner_can_edit_comment(auth_client, registered_user):
+    prompt = _create_prompt(registered_user)
+    comment = _create_comment(registered_user, prompt)
+
+    response = auth_client.post(
+        f"/comment/{comment.id}/edit",
+        data={"comment": "Updated comment"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert f"/prompt/{prompt.id}" in response.location
+    assert db.session.get(Comment, comment.id).body == "Updated comment"
+
+
+def test_non_owner_cannot_edit_comment(auth_client):
+    other_user = _create_user("Other User", "other@example.com")
+    prompt = _create_prompt(other_user)
+    comment = _create_comment(other_user, prompt)
+
+    response = auth_client.post(
+        f"/comment/{comment.id}/edit",
+        data={"comment": "Updated comment"},
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert_message_in_response(response, "You can only edit your own comments.")
+    assert db.session.get(Comment, comment.id).body == "Original comment"
+
+
+def test_comment_owner_can_delete_comment(auth_client, registered_user):
+    prompt = _create_prompt(registered_user)
+    comment = _create_comment(registered_user, prompt)
+
+    response = auth_client.post(
+        f"/comment/{comment.id}/delete",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert f"/prompt/{prompt.id}" in response.location
+    assert db.session.get(Comment, comment.id) is None
+
+
+def test_non_owner_cannot_delete_comment(auth_client):
+    other_user = _create_user("Other User", "other@example.com")
+    prompt = _create_prompt(other_user)
+    comment = _create_comment(other_user, prompt)
+
+    response = auth_client.post(
+        f"/comment/{comment.id}/delete",
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert_message_in_response(response, "You can only delete your own comments.")
+    assert db.session.get(Comment, comment.id) is not None
