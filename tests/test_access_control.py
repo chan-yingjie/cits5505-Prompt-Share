@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from tests.conftest import assert_message_in_response, login, signup
 from app.extensions import db
 from app.models import Comment, Prompt, User
@@ -80,6 +82,24 @@ def test_authenticated_user_can_access_own_profile(auth_client, registered_user)
     )
 
     assert response.status_code == 200
+
+
+def test_recent_profile_shows_recent_join_label(auth_client, registered_user):
+    response = auth_client.get(f"/profile/{registered_user.username}")
+
+    assert response.status_code == 200
+    assert b"Joined recently" in response.data
+
+
+def test_older_profile_shows_join_month(auth_client):
+    older_user = _create_user("Older User", "older@example.com")
+    older_user.created_at = datetime(2024, 1, 15)
+    db.session.commit()
+
+    response = auth_client.get("/profile/Older User")
+
+    assert response.status_code == 200
+    assert b"Joined Jan 2024" in response.data
 
 
 def test_prompt_edit_requires_login(client, registered_user):

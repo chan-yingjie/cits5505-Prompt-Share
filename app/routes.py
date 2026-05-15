@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
@@ -53,6 +54,16 @@ def _current_user_owns_prompt(prompt):
 
 def _current_user_owns_comment(comment):
     return current_user.is_authenticated and comment.user_id == current_user.id
+
+
+def _profile_join_label(user):
+    if user.created_at is None:
+        return "Joined recently"
+
+    if datetime.now() - user.created_at <= timedelta(days=30):
+        return "Joined recently"
+
+    return f"Joined {user.created_at.strftime('%b %Y')}"
 
 
 @main_bp.route("/")
@@ -177,7 +188,8 @@ def profile(user):
     return render_template(
         "profile.html",
         profile_user=profile_user,
-        prompts=prompts
+        prompts=prompts,
+        join_label=_profile_join_label(profile_user),
     )
 @main_bp.route("/profile")
 @main_bp.route("/profile.html")

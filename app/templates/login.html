@@ -106,10 +106,6 @@
     </svg>
   </button>
 </div>
-<button type="button" class="forgot-link" id="forgot-password-btn">
-  Forgot password?
-</button>
-
         <button class="auth-main-btn" type="submit">Log In</button>
 
 
@@ -127,28 +123,6 @@
   </main>
 </div>
 
-
-
-
-<div class="modal-overlay" id="reset-modal">
-  <div class="reset-modal">
-    <button type="button" class="modal-close" id="close-reset-modal">×</button>
-
-    <h2>Reset password</h2>
-    <p>Enter your email address and we will send you a reset code.</p>
-
-    <label for="reset-email">Email address</label>
-    <div class="auth-input">
-      <input id="reset-email" type="email" placeholder="Email address">
-    </div>
-
-    <button type="button" class="auth-main-btn" id="send-code-btn">
-      Send code
-    </button>
-
-    <p class="auth-status" id="reset-status"></p>
-  </div>
-</div>
 {% endblock %}
 
 {% block scripts %}

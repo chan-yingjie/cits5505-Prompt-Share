@@ -15,41 +15,9 @@ document.querySelectorAll(".password-input").forEach((wrapper) => {
     eyeOff.style.display = isHidden ? "none" : "block";
   });
 });
-const forgotBtn = document.getElementById("forgot-password-btn");
-const resetModal = document.getElementById("reset-modal");
-const closeResetModal = document.getElementById("close-reset-modal");
-const sendCodeBtn = document.getElementById("send-code-btn");
-const resetEmail = document.getElementById("reset-email");
-const resetStatus = document.getElementById("reset-status");
 const loginForm = document.getElementById("login-form");
 const loginStatus = document.querySelector(".auth-card .auth-status");
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-if (forgotBtn && resetModal) {
-  forgotBtn.addEventListener("click", function () {
-    resetModal.classList.add("show");
-    resetStatus.textContent = "";
-  });
-}
-
-if (closeResetModal && resetModal) {
-  closeResetModal.addEventListener("click", function () {
-    resetModal.classList.remove("show");
-  });
-}
-
-if (sendCodeBtn) {
-  sendCodeBtn.addEventListener("click", function () {
-    const email = resetEmail.value.trim();
-
-    if (!email) {
-      resetStatus.textContent = "Please enter your email address.";
-      return;
-    }
-
-    resetStatus.textContent = "Verification code sent to your email.";
-  });
-}
 
 if (loginForm) {
   loginForm.addEventListener("submit", function (event) {
