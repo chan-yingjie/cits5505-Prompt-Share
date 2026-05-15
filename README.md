@@ -61,10 +61,11 @@ The current design keeps the user interface simple and task-focused. The feed pa
 
 ## Test Instructions
 
-The project currently uses manual smoke testing and Python compilation checks. Run these commands before committing changes:
+Run these checks before committing changes:
 
 ```bash
 python -m compileall app
+python -m pytest
 git diff --check
 ```
 
@@ -78,8 +79,4 @@ Recommended manual smoke test flow:
 6. Add a comment on a prompt detail page and confirm it persists after refresh.
 7. Open the logged-in user's profile and confirm submitted prompts are shown.
 
-If automated tests are added later, place them in a `tests/` directory and run:
-
-```bash
-pytest
-```
+The automated tests live in the `tests/` directory. Use `python -m pytest` so the project root is on Python's import path.
