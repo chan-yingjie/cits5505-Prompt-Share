@@ -1,3 +1,9 @@
+/*
+ * ui-pages.css
+ * Main stylesheet for Prompt Share.
+ * Covers global layout, typography, navigation, cards, forms, and page-specific styles.
+ */
+
 html,
 body {
     min-height: 100%;

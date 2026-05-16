@@ -1,3 +1,10 @@
+/**
+ * login.js
+ * Client-side behaviour for the login page:
+ *   - Password show/hide toggle
+ *   - Basic field validation before form submission (email format, empty fields)
+ */
+
 document.querySelectorAll(".password-input").forEach((wrapper) => {
   const input = wrapper.querySelector("input");
   const toggle = wrapper.querySelector(".password-toggle");
@@ -18,6 +25,7 @@ document.querySelectorAll(".password-input").forEach((wrapper) => {
     eyeOff.style.display = isHidden ? "none" : "block";
   });
 });
+
 const loginForm = document.getElementById("login-form");
 const loginStatus = document.querySelector(".auth-card .auth-status");
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,6 +37,7 @@ if (loginForm) {
     const email = emailInput ? emailInput.value.trim() : "";
     const password = passwordInput ? passwordInput.value : "";
 
+    // Block submission and show inline error if fields are empty or email is invalid.
     if (!email || !password) {
       event.preventDefault();
 

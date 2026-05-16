@@ -1,3 +1,13 @@
+/**
+ * submit-prompt.js
+ * Client-side behaviour for the prompt submission and edit forms:
+ *   - Category checkbox enforcement (max 3, live counter)
+ *   - Step progress indicator (highlights the current incomplete step)
+ *   - Field focus + shake animation on validation failure
+ *   - "Skip output" shortcut
+ *   - Form validation before submission
+ */
+
 const submitForm     = document.getElementById("submit-prompt-form");
 const categoryInputs = document.querySelectorAll('input[name="categories"]');
 const categoryStatus = document.getElementById("category-status");
@@ -10,7 +20,7 @@ const bodyInput     = document.getElementById("prompt-body");
 const outputInput   = document.getElementById("prompt-output");
 const skipOutputBtn = document.getElementById("skip-output-btn");
 
-// Category validation
+// Update the "X of 3 selected" counter and disable unchosen boxes when limit is reached.
 function updateCategoryStatus() {
     const selected = Array.from(categoryInputs).filter((i) => i.checked);
     if (categoryStatus) categoryStatus.textContent = `${selected.length} of 3 selected`;
@@ -22,12 +32,13 @@ function updateCategoryStatus() {
 categoryInputs.forEach((input) => input.addEventListener("change", updateCategoryStatus));
 updateCategoryStatus();
 
-// Step progress
+// Step progress sidebar.
 const stepCards  = Array.from(document.querySelectorAll(".submit-tip-card"));
 const stepNums   = ['01', '02', '03', '04', '05'];
 
 let outputSkipped = false;
 
+// Scroll the invalid field into view and briefly flash an error class.
 function focusField(field, targetInput) {
     const target = targetInput || field;
 
@@ -65,6 +76,7 @@ function isStepDone(index) {
     return false;
 }
 
+// Mark each step card as done, active (first incomplete), or pending.
 function updateSteps() {
     let foundActive = false;
     stepCards.forEach((card, i) => {
@@ -76,7 +88,6 @@ function updateSteps() {
             card.classList.remove("is-active", "is-pending");
             numEl.textContent = "✓";
         } else if (!foundActive) {
-            // first incomplete step = active
             card.classList.add("is-active");
             card.classList.remove("is-done", "is-pending");
             numEl.textContent = stepNums[i];
@@ -89,7 +100,7 @@ function updateSteps() {
     });
 }
 
-// Trigger re-evaluation on any field change
+// Re-evaluate step progress on any field change.
 titleInput.addEventListener("input",  updateSteps);
 descInput.addEventListener("input",   updateSteps);
 bodyInput.addEventListener("input",   updateSteps);
@@ -109,10 +120,10 @@ if (skipOutputBtn) {
     });
 }
 
-// Initial state: step 01 active
+// Initialise step state on page load.
 updateSteps();
 
-// Submit
+// Form submission validation.
 if (submitForm) {
     submitForm.addEventListener("submit", function (event) {
         const title         = titleInput.value.trim();
@@ -150,6 +161,7 @@ if (submitForm) {
         submitStatus.textContent = "";
     });
 
+    // Reset skip state and step indicator when the form is cleared.
     submitForm.addEventListener("reset", function () {
         window.setTimeout(() => {
             outputSkipped = false;

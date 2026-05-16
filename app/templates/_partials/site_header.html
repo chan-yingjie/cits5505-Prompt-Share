@@ -1,3 +1,4 @@
+{# site_header.html — Top navigation bar partial, included in base.html. #}
 <header class="topbar">
     {% set current_endpoint = request.endpoint or '' %}
     {% set is_home = current_endpoint == 'main.index' %}

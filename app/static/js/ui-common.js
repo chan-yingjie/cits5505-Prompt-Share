@@ -1,3 +1,14 @@
+/**
+ * ui-common.js
+ * Shared UI behaviours loaded on every page:
+ *   - Shared footer markup generation
+ *   - Back-to-top button visibility
+ *   - Mobile author popover toggling
+ *   - Responsive navigation menu (open/close)
+ *   - Output preview panel toggle (prompt detail page)
+ *   - Profile collapsible section toggles
+ */
+
 function buildSharedFooterMarkup() {
     const navItems = [
         {
@@ -85,10 +96,12 @@ function buildSharedFooterMarkup() {
     `;
 }
 
+// Inject footer HTML into every element marked with [data-shared-footer].
 document.querySelectorAll("[data-shared-footer]").forEach((footer) => {
     footer.innerHTML = buildSharedFooterMarkup();
 });
 
+// Back-to-top button: show when scrolled past 280 px, smooth-scroll on click.
 const backToTopButton = document.getElementById("back-to-top");
 
 if (backToTopButton) {
@@ -113,6 +126,7 @@ if (backToTopButton) {
     syncBackToTopVisibility();
 }
 
+// On mobile, tapping an author avatar opens a popover instead of navigating.
 const mobileQuery = window.matchMedia("(max-width: 860px)");
 
 function closeAuthorPopovers(exceptLink) {
@@ -145,6 +159,7 @@ document.addEventListener("click", (event) => {
     closeAuthorPopovers();
 });
 
+// Responsive navigation: hamburger toggle open/close with outside-click dismissal.
 document.querySelectorAll(".topbar").forEach((topbar) => {
     const toggle = topbar.querySelector(".nav-toggle");
     const nav = topbar.querySelector(".topnav");
@@ -195,6 +210,7 @@ document.querySelectorAll(".topbar").forEach((topbar) => {
     });
 });
 
+// Prompt detail: toggle the example output preview panel.
 const outputToggleButton = document.getElementById("output-toggle-button");
 const outputPreviewPanel = document.getElementById("detail-output-preview");
 
@@ -214,6 +230,7 @@ if (outputToggleButton && outputPreviewPanel) {
     });
 }
 
+// Profile page: collapsible sections (activity, submitted prompts, etc.).
 document.querySelectorAll(".pf-collapsible").forEach((section) => {
     const button = section.querySelector(".pf-toggle-btn");
     const label = section.querySelector(".pf-toggle-label");

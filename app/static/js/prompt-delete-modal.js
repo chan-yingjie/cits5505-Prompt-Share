@@ -1,3 +1,9 @@
+/**
+ * prompt-delete-modal.js
+ * Intercepts prompt delete form submissions and shows a confirmation modal
+ * before the request is actually sent, preventing accidental deletions.
+ */
+
 (function () {
   const modal = document.getElementById("delete-prompt-modal");
   const confirmButton = document.getElementById("confirm-delete-prompt-button");
@@ -26,6 +32,7 @@
     pendingForm = null;
   }
 
+  // Intercept all delete form submissions on the page.
   document.querySelectorAll(".prompt-delete-form, .pf-prompt-delete-form").forEach((form) => {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -37,12 +44,14 @@
     button.addEventListener("click", closeModal);
   });
 
+  // Clicking outside the modal dialog closes it.
   modal.addEventListener("click", (event) => {
     if (event.target === modal) {
       closeModal();
     }
   });
 
+  // Confirmed — submit the stored form.
   confirmButton.addEventListener("click", () => {
     pendingForm?.submit();
   });

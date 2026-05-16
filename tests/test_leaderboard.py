@@ -1,3 +1,5 @@
+"""Unit tests for the leaderboard page (/leaderboard)."""
+
 from datetime import datetime, timedelta
 from uuid import uuid4
 
@@ -6,6 +8,7 @@ from app.models import Comment, Prompt, User
 
 
 def _create_user(name, email):
+    """Create and persist a minimal User for testing."""
     user = User(
         username=f"user-{uuid4().hex[:8]}",
         display_name=name,
@@ -18,6 +21,7 @@ def _create_user(name, email):
 
 
 def _create_prompt(author, title, created_at=None):
+    """Create and persist a Prompt for testing."""
     prompt = Prompt(
         title=title,
         category="Writing",
@@ -32,6 +36,7 @@ def _create_prompt(author, title, created_at=None):
 
 
 def _add_comment(author, prompt, body="Useful prompt."):
+    """Create and persist a Comment on a prompt."""
     comment = Comment(body=body, author=author, prompt=prompt)
     db.session.add(comment)
     db.session.commit()
@@ -39,6 +44,7 @@ def _add_comment(author, prompt, body="Useful prompt."):
 
 
 def test_leaderboard_renders_real_prompt_rankings(client):
+    """Prompts with more comments should appear before prompts with fewer comments."""
     author = _create_user("Prompt Author", "author@example.com")
     commenter = _create_user("Commenter", "commenter@example.com")
     quiet_prompt = _create_prompt(author, "Quiet Prompt", datetime.now() - timedelta(days=2))
@@ -52,13 +58,14 @@ def test_leaderboard_renders_real_prompt_rankings(client):
     assert response.status_code == 200
     assert "Busy Prompt" in body
     assert "Quiet Prompt" in body
-    assert body.index("Busy Prompt") < body.index("Quiet Prompt")
+    assert body.index("Busy Prompt") < body.index("Quiet Prompt")  # higher ranked first
     assert "2</strong> comments" in body
-    assert "Debug assistant for Python" not in body
-    assert "prompt-data.js" not in body
+    assert "Debug assistant for Python" not in body  # no hardcoded data
+    assert "prompt-data.js" not in body              # no legacy static data file
 
 
 def test_leaderboard_renders_real_user_rankings(client):
+    """Users with more prompts should appear before users with fewer prompts."""
     top_user = _create_user("Top Publisher", "top@example.com")
     other_user = _create_user("Other Publisher", "other@example.com")
     _create_prompt(top_user, "Top First")
@@ -71,5 +78,5 @@ def test_leaderboard_renders_real_user_rankings(client):
     assert response.status_code == 200
     assert "Top Publisher" in body
     assert "Other Publisher" in body
-    assert body.index("Top Publisher") < body.index("Other Publisher")
+    assert body.index("Top Publisher") < body.index("Other Publisher")  # higher ranked first
     assert "2</strong> prompts" in body

@@ -1,9 +1,19 @@
+/**
+ * signup.js
+ * Client-side behaviour for the signup page:
+ *   - Password show/hide toggle for both password fields
+ *   - Interest checkbox logic (max 3, "All" is mutually exclusive)
+ *   - Form validation before submission (empty fields, email format,
+ *     password match, interest selection)
+ */
+
 const signupForm = document.getElementById("signup-form");
 const signupStatus = document.getElementById("signup-status");
 const interestInputs = document.querySelectorAll('input[name="interests"]');
 const passwordToggles = document.querySelectorAll(".password-toggle");
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Password show/hide toggle for each password field.
 passwordToggles.forEach(function (button) {
   button.addEventListener("click", function () {
     const targetId = button.getAttribute("data-target");
@@ -26,6 +36,8 @@ passwordToggles.forEach(function (button) {
     }
   });
 });
+
+// Interest checkbox logic: selecting "All" deselects others; max 3 non-All interests.
 interestInputs.forEach(function (input) {
   input.addEventListener("change", function () {
     const allOption = document.querySelector('input[name="interests"][value="All"]');
@@ -54,11 +66,12 @@ interestInputs.forEach(function (input) {
       signupStatus.textContent = "You can select up to 3 interests only.";
       return;
     }
-    
+
     signupStatus.textContent = "";
   });
 });
 
+// Form submission validation.
 if (signupForm) {
   signupForm.addEventListener("submit", function (event) {
     const name = document.getElementById("name").value.trim();

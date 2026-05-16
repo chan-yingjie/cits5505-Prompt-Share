@@ -1,9 +1,12 @@
+"""Unit tests for prompt submission and validation (/submit-prompt)."""
+
 from app.models import Prompt
 
 from tests.conftest import assert_message_in_response
 
 
 def _valid_prompt_data(**overrides):
+    """Return a complete set of valid prompt form data, with optional field overrides."""
     data = {
         "prompt-title": "Revision question generator",
         "categories": ["Education", "Writing"],
@@ -16,6 +19,7 @@ def _valid_prompt_data(**overrides):
 
 
 def test_submit_prompt_success_writes_to_database(auth_client, registered_user):
+    """A valid submission should save the prompt to the database with correct fields."""
     response = auth_client.post(
         "/submit-prompt",
         data=_valid_prompt_data(),
@@ -36,6 +40,7 @@ def test_submit_prompt_success_writes_to_database(auth_client, registered_user):
 
 
 def test_submit_prompt_validation_missing_required_fields(auth_client):
+    """Missing title, description, or body should show an error and not save the prompt."""
     before = Prompt.query.count()
 
     response = auth_client.post(
@@ -55,6 +60,7 @@ def test_submit_prompt_validation_missing_required_fields(auth_client):
 
 
 def test_submit_prompt_validation_no_categories(auth_client):
+    """Submitting with no category selected should show an error and not save the prompt."""
     before = Prompt.query.count()
 
     response = auth_client.post(
@@ -69,6 +75,7 @@ def test_submit_prompt_validation_no_categories(auth_client):
 
 
 def test_submit_prompt_validation_too_many_categories(auth_client):
+    """Selecting more than 3 categories should show an error and not save the prompt."""
     before = Prompt.query.count()
 
     response = auth_client.post(
@@ -85,6 +92,7 @@ def test_submit_prompt_validation_too_many_categories(auth_client):
 
 
 def test_submit_prompt_requires_login(client):
+    """An unauthenticated user should be redirected to login and the prompt should not be saved."""
     response = client.post(
         "/submit-prompt",
         data=_valid_prompt_data(),
