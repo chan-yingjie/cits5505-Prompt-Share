@@ -205,7 +205,9 @@
             if (sortMode === "bookmarks-desc") {
                 return Number(b.dataset.bookmarks || 0) - Number(a.dataset.bookmarks || 0);
             }
-            return String(b.dataset.created || "").localeCompare(String(a.dataset.created || ""));
+            const da = new Date(a.dataset.created || 0);
+            const db_ = new Date(b.dataset.created || 0);
+            return db_ - da;
         });
     }
 

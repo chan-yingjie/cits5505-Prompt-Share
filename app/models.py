@@ -41,12 +41,28 @@ class Prompt(db.Model):
     comments = db.relationship("Comment", back_populates="prompt", cascade="all, delete-orphan")
 
 
+class UserLike(db.Model):
+    __tablename__ = "user_like"
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    prompt_id = db.Column(db.Integer, db.ForeignKey("prompt.id"), primary_key=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
+class UserBookmark(db.Model):
+    __tablename__ = "user_bookmark"
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    prompt_id = db.Column(db.Integer, db.ForeignKey("prompt.id"), primary_key=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     prompt_id = db.Column(db.Integer, db.ForeignKey("prompt.id"), nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey("comment.id"), nullable=True)
 
     author = db.relationship("User", back_populates="comments")
     prompt = db.relationship("Prompt", back_populates="comments")
+    replies = db.relationship("Comment", backref=db.backref("parent", remote_side="Comment.id"), lazy="dynamic", order_by="Comment.created_at")

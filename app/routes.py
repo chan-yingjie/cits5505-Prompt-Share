@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from .models import Comment, Prompt, User
+from .models import Comment, Prompt, User, UserBookmark, UserLike
 from .extensions import db
 
 
@@ -362,6 +362,10 @@ def profile(user):
         .order_by(Prompt.created_at.desc())\
         .all()
 
+    total_likes = sum(p.likes for p in prompts)
+    total_views = sum(p.views for p in prompts)
+    total_bookmarks = sum(p.bookmarks for p in prompts)
+
     return render_template(
         "profile.html",
         profile_user=profile_user,
@@ -370,6 +374,9 @@ def profile(user):
         join_label=_profile_join_label(profile_user),
         badge_label=_profile_badge_label(profile_user),
         avatar_static_path=_avatar_static_path(profile_user),
+        total_likes=total_likes,
+        total_views=total_views,
+        total_bookmarks=total_bookmarks,
     )
 
 
@@ -459,27 +466,80 @@ def prompt_detail(prompt_id):
     prompt = db.get_or_404(Prompt, prompt_id)
     prompt.views += 1
     db.session.commit()
-    comments = Comment.query.filter_by(prompt_id=prompt.id).order_by(Comment.created_at.asc()).all()
-    return render_template("prompt-detail.html", prompt=prompt, comments=comments)
+    comments = Comment.query.filter_by(prompt_id=prompt.id, parent_id=None).order_by(Comment.created_at.asc()).all()
+    user_has_liked = False
+    user_has_bookmarked = False
+    if current_user.is_authenticated:
+        user_has_liked = UserLike.query.filter_by(user_id=current_user.id, prompt_id=prompt.id).first() is not None
+        user_has_bookmarked = UserBookmark.query.filter_by(user_id=current_user.id, prompt_id=prompt.id).first() is not None
+    return render_template(
+        "prompt-detail.html",
+        prompt=prompt,
+        comments=comments,
+        user_has_liked=user_has_liked,
+        user_has_bookmarked=user_has_bookmarked,
+    )
+
+
+@main_bp.route("/prompt/<int:prompt_id>/like", methods=["POST"])
+@login_required
+def toggle_like(prompt_id):
+    prompt = db.get_or_404(Prompt, prompt_id)
+    existing = UserLike.query.filter_by(user_id=current_user.id, prompt_id=prompt_id).first()
+    if existing:
+        db.session.delete(existing)
+        prompt.likes = max(0, prompt.likes - 1)
+        liked = False
+    else:
+        db.session.add(UserLike(user_id=current_user.id, prompt_id=prompt_id))
+        prompt.likes += 1
+        liked = True
+    db.session.commit()
+    return jsonify({"liked": liked, "likes": prompt.likes})
+
+
+@main_bp.route("/prompt/<int:prompt_id>/bookmark", methods=["POST"])
+@login_required
+def toggle_bookmark(prompt_id):
+    prompt = db.get_or_404(Prompt, prompt_id)
+    existing = UserBookmark.query.filter_by(user_id=current_user.id, prompt_id=prompt_id).first()
+    if existing:
+        db.session.delete(existing)
+        prompt.bookmarks = max(0, prompt.bookmarks - 1)
+        bookmarked = False
+    else:
+        db.session.add(UserBookmark(user_id=current_user.id, prompt_id=prompt_id))
+        prompt.bookmarks += 1
+        bookmarked = True
+    db.session.commit()
+    return jsonify({"bookmarked": bookmarked, "bookmarks": prompt.bookmarks})
 
 @main_bp.route("/prompt/<int:prompt_id>/comment", methods=["POST"])
 @login_required
 def add_comment(prompt_id):
     prompt = db.get_or_404(Prompt, prompt_id)
     body = request.form.get("comment", "").strip()
+    wants_json = request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html
 
     if not body:
+        if wants_json:
+            return jsonify({"error": "Comment cannot be empty."}), 400
         flash("Comment cannot be empty.", "error")
         return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
 
-    comment = Comment(
-        body=body,
-        author=current_user,
-        prompt=prompt,
-    )
-
+    parent_id = request.form.get("parent_id", type=int)
+    comment = Comment(body=body, author=current_user, prompt=prompt, parent_id=parent_id)
     db.session.add(comment)
     db.session.commit()
+
+    if wants_json:
+        return jsonify({
+            "id": comment.id,
+            "body": comment.body,
+            "author": current_user.display_label,
+            "created_at": comment.created_at.strftime("%d %b %Y"),
+            "parent_id": comment.parent_id,
+        }), 201
 
     flash("Comment added successfully.", "success")
     return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
@@ -489,19 +549,27 @@ def add_comment(prompt_id):
 @login_required
 def edit_comment(comment_id):
     comment = db.get_or_404(Comment, comment_id)
+    wants_json = request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html
 
     if not _current_user_owns_comment(comment):
+        if wants_json:
+            return jsonify({"error": "Permission denied."}), 403
         flash("You can only edit your own comments.", "error")
         return redirect(url_for("main.prompt_detail", prompt_id=comment.prompt_id))
 
     body = (request.form.get("comment") or request.form.get("body") or "").strip()
 
     if not body:
+        if wants_json:
+            return jsonify({"error": "Comment cannot be empty."}), 400
         flash("Comment cannot be empty.", "error")
         return redirect(url_for("main.prompt_detail", prompt_id=comment.prompt_id))
 
     comment.body = body
     db.session.commit()
+
+    if wants_json:
+        return jsonify({"body": comment.body})
 
     flash("Comment updated successfully.", "success")
     return redirect(url_for("main.prompt_detail", prompt_id=comment.prompt_id))
@@ -512,13 +580,19 @@ def edit_comment(comment_id):
 def delete_comment(comment_id):
     comment = db.get_or_404(Comment, comment_id)
     prompt_id = comment.prompt_id
+    wants_json = request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html
 
     if not _current_user_owns_comment(comment):
+        if wants_json:
+            return jsonify({"error": "Permission denied."}), 403
         flash("You can only delete your own comments.", "error")
         return redirect(url_for("main.prompt_detail", prompt_id=prompt_id))
 
     db.session.delete(comment)
     db.session.commit()
+
+    if wants_json:
+        return jsonify({"deleted": True})
 
     flash("Comment deleted successfully.", "success")
     return redirect(url_for("main.prompt_detail", prompt_id=prompt_id))
