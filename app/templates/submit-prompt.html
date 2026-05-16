@@ -113,38 +113,38 @@
                     </div>
 
                     <div class="form-stack submit-field" id="submit-category-field">
-                        <label class="form-label">Categories</label>
-                        <div class="category-select-grid">
-                            <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Writing" {% if form_data and 'Writing' in form_data.categories %}checked{% endif %}>
+                        <p class="form-label" id="categories-label">Categories</p>
+                        <div class="category-select-grid" role="group" aria-labelledby="categories-label">
+                            <label class="select-chip" for="category-writing">
+                                <input id="category-writing" type="checkbox" name="categories" value="Writing" {% if form_data and 'Writing' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">✍️</span>Writing</span>
                             </label>
-                            <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Education" {% if form_data and 'Education' in form_data.categories %}checked{% endif %}>
+                            <label class="select-chip" for="category-education">
+                                <input id="category-education" type="checkbox" name="categories" value="Education" {% if form_data and 'Education' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">🎓</span>Education</span>
                             </label>
-                            <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Coding" {% if form_data and 'Coding' in form_data.categories %}checked{% endif %}>
+                            <label class="select-chip" for="category-coding">
+                                <input id="category-coding" type="checkbox" name="categories" value="Coding" {% if form_data and 'Coding' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">💻</span>Coding</span>
                             </label>
-                            <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Image Generation" {% if form_data and 'Image Generation' in form_data.categories %}checked{% endif %}>
+                            <label class="select-chip" for="category-image-generation">
+                                <input id="category-image-generation" type="checkbox" name="categories" value="Image Generation" {% if form_data and 'Image Generation' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">🎨</span>Image Generation</span>
                             </label>
-                            <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Video Generation" {% if form_data and 'Video Generation' in form_data.categories %}checked{% endif %}>
+                            <label class="select-chip" for="category-video-generation">
+                                <input id="category-video-generation" type="checkbox" name="categories" value="Video Generation" {% if form_data and 'Video Generation' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">🎬</span>Video Generation</span>
                             </label>
-                            <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Marketing" {% if form_data and 'Marketing' in form_data.categories %}checked{% endif %}>
+                            <label class="select-chip" for="category-marketing">
+                                <input id="category-marketing" type="checkbox" name="categories" value="Marketing" {% if form_data and 'Marketing' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">📣</span>Marketing</span>
                             </label>
-                            <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Productivity" {% if form_data and 'Productivity' in form_data.categories %}checked{% endif %}>
+                            <label class="select-chip" for="category-productivity">
+                                <input id="category-productivity" type="checkbox" name="categories" value="Productivity" {% if form_data and 'Productivity' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">⚡</span>Productivity</span>
                             </label>
-                            <label class="select-chip">
-                                <input type="checkbox" name="categories" value="Artificial Intelligence" {% if form_data and 'Artificial Intelligence' in form_data.categories %}checked{% endif %}>
+                            <label class="select-chip" for="category-artificial-intelligence">
+                                <input id="category-artificial-intelligence" type="checkbox" name="categories" value="Artificial Intelligence" {% if form_data and 'Artificial Intelligence' in form_data.categories %}checked{% endif %}>
                                 <span><span class="chip-icon">🤖</span>Artificial Intelligence</span>
                             </label>
                         </div>

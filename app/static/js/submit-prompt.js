@@ -10,7 +10,7 @@ const bodyInput     = document.getElementById("prompt-body");
 const outputInput   = document.getElementById("prompt-output");
 const skipOutputBtn = document.getElementById("skip-output-btn");
 
-// ── Category validation ───────────────────────────────────────────────────
+// Category validation
 function updateCategoryStatus() {
     const selected = Array.from(categoryInputs).filter((i) => i.checked);
     if (categoryStatus) categoryStatus.textContent = `${selected.length} of 3 selected`;
@@ -22,7 +22,7 @@ function updateCategoryStatus() {
 categoryInputs.forEach((input) => input.addEventListener("change", updateCategoryStatus));
 updateCategoryStatus();
 
-// ── Step progress ─────────────────────────────────────────────────────────
+// Step progress
 const stepCards  = Array.from(document.querySelectorAll(".submit-tip-card"));
 const stepNums   = ['01', '02', '03', '04', '05'];
 
@@ -112,7 +112,7 @@ if (skipOutputBtn) {
 // Initial state: step 01 active
 updateSteps();
 
-// ── Submit ────────────────────────────────────────────────────────────────
+// Submit
 if (submitForm) {
     submitForm.addEventListener("submit", function (event) {
         const title         = titleInput.value.trim();

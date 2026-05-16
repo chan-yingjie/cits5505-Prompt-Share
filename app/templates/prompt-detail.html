@@ -356,6 +356,7 @@
 
 {% block scripts %}
 {{ super() }}
+<script src="{{ url_for('static', filename='js/prompt-delete-modal.js') }}?v=1"></script>
 <script>
     const _originalPrompt = {{ prompt.body | tojson }};
     const _promptId = {{ prompt.id }};
@@ -418,39 +419,6 @@
     const _commentInput = document.getElementById("detail-comment-input");
     const _commentEmptyHint = document.getElementById("comment-empty-hint");
     const _commentListEl = document.getElementById("comment-list");
-    const _deletePromptModal = document.getElementById("delete-prompt-modal");
-    let _pendingPromptDeleteForm = null;
-
-    function _openPromptDeleteModal(form) {
-        _pendingPromptDeleteForm = form;
-        _deletePromptModal?.setAttribute("aria-hidden", "false");
-        _deletePromptModal?.classList.add("show");
-        document.body.classList.add("modal-open");
-        document.getElementById("confirm-delete-prompt-button")?.focus();
-    }
-
-    function _closePromptDeleteModal() {
-        _deletePromptModal?.setAttribute("aria-hidden", "true");
-        _deletePromptModal?.classList.remove("show");
-        document.body.classList.remove("modal-open");
-        _pendingPromptDeleteForm = null;
-    }
-
-    document.querySelectorAll(".prompt-delete-form").forEach((form) => {
-        form.addEventListener("submit", (event) => {
-            event.preventDefault();
-            _openPromptDeleteModal(form);
-        });
-    });
-
-    document.getElementById("close-delete-prompt-modal")?.addEventListener("click", _closePromptDeleteModal);
-    document.getElementById("cancel-delete-prompt-button")?.addEventListener("click", _closePromptDeleteModal);
-    _deletePromptModal?.addEventListener("click", (event) => {
-        if (event.target === _deletePromptModal) _closePromptDeleteModal();
-    });
-    document.getElementById("confirm-delete-prompt-button")?.addEventListener("click", () => {
-        _pendingPromptDeleteForm?.submit();
-    });
 
     function _escapeHtml(value) {
         const div = document.createElement("div");

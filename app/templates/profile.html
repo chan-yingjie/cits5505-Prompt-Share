@@ -375,44 +375,12 @@
 
 {% block scripts %}
 {{ super() }}
+<script src="{{ url_for('static', filename='js/prompt-delete-modal.js') }}?v=1"></script>
 <script>
     const avatarForm = document.getElementById("avatarUploadForm");
     const avatarInput = document.getElementById("avatarFileInput");
     const avatarButton = document.getElementById("avatarUploadBtn");
     const avatarImage = document.getElementById("profileAvatarImg");
-    const deletePromptModal = document.getElementById("delete-prompt-modal");
-    let pendingPromptDeleteForm = null;
-
-    function openPromptDeleteModal(form) {
-        pendingPromptDeleteForm = form;
-        deletePromptModal?.setAttribute("aria-hidden", "false");
-        deletePromptModal?.classList.add("show");
-        document.body.classList.add("modal-open");
-        document.getElementById("confirm-delete-prompt-button")?.focus();
-    }
-
-    function closePromptDeleteModal() {
-        deletePromptModal?.setAttribute("aria-hidden", "true");
-        deletePromptModal?.classList.remove("show");
-        document.body.classList.remove("modal-open");
-        pendingPromptDeleteForm = null;
-    }
-
-    document.querySelectorAll(".pf-prompt-delete-form").forEach((form) => {
-        form.addEventListener("submit", (event) => {
-            event.preventDefault();
-            openPromptDeleteModal(form);
-        });
-    });
-
-    document.getElementById("close-delete-prompt-modal")?.addEventListener("click", closePromptDeleteModal);
-    document.getElementById("cancel-delete-prompt-button")?.addEventListener("click", closePromptDeleteModal);
-    deletePromptModal?.addEventListener("click", (event) => {
-        if (event.target === deletePromptModal) closePromptDeleteModal();
-    });
-    document.getElementById("confirm-delete-prompt-button")?.addEventListener("click", () => {
-        pendingPromptDeleteForm?.submit();
-    });
 
     if (avatarForm && avatarInput && avatarButton) {
         avatarButton.addEventListener("click", () => avatarInput.click());

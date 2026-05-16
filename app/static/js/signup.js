@@ -18,6 +18,7 @@ passwordToggles.forEach(function (button) {
 
     const isHidden = input.type === "password";
     input.type = isHidden ? "text" : "password";
+    button.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
 
     if (eyeIcon && eyeOffIcon) {
       eyeIcon.style.display = isHidden ? "block" : "none";

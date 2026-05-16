@@ -2325,13 +2325,9 @@ p {
 }
 
 .auth-layout {
- /** grid-template-columns: 1fr 620px;
-  gap: 40px;**/
   align-items: center;
-  padding: 55px 70px 45px;
-    grid-template-columns: minmax(0, 1fr) minmax(520px, 640px);
+  grid-template-columns: minmax(0, 1fr) minmax(520px, 640px);
   gap: 88px;
-
   padding: 96px 110px 70px;
 }
 .auth-highlight,
@@ -2626,7 +2622,12 @@ p {
 }
 
 .detail-page .page-shell {
-    width: min(1360px, calc(100% - 20px));
+    box-sizing: border-box;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 .detail-page .content-block {
@@ -2645,9 +2646,12 @@ p {
 
 .detail-page .detail-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(360px, 400px);
+    grid-template-columns: minmax(0, 760px) minmax(500px, 540px);
     gap: 28px;
     align-items: start;
+    width: min(100%, 1328px);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .detail-page .detail-main,
@@ -3487,6 +3491,21 @@ p {
 /* Step buttons */
 .step-button-group {
     position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.detail-page .step-button-group .step-btn {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+}
+
+.detail-page .step-button-group #use-chatgpt-button {
+    grid-column: 1 / -1;
 }
 
 .step-btn {
@@ -4661,7 +4680,7 @@ body.modal-open {
     }
 
     .detail-page .detail-layout {
-        grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+        grid-template-columns: minmax(0, 0.86fr) minmax(400px, 460px);
         gap: 22px;
     }
 
@@ -9285,7 +9304,7 @@ background: #fff;
 }
 
 .auth-input {
-     display: flex;
+  display: flex;
   align-items: center;
   gap: 8px;
 }
@@ -9398,7 +9417,7 @@ background: #fff;
   display: none;
   place-items: center;
   background: rgba(0, 0, 0, 0.35);
-  z-index: 999;
+  z-index: 9999;
 }
 
 .modal-overlay.show {
@@ -9436,17 +9455,6 @@ background: #fff;
   background: transparent;
   font-size: 28px;
   cursor: pointer;
-}.modal-overlay {
-  position: fixed;
-  inset: 0;
-  display: none;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 9999;
-}
-
-.modal-overlay.show {
-  display: grid;
 }
 
 /* Profile identity override: keep avatar and username on one horizontal row. */

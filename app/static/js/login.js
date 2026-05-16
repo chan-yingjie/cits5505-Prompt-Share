@@ -1,15 +1,18 @@
-const toggle = document.getElementById("toggle");
-const passwordToggles = document.querySelectorAll(".password-toggle");
 document.querySelectorAll(".password-input").forEach((wrapper) => {
   const input = wrapper.querySelector("input");
   const toggle = wrapper.querySelector(".password-toggle");
   const eye = wrapper.querySelector(".icon-eye");
   const eyeOff = wrapper.querySelector(".icon-eye-off");
 
+  if (!input || !toggle || !eye || !eyeOff) {
+    return;
+  }
+
   toggle.addEventListener("click", () => {
     const isHidden = input.type === "password";
 
     input.type = isHidden ? "text" : "password";
+    toggle.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
 
     eye.style.display = isHidden ? "block" : "none";
     eyeOff.style.display = isHidden ? "none" : "block";
