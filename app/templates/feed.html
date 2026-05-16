@@ -33,7 +33,7 @@
                             <label class="visually-hidden" for="feed-sort-select">Sort prompts</label>
                             <select class="form-input sort-select" id="feed-sort-select" aria-label="Sort prompts">
                                 <option value="newest">Newest</option>
-                                <option value="upvotes-desc">Most Liked</option>
+                                <option value="comments-desc">Most Commented</option>
                             </select>
                             <button class="button-link primary button-submit search-button" type="submit">Search</button>
                             <button class="button-link secondary button-submit search-button" id="clear-search-button" type="button">Clear</button>
@@ -53,20 +53,6 @@
                                 <button class="category-tab" type="button" data-category="marketing">Marketing</button>
                                 <button class="category-tab" type="button" data-category="productivity">Productivity</button>
                             </div>
-                            <div class="feed-subcategory-row" id="feed-subcategory-row">
-                                <div class="subcategory-chips" id="subcategory-chips" aria-label="Prompt subcategories">
-                                    <button class="subcategory-chip is-active" type="button" data-subcategory="">All topics</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="summarisation">Summarisation</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="email">Email Writing</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="revision">Revision</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="short-video">Short Video</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="product-photography">Product Visuals</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="debugging">Debugging</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="automation">Automation</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="campaign">Campaigns</button>
-                                    <button class="subcategory-chip" type="button" data-subcategory="presentation">Presentations</button>
-                                </div>
-                            </div>
                         </div>
                     </form>
                 </section>
@@ -84,28 +70,43 @@
     {% if prompts %}
         {% for prompt in prompts %}
 
-       <a class="prompt-card-link"
-   href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">
+       <article class="prompt-card prompt-card-link"
+   data-title="{{ prompt.title|lower }}"
+   data-description="{{ prompt.description|lower }}"
+   data-author="{{ prompt.author.display_label|lower }}"
+   data-category="{{ prompt.category|lower|replace(' ', '-') }}"
+   data-subcategory="{{ (prompt.subcategory or '')|lower|replace(' ', '-') }}"
+   data-created="{{ prompt.created_at.isoformat() if prompt.created_at else '' }}"
+   data-comments="{{ prompt.comments|length }}">
 
-    <article class="prompt-card">
+        <div class="prompt-card-top prompt-card-author-row">
+            <div class="prompt-author">
+            <a class="author-link" href="{{ url_for('main.profile', user=prompt.author.username) }}" aria-label="View {{ prompt.author.display_label }} profile">
+                <span class="prompt-author-avatar author-tone-warm" aria-hidden="true">{{ prompt.author.display_label[:2]|upper }}</span>
+                <span class="prompt-author-copy">
+                    <span class="prompt-author-name">{{ prompt.author.display_label }}</span>
+                    <span class="author-handle">@{{ prompt.author.username }}</span>
+                </span>
+            </a>
+            </div>
+            <span class="meta-time">{{ prompt.comments|length }} comments</span>
+        </div>
 
-        <h3>{{ prompt.title }}</h3>
+        <h3 class="card-title">
+            <a class="card-title-link" href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a>
+        </h3>
 
-        <p>{{ prompt.description }}</p>
+        <p class="card-description">{{ prompt.description }}</p>
 
-        <div class="prompt-meta">
-            <span>{{ prompt.category }}</span>
+        <div class="card-tags">
+            <span class="tag-pill tag-pill-primary">{{ prompt.category }}</span>
 
             {% if prompt.subcategory %}
-                <span>{{ prompt.subcategory }}</span>
+                <span class="tag-pill tag-pill-secondary">{{ prompt.subcategory }}</span>
             {% endif %}
-
-            <span>By {{ prompt.author.display_label }}</span>
         </div>
 
     </article>
-
-</a>
 
         {% endfor %}
     {% else %}
@@ -119,6 +120,124 @@
                     <nav class="feed-pagination" id="feed-pagination" aria-label="Page navigation"></nav>
                 </section>
             </section>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    const feedForm = document.getElementById("feed-search-form");
+    const feedList = document.getElementById("feed-list");
+    const searchInput = document.getElementById("feed-search-input");
+    const sortSelect = document.getElementById("feed-sort-select");
+    const clearButton = document.getElementById("clear-search-button");
+    const resetButton = document.getElementById("category-reset-button");
+    const filterStatus = document.getElementById("filter-status");
+    const categoryTabs = Array.from(document.querySelectorAll(".category-tab"));
+    const promptCards = Array.from(document.querySelectorAll(".prompt-card-link"));
+
+    let activeCategory = "";
+    let activeSearch = "";
+
+    function normalise(value) {
+        return String(value || "").trim().toLowerCase().replace(/\s+/g, "-");
+    }
+
+    function setActiveButton(buttons, activeButton, activeClass) {
+        buttons.forEach((button) => button.classList.toggle(activeClass, button === activeButton));
+    }
+
+    function sortCards(cards) {
+        const sortMode = sortSelect ? sortSelect.value : "newest";
+        return [...cards].sort((a, b) => {
+            if (sortMode === "comments-desc") {
+                return Number(b.dataset.comments || 0) - Number(a.dataset.comments || 0);
+            }
+
+            return String(b.dataset.created || "").localeCompare(String(a.dataset.created || ""));
+        });
+    }
+
+    function applyFeedFilters() {
+        if (!feedList) {
+            return;
+        }
+
+        const query = activeSearch;
+
+        const visibleCards = promptCards.filter((card) => {
+            const matchesCategory = !activeCategory || card.dataset.category === activeCategory;
+            const haystack = [
+                card.dataset.title,
+                card.dataset.description,
+                card.dataset.author,
+                card.dataset.category,
+                card.dataset.subcategory
+            ].join(" ");
+            const matchesSearch = !query || haystack.includes(query);
+            return matchesCategory && matchesSearch;
+        });
+
+        promptCards.forEach((card) => {
+            card.classList.toggle("is-hidden", !visibleCards.includes(card));
+        });
+
+        sortCards(visibleCards).forEach((card) => feedList.appendChild(card));
+
+        if (filterStatus) {
+            const total = promptCards.length;
+            const count = visibleCards.length;
+            filterStatus.textContent = count === total ? `${total} prompts shown` : `${count} of ${total} prompts shown`;
+            filterStatus.classList.remove("is-hidden");
+        }
+    }
+
+    categoryTabs.forEach((button) => {
+        button.addEventListener("click", () => {
+            activeCategory = normalise(button.dataset.category);
+            setActiveButton(categoryTabs, button, "is-active");
+            applyFeedFilters();
+        });
+    });
+
+    if (feedForm) {
+        feedForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            activeSearch = String(searchInput ? searchInput.value : "").trim().toLowerCase();
+            applyFeedFilters();
+        });
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener("change", applyFeedFilters);
+    }
+
+    if (clearButton) {
+        clearButton.addEventListener("click", () => {
+            if (searchInput) {
+                searchInput.value = "";
+            }
+            activeSearch = "";
+            applyFeedFilters();
+        });
+    }
+
+    if (resetButton) {
+        resetButton.addEventListener("click", () => {
+            activeCategory = "";
+            if (searchInput) {
+                searchInput.value = "";
+            }
+            activeSearch = "";
+            if (sortSelect) {
+                sortSelect.value = "newest";
+            }
+            setActiveButton(categoryTabs, categoryTabs[0], "is-active");
+            applyFeedFilters();
+        });
+    }
+
+    applyFeedFilters();
+</script>
 {% endblock %}
 
 {% block page_shell_extras %}

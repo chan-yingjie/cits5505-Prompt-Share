@@ -3466,6 +3466,13 @@ body.modal-open {
     padding: 24px;
     border-radius: 28px;
     background: rgba(255, 255, 255, 0.82);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.feed-page .search-panel:hover,
+.feed-page .prompt-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 44px rgba(86, 52, 23, 0.08);
 }
 
 .feed-page .feed-search {
@@ -3503,12 +3510,15 @@ body.modal-open {
     background: rgba(255, 255, 255, 0.96);
     color: #111111;
     box-shadow: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background 0.18s ease;
 }
 
 .feed-page .form-input:focus {
-    border-color: rgba(17, 17, 17, 0.28);
+    border-color: rgba(201, 107, 49, 0.5);
     outline: none;
-    box-shadow: 0 0 0 4px rgba(243, 232, 223, 0.9);
+    box-shadow: 0 0 0 4px rgba(201, 107, 49, 0.1);
+    transform: translateY(-1px);
+    background: #ffffff;
 }
 
 .feed-page .form-input::placeholder {
@@ -3543,8 +3553,8 @@ body.modal-open {
 
 .feed-page .button-link.primary:hover,
 .feed-page .button-link.secondary:hover {
-    transform: none;
-    box-shadow: none;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(86, 52, 23, 0.1);
 }
 
 .feed-page .button-link.primary:hover {
@@ -3568,6 +3578,7 @@ body.modal-open {
 .feed-page .category-reset-button:hover,
 .feed-page .category-reset-button:focus-visible {
     color: #111111;
+    transform: translateX(2px);
 }
 
 .feed-pagination {
@@ -3666,7 +3677,7 @@ body.modal-open {
     font-size: 0.86rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .feed-page .subcategory-chip {
@@ -3682,15 +3693,15 @@ body.modal-open {
     font-size: 0.83rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .feed-page .category-tab:hover {
     border-color: #d8d8d8;
     background: #f7f7f5;
     color: #111111;
-    transform: none;
-    box-shadow: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(17, 17, 17, 0.06);
 }
 
 .feed-page .subcategory-chip:hover,
@@ -3698,8 +3709,8 @@ body.modal-open {
     border-color: rgba(201, 107, 49, 0.45);
     background: rgba(243, 232, 223, 0.6);
     color: #111111;
-    transform: none;
-    box-shadow: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(86, 52, 23, 0.07);
 }
 
 .feed-page .category-tab.is-active {
@@ -3707,6 +3718,7 @@ body.modal-open {
     background: #f3e8df;
     color: #7a3a18;
     font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(201, 107, 49, 0.12);
 }
 
 .feed-page .subcategory-chip.is-active {
@@ -3719,6 +3731,18 @@ body.modal-open {
 .feed-page .prompt-list {
     max-width: none;
     gap: 16px;
+}
+
+.feed-page .prompt-card-link {
+    color: inherit;
+    text-decoration: none;
+    outline: none;
+}
+
+.feed-page .prompt-card-link:focus-visible .prompt-card {
+    border-color: rgba(201, 107, 49, 0.6);
+    box-shadow: 0 0 0 4px rgba(201, 107, 49, 0.12),
+                0 20px 42px rgba(86, 52, 23, 0.12);
 }
 
 @keyframes feed-card-in {
@@ -3735,22 +3759,27 @@ body.modal-open {
 .feed-page .prompt-card {
     position: relative;
     gap: 14px;
-    padding: 22px;
+    padding: 21px 22px;
     border: 1px solid #e5e5e5;
     border-radius: 24px;
     background: rgba(255, 255, 255, 0.94);
     box-shadow: 0 12px 24px rgba(17, 17, 17, 0.04);
-    overflow: hidden;
+    overflow: visible;
     animation: feed-card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    isolation: isolate;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
 }
 
-.feed-page .prompt-list .prompt-card:nth-child(1) { animation-delay: 0ms; }
-.feed-page .prompt-list .prompt-card:nth-child(2) { animation-delay: 55ms; }
-.feed-page .prompt-list .prompt-card:nth-child(3) { animation-delay: 110ms; }
-.feed-page .prompt-list .prompt-card:nth-child(4) { animation-delay: 165ms; }
-.feed-page .prompt-list .prompt-card:nth-child(5) { animation-delay: 220ms; }
-.feed-page .prompt-list .prompt-card:nth-child(6) { animation-delay: 275ms; }
+.feed-page .prompt-card-link:hover {
+    z-index: 30;
+}
+
+.feed-page .prompt-list .prompt-card-link:nth-child(1) .prompt-card { animation-delay: 0ms; }
+.feed-page .prompt-list .prompt-card-link:nth-child(2) .prompt-card { animation-delay: 55ms; }
+.feed-page .prompt-list .prompt-card-link:nth-child(3) .prompt-card { animation-delay: 110ms; }
+.feed-page .prompt-list .prompt-card-link:nth-child(4) .prompt-card { animation-delay: 165ms; }
+.feed-page .prompt-list .prompt-card-link:nth-child(5) .prompt-card { animation-delay: 220ms; }
+.feed-page .prompt-list .prompt-card-link:nth-child(6) .prompt-card { animation-delay: 275ms; }
 
 .feed-page .prompt-card::before {
     content: "";
@@ -3761,28 +3790,90 @@ body.modal-open {
     height: 96px;
     border: 1px solid rgba(17, 17, 17, 0.07);
     border-radius: 50%;
+    transition: transform 0.24s ease, border-color 0.24s ease;
+    z-index: -1;
 }
 
 .feed-page .prompt-card::after {
     content: "";
     position: absolute;
-    top: 16px;
-    right: 18px;
-    width: 52px;
-    height: 52px;
-    border: 1px solid rgba(243, 232, 223, 0.9);
-    border-radius: 50%;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 0%, transparent 38%, rgba(255, 255, 255, 0.75) 48%, transparent 58%, transparent 100%);
+    transform: translateX(-120%);
+    transition: transform 0.55s ease;
+    pointer-events: none;
 }
 
-.feed-page .prompt-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 32px rgba(17, 17, 17, 0.07);
-    border-color: rgba(201, 107, 49, 0.28);
+.feed-page .prompt-card-link:hover,
+.feed-page .prompt-card-link:hover .prompt-card {
+    transform: translateY(-5px) scale(1.006);
+    box-shadow: 0 22px 42px rgba(86, 52, 23, 0.13);
+    border-color: rgba(201, 107, 49, 0.34);
+    background: rgba(255, 255, 255, 0.98);
+}
+
+.feed-page .prompt-card-link:hover::before,
+.feed-page .prompt-card-link:hover .prompt-card::before {
+    transform: translate(-6px, 8px) scale(1.12);
+    border-color: rgba(201, 107, 49, 0.2);
+}
+
+.feed-page .prompt-card-link:hover::after,
+.feed-page .prompt-card-link:hover .prompt-card::after {
+    transform: translateX(120%);
+}
+
+.feed-page .prompt-card h3 {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0;
+    transition: color 0.2s ease;
+}
+
+.feed-page .prompt-card-author-row {
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.feed-page .prompt-card .card-tags {
+    margin-top: 2px;
+}
+
+.feed-page .prompt-card h3::after {
+    display: none;
+}
+
+.feed-page .prompt-card-link:hover h3 {
+    color: #8b3e10;
+    transform: scale(1.015);
+}
+
+.feed-page .prompt-card .prompt-meta span,
+.feed-page .prompt-card .tag-pill {
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.feed-page .prompt-card-link:hover .prompt-meta span,
+.feed-page .prompt-card-link:hover .tag-pill {
+    transform: scale(1.015);
+    border-color: rgba(201, 107, 49, 0.32);
 }
 
 .feed-page .prompt-author {
+    display: block;
+    position: relative;
+}
+
+.feed-page .prompt-author .author-link {
+    position: relative;
+    display: grid;
     grid-template-columns: 42px minmax(0, 1fr);
     gap: 12px;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    transition: transform 0.18s ease, color 0.18s ease;
 }
 
 .feed-page .prompt-author-avatar,
@@ -3796,10 +3887,20 @@ body.modal-open {
     box-shadow: none;
 }
 
-.feed-page .prompt-author-avatar:hover,
-.feed-page .prompt-author-avatar:focus-visible {
-    transform: none;
-    box-shadow: none;
+.feed-page .prompt-author .author-link:hover,
+.feed-page .prompt-author .author-link.is-open,
+.feed-page .prompt-author .author-link:focus-visible {
+    background: transparent;
+    border-color: transparent;
+    opacity: 1;
+    transform: scale(1.018);
+}
+
+.feed-page .prompt-author .author-link:hover .prompt-author-avatar,
+.feed-page .prompt-author .author-link.is-open .prompt-author-avatar,
+.feed-page .prompt-author .author-link:focus-visible .prompt-author-avatar {
+    transform: scale(1.06);
+    border-color: rgba(201, 107, 49, 0.32);
 }
 
 .feed-page .author-link,
@@ -3810,13 +3911,11 @@ body.modal-open {
 
 .feed-page .author-link:hover {
     color: #111111;
-    opacity: 0.7;
+    opacity: 1;
 }
 
 .feed-page .author-popover {
-    border: 1px solid #e5e5e5;
-    background: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 14px 24px rgba(17, 17, 17, 0.05);
+    display: none;
 }
 
 .feed-page .author-popover::before {
@@ -3879,25 +3978,26 @@ body.modal-open {
 
 .feed-page .meta-pill,
 .feed-page .tag-pill {
-    padding: 6px 12px;
-    border: 1px solid #e9e2dc;
+    padding: 7px 13px;
+    border: 1.5px solid #e9d5c3;
     border-radius: 999px;
     background: #fcfaf8;
-    color: #666666;
-    font-size: 0.76rem;
-    font-weight: 500;
+    color: #6f391c;
+    font-size: 0.78rem;
+    font-weight: 700;
+    box-shadow: 0 6px 14px rgba(86, 52, 23, 0.05);
 }
 
 .feed-page .tag-pill-primary {
-    background: #f3e8df;
-    border-color: #ead9cc;
-    color: #111111;
+    background: #f5dfcd;
+    border-color: rgba(201, 107, 49, 0.32);
+    color: #7a3414;
 }
 
 .feed-page .tag-pill-secondary {
     background: #ffffff;
-    border-color: #e5e5e5;
-    color: #666666;
+    border-color: #ead9cc;
+    color: #6a584c;
 }
 
 .feed-page .filter-status {
