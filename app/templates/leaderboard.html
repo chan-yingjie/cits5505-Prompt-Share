@@ -17,6 +17,26 @@
     {%- endif -%}
 {%- endmacro %}
 
+{% macro avatar_div(user, extra_class="") -%}
+    <div class="lb-podium-avatar {{ extra_class }}">
+        {%- if user.avatar_filename -%}
+            <img src="{{ url_for('static', filename='uploads/avatars/' + user.avatar_filename) }}" alt="{{ user.display_label }}">
+        {%- else -%}
+            {{ initials(user.display_label)|upper }}
+        {%- endif -%}
+    </div>
+{%- endmacro %}
+
+{% macro row_avatar_div(user) -%}
+    <div class="lb-row-avatar">
+        {%- if user.avatar_filename -%}
+            <img src="{{ url_for('static', filename='uploads/avatars/' + user.avatar_filename) }}" alt="{{ user.display_label }}">
+        {%- else -%}
+            {{ initials(user.display_label)|upper }}
+        {%- endif -%}
+    </div>
+{%- endmacro %}
+
 {% macro rank_label(index) -%}
     {%- if index == 0 -%}1{%- elif index == 1 -%}2{%- elif index == 2 -%}3{%- else -%}{{ index + 1 }}{%- endif -%}
 {%- endmacro %}
@@ -73,19 +93,32 @@
                                     <div class="lb-podium-rank {{ rank_class(rank_index) }}">{{ rank_label(rank_index) }}</div>
                                     <span class="lb-podium-rank-label">{{ loop.index }}{{ 'st' if loop.index == 1 else 'nd' if loop.index == 2 else 'rd' if loop.index == 3 else 'th' }} Place</span>
                                 </div>
-                                <h3 class="lb-podium-title"><a href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a></h3>
                                 <a class="lb-podium-author" href="{{ url_for('main.profile', user=prompt.author.username) }}">
-                                    <div class="lb-podium-avatar">{{ initials(prompt.author.display_label)|upper }}</div>
+                                    {{ avatar_div(prompt.author) }}
                                     <div>
                                         <span class="lb-podium-name">{{ prompt.author.display_label }}</span>
                                         <span class="lb-podium-handle">@{{ prompt.author.username }}</span>
                                     </div>
                                 </a>
-                                <p class="lb-podium-desc">{{ prompt.description }}</p>
+                                <h3 class="lb-podium-title"><a href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a></h3>
+                                <p class="lb-podium-desc lb-clickable" data-href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.description }}</p>
                                 <div class="lb-podium-stats">
-                                    <span class="lb-stat"><strong>{{ prompt.comments|length }}</strong> comments</span>
-                                    <span class="lb-stat">{{ prompt.category }}</span>
-                                    <span class="lb-stat lb-stat-primary"><strong>{{ row.score }}</strong> {{ row.metric_label }}</span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"/></svg>
+                                        <strong>{{ prompt.likes }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"/></svg>
+                                        <strong>{{ prompt.bookmarks }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                                        <strong>{{ prompt.comments|length }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.3" fill="#5A7FDB"/></svg>
+                                        <strong>{{ prompt.views }}</strong>
+                                    </span>
                                 </div>
                             </article>
                         {% else %}
@@ -96,7 +129,7 @@
                                     <span class="lb-podium-rank-label">{{ loop.index }}{{ 'st' if loop.index == 1 else 'nd' if loop.index == 2 else 'rd' if loop.index == 3 else 'th' }} Place</span>
                                 </div>
                                 <a class="lb-podium-author lb-podium-author-center" href="{{ url_for('main.profile', user=ranked_user.username) }}">
-                                    <div class="lb-podium-avatar lb-podium-avatar-lg">{{ initials(ranked_user.display_label)|upper }}</div>
+                                    {{ avatar_div(ranked_user, "lb-podium-avatar-lg") }}
                                     <div>
                                         <span class="lb-podium-name">{{ ranked_user.display_label }}</span>
                                         <span class="lb-podium-handle">@{{ ranked_user.username }}</span>
@@ -106,9 +139,22 @@
                                 <p class="lb-podium-desc">{{ ranked_user.bio }}</p>
                                 {% endif %}
                                 <div class="lb-podium-stats">
-                                    <span class="lb-stat"><strong>{{ row.prompt_count }}</strong> prompts</span>
-                                    <span class="lb-stat"><strong>{{ row.comment_count }}</strong> comments</span>
-                                    <span class="lb-stat lb-stat-primary"><strong>{{ row.score }}</strong> {{ row.metric_label }}</span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 6h6M6 9h6M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                        <strong>{{ row.prompt_count }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"/></svg>
+                                        <strong>{{ row.total_likes }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"/></svg>
+                                        <strong>{{ row.total_bookmarks }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.3" fill="#5A7FDB"/></svg>
+                                        <strong>{{ row.total_views }}</strong>
+                                    </span>
                                 </div>
                             </article>
                         {% endif %}
@@ -133,30 +179,56 @@
                             {% set prompt = row.prompt %}
                             <article class="lb-row">
                                 <span class="lb-row-rank">{{ rank }}</span>
-                                <div class="lb-row-avatar">{{ initials(prompt.author.display_label)|upper }}</div>
+                                {{ row_avatar_div(prompt.author) }}
                                 <div class="lb-row-info">
                                     <a class="lb-row-title" href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a>
                                     <a class="lb-row-author" href="{{ url_for('main.profile', user=prompt.author.username) }}">{{ prompt.author.display_label }} <span>@{{ prompt.author.username }}</span></a>
                                 </div>
                                 <div class="lb-row-stats">
-                                    <span><strong>{{ prompt.comments|length }}</strong> comments</span>
-                                    <span>{{ prompt.category }}</span>
-                                    <span><strong>{{ row.score }}</strong> {{ row.metric_label }}</span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"/></svg>
+                                        <strong>{{ prompt.likes }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"/></svg>
+                                        <strong>{{ prompt.bookmarks }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                                        <strong>{{ prompt.comments|length }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.3" fill="#5A7FDB"/></svg>
+                                        <strong>{{ prompt.views }}</strong>
+                                    </span>
                                 </div>
                             </article>
                         {% else %}
                             {% set ranked_user = row.user %}
                             <article class="lb-row">
                                 <span class="lb-row-rank">{{ rank }}</span>
-                                <div class="lb-row-avatar">{{ initials(ranked_user.display_label)|upper }}</div>
+                                {{ row_avatar_div(ranked_user) }}
                                 <div class="lb-row-info">
                                     <a class="lb-row-title" href="{{ url_for('main.profile', user=ranked_user.username) }}">{{ ranked_user.display_label }}</a>
                                     <span class="lb-row-author">@{{ ranked_user.username }}</span>
                                 </div>
                                 <div class="lb-row-stats">
-                                    <span><strong>{{ row.prompt_count }}</strong> prompts</span>
-                                    <span><strong>{{ row.comment_count }}</strong> comments</span>
-                                    <span><strong>{{ row.score }}</strong> {{ row.metric_label }}</span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 6h6M6 9h6M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                        <strong>{{ row.prompt_count }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"/></svg>
+                                        <strong>{{ row.total_likes }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"/></svg>
+                                        <strong>{{ row.total_bookmarks }}</strong>
+                                    </span>
+                                    <span class="lb-stat">
+                                        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.3" fill="#5A7FDB"/></svg>
+                                        <strong>{{ row.total_views }}</strong>
+                                    </span>
                                 </div>
                             </article>
                         {% endif %}
@@ -169,6 +241,97 @@
                     {% endfor %}
                 </div>
             </section>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+(function () {
+    const podiumEl = document.getElementById("lb-podium");
+    if (!podiumEl) return;
+
+    let fwTimers = [];
+
+    function clearFireworks() {
+        fwTimers.forEach(clearTimeout);
+        fwTimers = [];
+        const card = podiumEl.querySelector('[data-rank="1"]');
+        if (card) card.querySelectorAll('.lb-fw-rocket,.lb-fw-particle,.lb-fw-flash').forEach(el => el.remove());
+    }
+
+    function launchFirework(card) {
+        const w = card.offsetWidth;
+        const h = card.offsetHeight;
+        const x      = 18 + Math.random() * (w - 36);
+        const burstY = 14 + Math.random() * (h * 0.55);
+        const startY = h - 4;
+        const dy     = burstY - startY;
+
+        const rocket = document.createElement('span');
+        rocket.className = 'lb-fw-rocket';
+        rocket.style.cssText = `left:${x.toFixed(0)}px;top:${startY}px;--dy:${dy.toFixed(0)}px`;
+        card.appendChild(rocket);
+
+        const tBurst = setTimeout(() => {
+            rocket.remove();
+
+            const flash = document.createElement('span');
+            flash.className = 'lb-fw-flash';
+            flash.style.cssText = `left:${x.toFixed(0)}px;top:${burstY.toFixed(0)}px`;
+            card.appendChild(flash);
+            fwTimers.push(setTimeout(() => flash.remove(), 400));
+
+            const palette = ['#ff6b6b','#fbbf24','#4ecdc4','#a78bfa','#34d399','#fb923c','#f472b6','#60a5fa','#fff176','#ff9ff3'];
+            const n = 24 + Math.floor(Math.random() * 10);
+            for (let i = 0; i < n; i++) {
+                const angle = (i / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+                const dist  = 50 + Math.random() * 65;
+                const color = palette[i % palette.length];
+                const size  = (5 + Math.random() * 5).toFixed(1);
+                const p = document.createElement('span');
+                p.className = 'lb-fw-particle';
+                p.style.cssText = [
+                    `left:${x.toFixed(0)}px`,
+                    `top:${burstY.toFixed(0)}px`,
+                    `background:${color}`,
+                    `box-shadow:0 0 5px 2px ${color}`,
+                    `width:${size}px`,
+                    `height:${size}px`,
+                    `--tx:${(Math.cos(angle) * dist).toFixed(1)}px`,
+                    `--ty:${(Math.sin(angle) * dist).toFixed(1)}px`,
+                    `animation-duration:${(0.9 + Math.random() * 0.65).toFixed(2)}s`
+                ].join(';');
+                card.appendChild(p);
+                fwTimers.push(setTimeout(() => p.remove(), 1800));
+            }
+        }, 420);
+        fwTimers.push(tBurst);
+        fwTimers.push(setTimeout(() => rocket.remove(), 500));
+    }
+
+    function initFireworks() {
+        const card = podiumEl.querySelector('[data-rank="1"]');
+        if (!card) return;
+        [0, 280, 560, 900].forEach(d =>
+            fwTimers.push(setTimeout(() => launchFirework(card), d))
+        );
+        function next() {
+            launchFirework(card);
+            if (Math.random() > 0.65)
+                fwTimers.push(setTimeout(() => launchFirework(card), 180));
+            fwTimers.push(setTimeout(next, 400 + Math.random() * 700));
+        }
+        fwTimers.push(setTimeout(next, 1300));
+    }
+
+    initFireworks();
+})();
+
+document.querySelectorAll(".lb-clickable[data-href]").forEach(el => {
+    el.style.cursor = "pointer";
+    el.addEventListener("click", () => { window.location.href = el.dataset.href; });
+});
+</script>
 {% endblock %}
 
 {% block page_shell_extras %}

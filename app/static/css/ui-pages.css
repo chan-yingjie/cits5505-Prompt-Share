@@ -7589,8 +7589,8 @@ body.profile-page .page-shell {
 }
 
 /* Colored top border per rank */
-.lb-podium-card[data-rank="1"] { border-top: 3px solid #f5a623; animation: lb-gold-glow 2.4s ease-in-out infinite; overflow: hidden; }
-.lb-podium-card[data-rank="2"] { border-top: 3px solid #c0c0c0; animation: lb-silver-pulse 3.2s ease-in-out infinite 0.5s; }
+.lb-podium-card[data-rank="1"] { border-top: 3px solid #f5a623; animation: lb-gold-glow 2.4s ease-in-out infinite; overflow: visible; }
+.lb-podium-card[data-rank="2"] { border-top: 3px solid #d0d0d0; animation: lb-silver-pulse 3.2s ease-in-out infinite 0.5s; }
 .lb-podium-card[data-rank="3"] { border-top: 3px solid #cd7f4a; animation: lb-bronze-pulse 3.8s ease-in-out infinite 1s; }
 
 /* Rank row: medal badge + text label */
@@ -7617,8 +7617,8 @@ body.profile-page .page-shell {
 }
 
 @keyframes lb-silver-pulse {
-    0%, 100% { filter: drop-shadow(0 0 1px rgba(180,180,210,0));    }
-    50%       { filter: drop-shadow(0 0 9px rgba(180,180,210,0.45)); }
+    0%, 100% { filter: drop-shadow(0 0 1px rgba(200,200,200,0));    }
+    50%       { filter: drop-shadow(0 0 12px rgba(200,200,200,0.8)); }
 }
 
 @keyframes lb-bronze-pulse {
@@ -7695,7 +7695,7 @@ body.profile-page .page-shell {
 }
 
 .lb-rank-gold   { background: linear-gradient(135deg, #ffd86f 0%, #f5a623 100%); color: #5a3a00; }
-.lb-rank-silver { background: linear-gradient(135deg, #e8e8e8 0%, #c5c5c5 100%); color: #3a3a3a; }
+.lb-rank-silver { background: linear-gradient(135deg, #e8edf2 0%, #b8c4d0 100%); color: #2a3a4a; }
 .lb-rank-bronze { background: linear-gradient(135deg, #f0c89b 0%, #d4895a 100%); color: #5a2e00; }
 
 .lb-podium-title {
@@ -7744,6 +7744,15 @@ body.profile-page .page-shell {
     justify-content: center;
     flex-shrink: 0;
     border: 1.5px solid rgba(201,107,49,0.2);
+    overflow: hidden;
+}
+
+.lb-podium-avatar img,
+.lb-row-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .lb-podium-avatar-lg {
@@ -7772,6 +7781,7 @@ body.profile-page .page-shell {
 
 .lb-podium-desc {
     font-size: 0.82rem;
+    font-style: italic;
     color: #7a6050;
     line-height: 1.55;
     margin: 0;
@@ -7862,6 +7872,7 @@ body.profile-page .page-shell {
     justify-content: center;
     border: 1.5px solid rgba(201,107,49,0.18);
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .lb-row-info {

@@ -164,13 +164,26 @@ def _profile_activity_items(user, prompts):
 
 def _leaderboard_prompt_rows(metric):
     prompts = Prompt.query.order_by(Prompt.created_at.desc()).all()
-    rows = []
 
+    _score_map = {
+        "likes":     (lambda p: p.likes,              "likes"),
+        "bookmarks": (lambda p: p.bookmarks,          "bookmarks"),
+        "views":     (lambda p: p.views,              "views"),
+        "comments":  (lambda p: len(p.comments),      "comments"),
+    }
+
+    rows = []
     for prompt in prompts:
+        if metric in _score_map:
+            score_fn, label = _score_map[metric]
+            score = score_fn(prompt)
+        else:
+            score = len(prompt.comments)
+            label = "comments"
         rows.append({
             "prompt": prompt,
-            "score": len(prompt.comments),
-            "metric_label": "comments",
+            "score": score,
+            "metric_label": label,
             "created_at": prompt.created_at,
         })
 
@@ -190,26 +203,42 @@ def _leaderboard_prompt_rows(metric):
 
 def _leaderboard_user_rows(metric):
     users = User.query.order_by(User.created_at.desc()).all()
-    rows = []
 
+    _metric_map = {
+        "prompts":   ("prompts",   lambda u, pc, **_: pc),
+        "likes":     ("likes",     lambda u, pc, tl, **_: tl),
+        "bookmarks": ("bookmarks", lambda u, pc, tl, tb, **_: tb),
+        "views":     ("views",     lambda u, pc, tl, tb, tv, **_: tv),
+    }
+
+    rows = []
     for user in users:
-        prompt_count = len(user.prompts)
-        comment_count = len(user.comments)
-        score = comment_count if metric == "comments" else prompt_count
+        prompt_count  = len(user.prompts)
+        total_likes     = sum(p.likes     for p in user.prompts)
+        total_bookmarks = sum(p.bookmarks for p in user.prompts)
+        total_views     = sum(p.views     for p in user.prompts)
+
+        label, score_fn = _metric_map.get(metric, _metric_map["prompts"])
+        score = score_fn(
+            user,
+            prompt_count,
+            tl=total_likes,
+            tb=total_bookmarks,
+            tv=total_views,
+        )
+
         rows.append({
             "user": user,
-            "prompt_count": prompt_count,
-            "comment_count": comment_count,
+            "prompt_count":    prompt_count,
+            "total_likes":     total_likes,
+            "total_bookmarks": total_bookmarks,
+            "total_views":     total_views,
             "score": score,
-            "metric_label": "comments" if metric == "comments" else "prompts",
+            "metric_label": label,
         })
 
     rows.sort(
-        key=lambda row: (
-            int(row["score"]),
-            int(row["prompt_count"]),
-            row["user"].created_at or datetime.min,
-        ),
+        key=lambda row: (int(row["score"]), int(row["prompt_count"]), row["user"].created_at or datetime.min),
         reverse=True,
     )
     return rows[:20]
@@ -238,19 +267,23 @@ def leaderboard():
     metric = request.args.get("metric")
     if mode == "users":
         metric_options = [
-            ("prompts", "Prompts"),
-            ("comments", "Comments"),
+            ("prompts",   "Most Prompts"),
+            ("likes",     "Most Liked"),
+            ("bookmarks", "Most Bookmarked"),
+            ("views",     "Most Viewed"),
         ]
-        if metric not in {"prompts", "comments"}:
+        if metric not in {"prompts", "likes", "bookmarks", "views"}:
             metric = "prompts"
         rows = _leaderboard_user_rows(metric)
     else:
         metric_options = [
-            ("comments", "Comments"),
-            ("recent", "Newest"),
+            ("likes",     "Most Liked"),
+            ("bookmarks", "Most Bookmarked"),
+            ("comments",  "Most Commented"),
+            ("views",     "Most Viewed"),
         ]
-        if metric not in {"comments", "recent"}:
-            metric = "comments"
+        if metric not in {"likes", "bookmarks", "comments", "views"}:
+            metric = "likes"
         rows = _leaderboard_prompt_rows(metric)
 
     return render_template(
