@@ -231,25 +231,60 @@
                     </div>
                     <div id="userPromptsBody" class="pf-collapse-body">
                         <div class="pf-collapse-inner">
-                           <div id="userPrompts" aria-live="polite">
+                           <div id="userPrompts" class="pf-prompt-grid" aria-live="polite">
     {% if prompts %}
         {% for prompt in prompts %}
-            <article class="prompt-card" style="margin-bottom:12px">
-                <h3 class="card-title">{{ prompt.title }}</h3>
-                <p class="card-description">{{ prompt.description }}</p>
-
-                <div class="card-tags">
-                    <span class="tag-pill tag-pill-primary">{{ prompt.category }}</span>
-
-                    {% if prompt.subcategory %}
-                        <span class="tag-pill tag-pill-secondary">{{ prompt.subcategory }}</span>
-                    {% endif %}
+            <article class="prompt-card prompt-card-link pf-prompt-card">
+                <div class="prompt-card-top prompt-card-author-row">
+                    <div class="prompt-author">
+                        <a class="author-link" href="{{ url_for('main.profile', user=prompt.author.username) }}" aria-label="View {{ prompt.author.display_label }} profile">
+                            {% if prompt.author.avatar_filename %}
+                            <span class="prompt-author-avatar" aria-hidden="true">
+                                <img src="{{ url_for('static', filename='uploads/avatars/' + prompt.author.avatar_filename) }}" alt="{{ prompt.author.display_label }}">
+                            </span>
+                            {% else %}
+                            <span class="prompt-author-avatar author-tone-warm" aria-hidden="true">{{ prompt.author.display_label[:2]|upper }}</span>
+                            {% endif %}
+                            <span class="prompt-author-copy">
+                                <span class="prompt-author-name">{{ prompt.author.display_label }}</span>
+                                <span class="author-handle">@{{ prompt.author.username }}</span>
+                            </span>
+                        </a>
+                    </div>
                 </div>
-
-                <a class="button-link secondary pf-btn"
-                   href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">
-                    View prompt
-                </a>
+                <div class="card-content">
+                    <h3 class="card-title">
+                        <a class="card-title-link" href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a>
+                    </h3>
+                    <p class="card-description">—— {{ prompt.description }}</p>
+                    <p class="card-body-preview">{{ prompt.body }}</p>
+                </div>
+                <div class="card-stats card-stats-row">
+                    <span class="card-stat">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.3" fill="#5A7FDB"/><circle cx="10.8" cy="9.2" r="0.7" fill="#fff"/></svg>
+                        </span>
+                        <strong>{{ prompt.views }}</strong>
+                    </span>
+                    <span class="card-stat">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                        </span>
+                        <strong>{{ prompt.comments|length }}</strong>
+                    </span>
+                    <span class="card-stat">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"/></svg>
+                        </span>
+                        <strong>{{ prompt.likes }}</strong>
+                    </span>
+                    <span class="card-stat">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"/></svg>
+                        </span>
+                        <strong>{{ prompt.bookmarks }}</strong>
+                    </span>
+                </div>
             </article>
         {% endfor %}
     {% else %}
@@ -292,7 +327,6 @@
                                 </p>
                                 <div class="pf-activity-meta">
                                     <span class="pf-activity-time">{{ activity.time_label }}</span>
-                                    <span class="tag-pill tag-pill-secondary">{{ activity.category }}</span>
                                 </div>
                             </div>
                         </li>
