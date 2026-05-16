@@ -31,16 +31,21 @@
                 <div class="profile-banner-identity">
                     <div class="profile-avatar-wrap">
                         <div class="profile-avatar author-tone-warm" id="profileAvatar" aria-label="User avatar">
-                            <img id="profileAvatarImg" src="{{ url_for('static', filename='images/pic3.png') }}" alt="Profile photo">
+                            <img id="profileAvatarImg" src="{{ url_for('static', filename=avatar_static_path) }}" alt="Profile photo">
                         </div>
-                        <input type="file" id="avatarFileInput" accept="image/*" style="display:none" aria-hidden="true">
-                        <button class="avatar-upload-btn" type="button" aria-label="Change photo" id="avatarUploadBtn">
-                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                                <rect x="1" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                                <circle cx="7" cy="8.5" r="2.1" stroke="currentColor" stroke-width="1.5"/>
-                                <path d="M5 4V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.5"/>
-                            </svg>
-                        </button>
+                        {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+                        <form class="avatar-upload-form" id="avatarUploadForm" action="{{ url_for('main.update_avatar') }}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="file" id="avatarFileInput" name="avatar" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none" aria-hidden="true">
+                            <button class="avatar-upload-btn" type="button" aria-label="Change photo" id="avatarUploadBtn">
+                                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                                    <rect x="1" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                    <circle cx="7" cy="8.5" r="2.1" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M5 4V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                            </button>
+                        </form>
+                        {% endif %}
                     </div>
 
                     <div class="profile-identity-text">
@@ -369,4 +374,24 @@
                 </section>
 
             </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    const avatarForm = document.getElementById("avatarUploadForm");
+    const avatarInput = document.getElementById("avatarFileInput");
+    const avatarButton = document.getElementById("avatarUploadBtn");
+    const avatarImage = document.getElementById("profileAvatarImg");
+
+    if (avatarForm && avatarInput && avatarButton) {
+        avatarButton.addEventListener("click", () => avatarInput.click());
+        avatarImage.addEventListener("click", () => avatarInput.click());
+        avatarInput.addEventListener("change", () => {
+            if (avatarInput.files.length > 0) {
+                avatarForm.submit();
+            }
+        });
+    }
+</script>
 {% endblock %}

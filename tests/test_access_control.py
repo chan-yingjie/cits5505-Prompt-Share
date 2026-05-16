@@ -1,4 +1,6 @@
+from io import BytesIO
 from datetime import datetime
+from urllib.parse import unquote
 
 from tests.conftest import assert_message_in_response, login, signup
 from app.extensions import db
@@ -102,6 +104,40 @@ def test_older_profile_shows_join_month(auth_client):
     assert response.status_code == 200
     assert b"Joined Jan 2024" in response.data
     assert b"Member" in response.data
+
+
+def test_user_can_upload_profile_avatar(app, auth_client, registered_user):
+    response = auth_client.post(
+        "/profile/avatar",
+        data={"avatar": (BytesIO(b"fake png data"), "avatar.png")},
+        content_type="multipart/form-data",
+        follow_redirects=False,
+    )
+
+    db.session.refresh(registered_user)
+
+    assert response.status_code == 302
+    assert f"/profile/{registered_user.username}" in unquote(response.location)
+    assert registered_user.avatar_filename.startswith(f"user-{registered_user.id}-")
+    assert registered_user.avatar_filename.endswith(".png")
+    assert (app.config["AVATAR_UPLOAD_FOLDER"] / registered_user.avatar_filename).exists()
+
+    profile_response = auth_client.get(f"/profile/{registered_user.username}")
+    assert f"uploads/avatars/{registered_user.avatar_filename}".encode() in profile_response.data
+
+
+def test_avatar_upload_rejects_invalid_file_type(auth_client, registered_user):
+    response = auth_client.post(
+        "/profile/avatar",
+        data={"avatar": (BytesIO(b"not an image"), "avatar.txt")},
+        content_type="multipart/form-data",
+        follow_redirects=False,
+    )
+
+    db.session.refresh(registered_user)
+
+    assert response.status_code == 302
+    assert registered_user.avatar_filename is None
 
 
 def test_prompt_edit_requires_login(client, registered_user):

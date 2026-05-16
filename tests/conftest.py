@@ -11,11 +11,13 @@ class TestConfig:
     SECRET_KEY = "test-secret-key"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    AVATAR_STATIC_PREFIX = "uploads/avatars"
 
 
 @pytest.fixture
-def app():
+def app(tmp_path):
     application = create_app(TestConfig)
+    application.config["AVATAR_UPLOAD_FOLDER"] = tmp_path / "avatars"
 
     with application.app_context():
         db.create_all()

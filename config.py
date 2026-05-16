@@ -12,3 +12,5 @@ class Config:
         f"sqlite:///{BASE_DIR / 'instance' / 'app.db'}",
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    AVATAR_UPLOAD_FOLDER = BASE_DIR / "app" / "static" / "uploads" / "avatars"
+    AVATAR_STATIC_PREFIX = "uploads/avatars"

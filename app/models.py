@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    avatar_filename = db.Column(db.String(255), nullable=True)
     prompts = db.relationship("Prompt", back_populates="author", cascade="all, delete-orphan")
     comments = db.relationship("Comment", back_populates="author", cascade="all, delete-orphan")
 

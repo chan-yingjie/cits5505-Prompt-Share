@@ -12,3 +12,5 @@ instance/
 app.db
 *.sqlite
 *.sqlite3
+app/static/uploads/avatars/*
+!app/static/uploads/avatars/.gitkeep
