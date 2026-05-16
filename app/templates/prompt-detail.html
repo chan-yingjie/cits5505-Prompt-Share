@@ -696,9 +696,6 @@
     const _feedback      = document.getElementById("customize-feedback");
     const _shareStatus   = document.getElementById("share-status");
 
-    const _saved = localStorage.getItem(_storageKey);
-    if (_saved && _textarea) _textarea.value = _saved;
-
     const _stepBtns = [_saveBtn, _copyBtn, _chatgptBtn];
 
     function _activateStep(activeBtn) {

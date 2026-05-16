@@ -7982,12 +7982,26 @@ body.profile-page .page-shell {
 .lb-rank-silver { background: linear-gradient(135deg, #e8edf2 0%, #b8c4d0 100%); color: #2a3a4a; }
 .lb-rank-bronze { background: linear-gradient(135deg, #f0c89b 0%, #d4895a 100%); color: #5a2e00; }
 
+.lb-podium-card-top {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lb-podium-title-wrap {
+    min-height: 2.8rem;
+}
+
 .lb-podium-title {
     font-size: 1.02rem;
     font-weight: 600;
     line-height: 1.35;
     color: #2c1a0e;
     margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .lb-podium-title a {
@@ -8051,6 +8065,10 @@ body.profile-page .page-shell {
     font-weight: 600;
     color: #3d2b1a;
     transition: color 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
 }
 
 .lb-podium-author:hover .lb-podium-name {

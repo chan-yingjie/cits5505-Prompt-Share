@@ -90,6 +90,7 @@
                         {% if mode == "prompts" %}
                             {% set prompt = row.prompt %}
                             <article class="lb-podium-card{% if rank_index == 0 %} is-first{% endif %}" data-rank="{{ loop.index }}">
+                                <div class="lb-podium-card-top">
                                 <div class="lb-podium-rank-row">
                                     <div class="lb-podium-rank {{ rank_class(rank_index) }}">{{ rank_label(rank_index) }}</div>
                                     <span class="lb-podium-rank-label">{{ loop.index }}{{ 'st' if loop.index == 1 else 'nd' if loop.index == 2 else 'rd' if loop.index == 3 else 'th' }} Place</span>
@@ -101,8 +102,9 @@
                                         <span class="lb-podium-handle">@{{ prompt.author.username }}</span>
                                     </div>
                                 </a>
-                                <h3 class="lb-podium-title"><a href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a></h3>
-                                <p class="lb-podium-desc lb-clickable" data-href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.description }}</p>
+                                <div class="lb-podium-title-wrap"><h3 class="lb-podium-title"><a href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a></h3></div>
+                                </div>
+                                <p class="lb-podium-desc lb-clickable" data-href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">—— {{ prompt.description }}</p>
                                 <div class="lb-podium-stats">
                                     <span class="lb-stat">
                                         <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"/></svg>
@@ -332,6 +334,16 @@ document.querySelectorAll(".lb-clickable[data-href]").forEach(el => {
     el.style.cursor = "pointer";
     el.addEventListener("click", () => { window.location.href = el.dataset.href; });
 });
+
+function equalizePodiumTops() {
+    const tops = document.querySelectorAll(".lb-podium-card-top");
+    if (!tops.length) return;
+    tops.forEach(el => el.style.height = "");
+    const maxH = Math.max(...Array.from(tops).map(el => el.offsetHeight));
+    tops.forEach(el => el.style.height = maxH + "px");
+}
+equalizePodiumTops();
+window.addEventListener("resize", equalizePodiumTops);
 </script>
 {% endblock %}
 
