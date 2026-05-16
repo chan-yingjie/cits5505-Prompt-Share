@@ -1,2 +1,19 @@
 .DS_Store
 venv/
+
+# Environment variables — never commit real secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Local application data
+instance/
+app.db
+*.sqlite
+*.sqlite3
+app/static/uploads/avatars/*
+!app/static/uploads/avatars/.gitkeep

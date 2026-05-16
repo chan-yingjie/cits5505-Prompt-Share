@@ -1,0 +1,32 @@
+"""add views likes bookmarks to prompt
+
+Revision ID: 6ddf038e6d48
+Revises: e1a2b3c4d5f6
+Create Date: 2026-05-16 11:36:18.289972
+
+"""
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision = '6ddf038e6d48'
+down_revision = 'e1a2b3c4d5f6'
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    with op.batch_alter_table('prompt', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('views', sa.Integer(), nullable=False, server_default='0'))
+        batch_op.add_column(sa.Column('likes', sa.Integer(), nullable=False, server_default='0'))
+        batch_op.add_column(sa.Column('bookmarks', sa.Integer(), nullable=False, server_default='0'))
+
+
+
+def downgrade():
+    with op.batch_alter_table('prompt', schema=None) as batch_op:
+        batch_op.drop_column('bookmarks')
+        batch_op.drop_column('likes')
+        batch_op.drop_column('views')
+

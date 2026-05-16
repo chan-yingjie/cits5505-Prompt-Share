@@ -1,38 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile | Prompt Share</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/css/ui-pages.css">
-</head>
-<body class="profile-page">
-    <div class="page-shell">
-        <header class="topbar">
-            <nav class="topnav" aria-label="Primary navigation">
-                <a href="index.html">Home</a>
-                <a href="feed.html">Feed</a>
-                <a href="submit-prompt.html">Submit Prompt</a>
-                <a href="leaderboard.html">Leaderboard</a>
-                <a class="active" href="profile.html">Profile</a>
-                <a href="login.html">Login</a>
-            </nav>
-            <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <a class="brand" href="index.html" aria-label="Prompt Share home">
-                <span>Prompt Share</span>
-                <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
-            </a>
-        </header>
+{# profile.html — User profile page. Shows stats, submitted prompts, and activity history. #}
+{% extends "base.html" %}
 
-        <main class="profile-layout">
+{% block title %}Profile | Prompt Share{% endblock %}
+
+{% block body_class %}profile-page{% endblock %}
+
+{% block main_class %}profile-layout{% endblock %}
+
+{% block content %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="page-flash {{ 'is-error' if messages[-1][0] == 'error' else 'is-success' }}">
+                {{ messages[-1][1] }}
+            </div>
+            {% endif %}
+            {% endwith %}
 
             <!-- ════ 1. Profile Banner ════ -->
             <section class="content-block profile-banner" aria-label="Profile overview">
@@ -42,45 +24,45 @@
 
                 <!-- Action buttons: float top-right, above illustration -->
                 <div class="profile-banner-actions">
-                    <a class="button-link secondary pf-btn" href="submit-prompt.html">Submit Prompt</a>
-                    <a class="button-link primary pf-btn" href="feed.html">Explore Feed</a>
+                    <a class="button-link secondary pf-btn" href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
+                    <a class="button-link primary pf-btn" href="{{ url_for('main.feed') }}">Explore</a>
                 </div>
 
                 <!-- User identity: left side -->
                 <div class="profile-banner-identity">
                     <div class="profile-avatar-wrap">
                         <div class="profile-avatar author-tone-warm" id="profileAvatar" aria-label="User avatar">
-                            <img id="profileAvatarImg" src="../static/images/pic3.png" alt="Profile photo">
+                            <img id="profileAvatarImg" src="{{ url_for('static', filename=avatar_static_path) }}" alt="Profile photo">
                         </div>
-                        <input type="file" id="avatarFileInput" accept="image/*" style="display:none" aria-hidden="true">
-                        <button class="avatar-upload-btn" type="button" aria-label="Change photo" id="avatarUploadBtn">
-                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                                <rect x="1" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                                <circle cx="7" cy="8.5" r="2.1" stroke="currentColor" stroke-width="1.5"/>
-                                <path d="M5 4V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.5"/>
-                            </svg>
-                        </button>
+                        {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+                        <form class="avatar-upload-form" id="avatarUploadForm" action="{{ url_for('main.update_avatar') }}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="file" id="avatarFileInput" name="avatar" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none" aria-hidden="true">
+                            <button class="avatar-upload-btn" type="button" aria-label="Change photo" id="avatarUploadBtn">
+                                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                                    <rect x="1" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                    <circle cx="7" cy="8.5" r="2.1" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M5 4V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                            </button>
+                        </form>
+                        {% endif %}
                     </div>
 
                     <div class="profile-identity-text">
                         <div class="profile-name-row">
-                            <span class="profile-name" id="profileUsername">demo_user</span>
+                            <span class="profile-name" id="profileUsername">{{ profile_user.display_label }}</span>
                             <span class="profile-badge">
                                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 1l1.12 2.26L9 3.64 7 5.58l.47 2.74L5 7.1l-2.47 1.22L3 5.58 1 3.64l2.88-.38L5 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-                                New user
+                                {{ badge_label }}
                             </span>
                         </div>
-                        <span class="profile-handle" id="profileHandle">@demo_user</span>
-                        <p class="profile-bio-text" id="profileBio">Share great prompts and help the community learn together.</p>
+                        <span class="profile-handle" id="profileHandle">@{{ profile_user.username }}</span>
+                        <p class="profile-bio-text{% if not profile_user.bio %} profile-bio-placeholder{% endif %}" id="profileBio">{{ profile_user.bio or "Add a bio to introduce yourself." }}</p>
                         <div class="profile-meta-row">
                             <span class="profile-meta-item">
                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 5h10M4 1v2M8 1v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                                Joined recently
-                            </span>
-                            <span class="profile-meta-sep">•</span>
-                            <span class="profile-meta-item">
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><circle cx="6" cy="5" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M6 1a4 4 0 0 1 4 4c0 2.5-4 7-4 7S2 7.5 2 5a4 4 0 0 1 4-4Z" stroke="currentColor" stroke-width="1.3"/></svg>
-                                Australia
+                                {{ join_label }}
                             </span>
                         </div>
                     </div>
@@ -93,7 +75,7 @@
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 6h6M6 9h6M6 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                         </div>
                         <div class="stat-info">
-                            <strong class="stat-value" id="statTotalPrompts">0</strong>
+                            <strong class="stat-value" id="statTotalPrompts">{{ prompts|length }}</strong>
                             <span class="stat-label">Total prompts</span>
                         </div>
                     </div>
@@ -102,7 +84,7 @@
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 14.5 3.8 9.7a3.5 3.5 0 0 1 4.9-5l.3.3.3-.3a3.5 3.5 0 0 1 4.9 5L9 14.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
                         </div>
                         <div class="stat-info">
-                            <strong class="stat-value" id="statTotalLikes">0</strong>
+                            <strong class="stat-value" id="statTotalLikes">{{ total_likes }}</strong>
                             <span class="stat-label">Total likes</span>
                         </div>
                     </div>
@@ -111,7 +93,7 @@
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M1.5 9S4 3.5 9 3.5 16.5 9 16.5 9 14 14.5 9 14.5 1.5 9 1.5 9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9" cy="9" r="2.2" stroke="currentColor" stroke-width="1.6"/></svg>
                         </div>
                         <div class="stat-info">
-                            <strong class="stat-value" id="statTotalViews">0</strong>
+                            <strong class="stat-value" id="statTotalViews">{{ total_views }}</strong>
                             <span class="stat-label">Total views</span>
                         </div>
                     </div>
@@ -120,7 +102,7 @@
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 2l1.8 3.6L15 6.3l-3 2.9.7 4.1L9 11.2l-3.7 2.1.7-4.1-3-2.9 4.2-.7L9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
                         </div>
                         <div class="stat-info">
-                            <strong class="stat-value" id="statTotalFavorites">0</strong>
+                            <strong class="stat-value" id="statTotalFavorites">{{ total_bookmarks }}</strong>
                             <span class="stat-label">Total favorites</span>
                         </div>
                     </div>
@@ -134,10 +116,12 @@
                             <div class="pf-title-action-row">
                                 <h2>Personal information</h2>
                                 <div id="profileInfoActions">
+                                    {% if current_user.is_authenticated and current_user.id == profile_user.id %}
                                     <button class="button-link primary pf-btn profile-edit-trigger" id="editInfoBtn" type="button">
                                         <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5 5 11H3V9l6.5-6.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
                                         Edit Profile
                                     </button>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -151,7 +135,7 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Name</span>
-                                <span class="info-value" id="infoName">—</span>
+                                <span class="info-value" id="infoName">{{ profile_user.display_label }}</span>
                             </div>
                         </div>
                         <div class="profile-info-field">
@@ -159,8 +143,8 @@
                                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="9.5" cy="7.5" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M13 11v1.5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
                             </div>
                             <div class="field-content">
-                                <span class="info-label">Username</span>
-                                <span class="info-value" id="infoUsername">—</span>
+                                <span class="info-label">User ID</span>
+                                <span class="info-value" id="infoUsername">@{{ profile_user.username }}</span>
                             </div>
                         </div>
                         <div class="profile-info-field">
@@ -169,16 +153,22 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Location</span>
-                                <span class="info-value" id="infoLocation">—</span>
+                                <span class="info-value" id="infoLocation">{{ profile_user.location or "—" }}</span>
                             </div>
                         </div>
-                        <div class="profile-info-field">
+                        <div class="profile-info-field profile-info-field-email">
                             <div class="field-icon-wrap">
                                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M1 5l7 5 7-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
                             </div>
                             <div class="field-content">
-                                <span class="info-label">Email <span style="font-weight:400;text-transform:none;">(optional)</span></span>
-                                <span class="info-value" id="infoEmail">—</span>
+                                <span class="info-label">Email <span class="info-label-optional">(optional)</span></span>
+                                <span class="info-value" id="infoEmail">
+    {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+        {{ profile_user.email }}
+    {% else %}
+        Hidden
+    {% endif %}
+</span>
                             </div>
                         </div>
                         <div class="profile-info-field profile-info-field-full">
@@ -187,33 +177,34 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Bio</span>
-                                <span class="info-value" id="infoBio">—</span>
+                                <span class="info-value" id="infoBio">{{ profile_user.bio or "—" }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Edit mode: inline form -->
-                    <form class="profile-edit-form" id="profileEditForm" novalidate>
+                    <form class="profile-edit-form" id="profileEditForm" action="{{ url_for('main.update_profile') }}" method="post" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="profile-edit-grid">
                             <div class="profile-edit-field">
                                 <label class="info-label" for="editName">Name</label>
-                                <input class="profile-input" id="editName" type="text" placeholder="Your name" autocomplete="name">
+                                <input class="profile-input" id="editName" name="display_name" type="text" placeholder="Your name" autocomplete="name" value="{{ profile_user.display_label }}" required>
                             </div>
                             <div class="profile-edit-field">
-                                <label class="info-label" for="editUsername">Username</label>
-                                <input class="profile-input" id="editUsername" type="text" placeholder="username" autocomplete="username">
+                                <label class="info-label" for="editUsername">User ID</label>
+                                <input class="profile-input" id="editUsername" type="text" value="@{{ profile_user.username }}" readonly aria-readonly="true">
                             </div>
                             <div class="profile-edit-field">
                                 <label class="info-label" for="editLocation">Location</label>
-                                <input class="profile-input" id="editLocation" type="text" placeholder="City, Country">
+                                <input class="profile-input" id="editLocation" name="location" type="text" placeholder="City, Country" value="{{ profile_user.location or '' }}">
                             </div>
                             <div class="profile-edit-field">
                                 <label class="info-label" for="editEmail">Email <span style="font-weight:400;text-transform:none">(optional)</span></label>
-                                <input class="profile-input" id="editEmail" type="email" placeholder="you@example.com" autocomplete="email">
+                                <input class="profile-input" id="editEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" value="{{ profile_user.email }}" required>
                             </div>
                             <div class="profile-edit-field profile-edit-field-full">
                                 <label class="info-label" for="editBio">Bio</label>
-                                <textarea class="profile-input profile-textarea" id="editBio" rows="3" placeholder="Tell the community about yourself…"></textarea>
+                                <textarea class="profile-input profile-textarea" id="editBio" name="bio" rows="3" placeholder="Tell the community about yourself…">{{ profile_user.bio or '' }}</textarea>
                             </div>
                         </div>
                         <div class="profile-edit-actions">
@@ -241,7 +232,75 @@
                     </div>
                     <div id="userPromptsBody" class="pf-collapse-body">
                         <div class="pf-collapse-inner">
-                            <div id="userPrompts" aria-live="polite"></div>
+                           <div id="userPrompts" class="pf-prompt-grid" aria-live="polite">
+    {% if prompts %}
+        {% for prompt in prompts %}
+            <article class="prompt-card prompt-card-link pf-prompt-card">
+                <div class="prompt-card-top prompt-card-author-row">
+                    <div class="prompt-author">
+                        <a class="author-link" href="{{ url_for('main.profile', user=prompt.author.username) }}" aria-label="View {{ prompt.author.display_label }} profile">
+                            {% if prompt.author.avatar_filename %}
+                            <span class="prompt-author-avatar" aria-hidden="true">
+                                <img src="{{ url_for('static', filename='uploads/avatars/' + prompt.author.avatar_filename) }}" alt="{{ prompt.author.display_label }}">
+                            </span>
+                            {% else %}
+                            <span class="prompt-author-avatar author-tone-warm" aria-hidden="true">{{ prompt.author.display_label[:2]|upper }}</span>
+                            {% endif %}
+                            <span class="prompt-author-copy">
+                                <span class="prompt-author-name">{{ prompt.author.display_label }}</span>
+                                <span class="author-handle">@{{ prompt.author.username }}</span>
+                            </span>
+                        </a>
+                    </div>
+                    {% if current_user.is_authenticated and current_user.id == prompt.author_id %}
+                    <form class="pf-prompt-delete-form"
+                          action="{{ url_for('main.delete_prompt', prompt_id=prompt.id) }}"
+                          method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="next" value="{{ url_for('main.profile', user=profile_user.username) }}">
+                        <button class="pf-prompt-delete-button" type="submit">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">
+                        <a class="card-title-link" href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a>
+                    </h3>
+                    <p class="card-description">—— {{ prompt.description }}</p>
+                    <p class="card-body-preview">{{ prompt.body }}</p>
+                </div>
+                <div class="card-stats card-stats-row">
+                    <span class="card-stat">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.3" fill="#5A7FDB"/><circle cx="10.8" cy="9.2" r="0.7" fill="#fff"/></svg>
+                        </span>
+                        <strong>{{ prompt.views }}</strong>
+                    </span>
+                    <span class="card-stat">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                        </span>
+                        <strong>{{ prompt.comments|length }}</strong>
+                    </span>
+                    <span class="card-stat">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"/></svg>
+                        </span>
+                        <strong>{{ prompt.likes }}</strong>
+                    </span>
+                    <span class="card-stat">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"/></svg>
+                        </span>
+                        <strong>{{ prompt.bookmarks }}</strong>
+                    </span>
+                </div>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>No prompts submitted yet.</p>
+    {% endif %}
+</div>
                         </div>
                     </div>
                 </section>
@@ -260,301 +319,108 @@
                     </div>
                     <div id="activityBody" class="pf-collapse-body">
                     <div class="pf-collapse-inner">
+                    {% if activity_items %}
                     <ul class="pf-activity-list">
+                        {% for activity in activity_items %}
                         <li class="pf-activity-item">
-                            <div class="pf-activity-icon" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 5h4M5 7.5h4M5 10h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 1v3h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Submitted <strong>Turn raw meeting notes into a structured summary</strong></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">6 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Productivity</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-like" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13 3.2 8.5a3 3 0 0 1 4.2-4.3l.6.6.6-.6A3 3 0 0 1 12.8 8.5L8 13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Liked <strong>Debug assistant for Python</strong> by <a href="profile.html?user=kai.dev">kai.dev</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">8 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Coding</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 5h4M5 7.5h4M5 10h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 1v3h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Submitted <strong>Code review checklist for pull requests</strong></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">9 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Coding</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-comment" aria-hidden="true">
+                            <div class="pf-activity-icon{% if activity.kind == 'comment' %} act-comment{% endif %}" aria-hidden="true">
+                                {% if activity.kind == 'comment' %}
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 2.5H2.5a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1H5l3 3 3-3h2.5a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Commented on <strong>Summarise an article into sharp takeaways</strong> by <a href="profile.html?user=Armin312">Armin312</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">11 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Writing</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-star" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.5 3 3.3.5-2.4 2.3.6 3.3L8 9l-3 1.6.6-3.3L3.2 5l3.3-.5L8 1.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Saved <strong>Rewrite an email for a professional escalation</strong> by <a href="profile.html?user=chinmaiii">chinmaiii</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">13 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Writing</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon" aria-hidden="true">
+                                {% else %}
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 5h4M5 7.5h4M5 10h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 1v3h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                {% endif %}
                             </div>
                             <div class="pf-activity-body">
-                                <p class="pf-activity-text">Submitted <strong>Personal writing coach for academic essays</strong></p>
+                                <p class="pf-activity-text">
+                                    {{ activity.verb }}
+                                    <a href="{{ url_for('main.prompt_detail', prompt_id=activity.prompt.id) }}"><strong>{{ activity.prompt.title }}</strong></a>
+                                </p>
                                 <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">16 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Writing</span>
+                                    <span class="pf-activity-time">{{ activity.time_label }}</span>
                                 </div>
                             </div>
                         </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-like" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13 3.2 8.5a3 3 0 0 1 4.2-4.3l.6.6.6-.6A3 3 0 0 1 12.8 8.5L8 13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Liked <strong>Study question generator for exam prep</strong> by <a href="profile.html?user=chan-yingjie">chan-yingjie</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">18 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Education</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-view" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Viewed <strong>Marketing launch campaign brief</strong> by <a href="profile.html?user=luna.market">luna.market</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">21 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Marketing</span>
-                                </div>
-                            </div>
-                        </li>
+                        {% endfor %}
                     </ul>
+                    {% else %}
+                    <p class="pf-empty-text">No activity yet.</p>
+                    {% endif %}
                     </div><!-- /.pf-collapse-inner -->
                     </div><!-- /#activityBody -->
                 </section>
 
             </div>
+{% endblock %}
 
-        </main>
-
-        <footer class="site-footer" data-shared-footer aria-labelledby="site-footer-title"></footer>
+{% block page_shell_extras %}
+    <div class="modal-overlay prompt-delete-confirm-overlay" id="delete-prompt-modal" aria-hidden="true">
+        <div class="reset-modal prompt-delete-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="delete-prompt-modal-title" aria-describedby="delete-prompt-modal-description">
+            <button type="button" class="modal-close prompt-delete-confirm-close" id="close-delete-prompt-modal" aria-label="Close delete confirmation">×</button>
+            <div class="prompt-delete-confirm-icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" fill="none" focusable="false">
+                    <path d="M5.8 6.4h8.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                    <path d="M7.2 6.4V5.5a1.3 1.3 0 0 1 1.3-1.3h3a1.3 1.3 0 0 1 1.3 1.3v.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M7 8.2v6.1a1.4 1.4 0 0 0 1.4 1.4h3.2a1.4 1.4 0 0 0 1.4-1.4V8.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M8.9 9.6v4.1M11.1 9.6v4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                </svg>
+            </div>
+            <h2 id="delete-prompt-modal-title">Delete this prompt?</h2>
+            <p id="delete-prompt-modal-description">This prompt, its comments, and its activity will be removed. This action cannot be undone.</p>
+            <div class="prompt-delete-confirm-actions">
+                <button class="button-submit btn-secondary" type="button" id="cancel-delete-prompt-button">Cancel</button>
+                <button class="button-submit btn-primary prompt-delete-confirm-delete-button" type="button" id="confirm-delete-prompt-button">Delete</button>
+            </div>
+        </div>
     </div>
+{% endblock %}
 
-    <script src="../static/js/prompt-data.js"></script>
-    <script>
-        (function () {
-            function escapeHtml(v) {
-                return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;")
-                    .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/prompt-delete-modal.js') }}?v=1"></script>
+<script>
+    const avatarForm = document.getElementById("avatarUploadForm");
+    const avatarInput = document.getElementById("avatarFileInput");
+    const avatarButton = document.getElementById("avatarUploadBtn");
+    const avatarImage = document.getElementById("profileAvatarImg");
+
+    if (avatarForm && avatarInput && avatarButton) {
+        avatarButton.addEventListener("click", () => avatarInput.click());
+        avatarImage.addEventListener("click", () => avatarInput.click());
+        avatarInput.addEventListener("change", () => {
+            if (avatarInput.files.length > 0) {
+                avatarForm.submit();
             }
-            function truncate(text, max) {
-                const t = String(text);
-                return t.length <= max ? t : t.slice(0, max - 1).trimEnd() + "…";
-            }
+        });
+    }
 
-            const params      = new URLSearchParams(window.location.search);
-            const requested   = (params.get("user") || "demo_user").trim();
-            const dataset     = Array.isArray(window.promptFeedData) ? window.promptFeedData : [];
-            const userPrompts = dataset.filter(p => (p.author || "").toLowerCase() === requested.toLowerCase());
-            const primary     = userPrompts[0] || null;
+    const editInfoButton = document.getElementById("editInfoBtn");
+    const cancelEditButton = document.getElementById("cancelEditBtn");
+    const profileInfoCard = document.getElementById("personalInfoCard");
+    const profileInfoView = document.getElementById("profileInfoView");
+    const profileEditForm = document.getElementById("profileEditForm");
+    const editNameInput = document.getElementById("editName");
 
-            const username = primary?.author  || requested || "demo_user";
-            const handle   = primary?.authorHandle  || "@" + username.toLowerCase().replace(/\s+/g, "_");
-            const bio      = primary?.authorBio      || "Share great prompts and help the community learn together.";
-            const location = primary?.authorLocation || "Australia";
-            const email    = primary?.authorEmail    || "";
+    function setProfileEditMode(isEditing) {
+        if (!profileInfoCard || !profileInfoView || !profileEditForm) {
+            return;
+        }
 
-            const initials = String(username).split(/[\s._-]+/).filter(Boolean)
-                             .slice(0,2).map(p => p[0].toUpperCase()).join("") || "U";
+        profileInfoCard.classList.toggle("is-editing", isEditing);
+        profileInfoView.style.display = isEditing ? "none" : "";
+        profileEditForm.classList.toggle("is-active", isEditing);
 
-            /* banner */
-            const avatarEl = document.getElementById("profileAvatar");
-            if (!avatarEl.querySelector("img")) avatarEl.textContent = initials;
-            document.getElementById("profileUsername").textContent = username;
-            document.getElementById("profileHandle").textContent   = handle.startsWith("@") ? handle : "@" + handle;
-            document.getElementById("profileBio").textContent      = bio;
+        if (isEditing && editNameInput) {
+            editNameInput.focus();
+        }
+    }
 
-            /* info view */
-            document.getElementById("infoName").textContent     = username;
-            document.getElementById("infoUsername").textContent = handle.startsWith("@") ? handle : "@" + handle;
-            document.getElementById("infoLocation").textContent = location;
-            document.getElementById("infoEmail").textContent    = email || "—";
-            document.getElementById("infoBio").textContent      = bio;
+    if (editInfoButton) {
+        editInfoButton.addEventListener("click", () => setProfileEditMode(true));
+    }
 
-            /* edit form prefill */
-            document.getElementById("editName").value     = username;
-            document.getElementById("editUsername").value = handle.replace(/^@/, "");
-            document.getElementById("editLocation").value = location;
-            document.getElementById("editEmail").value    = email;
-            document.getElementById("editBio").value      = bio;
+    if (cancelEditButton) {
+        cancelEditButton.addEventListener("click", () => setProfileEditMode(false));
+    }
 
-            /* stats */
-            const totals = userPrompts.reduce((a, p) => ({
-                prompts:   a.prompts   + 1,
-                likes:     a.likes     + Number(p.likes     || 0),
-                views:     a.views     + Number(p.viewCount || 0),
-                favorites: a.favorites + Number(p.favorites || 0)
-            }), { prompts:0, likes:0, views:0, favorites:0 });
-
-            document.getElementById("statTotalPrompts").textContent   = totals.prompts;
-            document.getElementById("statTotalLikes").textContent     = totals.likes;
-            document.getElementById("statTotalViews").textContent     = totals.views;
-            document.getElementById("statTotalFavorites").textContent = totals.favorites;
-
-            /* prompts grid */
-            const promptsEl = document.getElementById("userPrompts");
-            if (!userPrompts.length) {
-                promptsEl.innerHTML = `
-                    <div class="pf-empty-state">
-                        <div class="pf-empty-icon pf-empty-icon-doc">
-                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-                                <rect x="4" y="2" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.7"/>
-                                <path d="M8 8h6M8 11h6M8 14h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-                                <path d="M15 2v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <div class="pf-empty-text">
-                            <p class="pf-empty-title">You haven't shared any prompts yet</p>
-                            <p class="pf-empty-desc">Start by creating your first prompt and share your ideas with the community.</p>
-                            <a class="button-link primary pf-btn" href="submit-prompt.html">+ Create your first prompt</a>
-                        </div>
-                    </div>`;
-            } else {
-                promptsEl.innerHTML = userPrompts.map(p => {
-                    const href = `prompt-detail.html?prompt=${encodeURIComponent(p.id || "")}`;
-                    return `
-                        <article class="prompt-card" style="margin-bottom:12px">
-                            <div class="prompt-card-header">
-                                <h3 class="card-title">
-                                    <a class="card-title-link" href="${href}">${escapeHtml(p.title || "Untitled")}</a>
-                                </h3>
-                                <div class="card-stats">
-                                    <div class="card-stat"><strong>${Number(p.viewCount||0)}</strong> views</div>
-                                    <div class="card-stat"><strong>${Number(p.likes||0)}</strong> likes</div>
-                                </div>
-                            </div>
-                            <p class="card-description">${escapeHtml(truncate(p.prompt||"",200))}</p>
-                            <div class="card-tags">
-                                <span class="tag-pill tag-pill-primary">${escapeHtml(p.category||"General")}</span>
-                                <span class="tag-pill tag-pill-secondary">${escapeHtml(p.subcategory||"Prompt")}</span>
-                            </div>
-                        </article>`;
-                }).join("");
-            }
-
-            /* inline edit toggle */
-            const infoCard    = document.getElementById("personalInfoCard");
-            const infoView    = document.getElementById("profileInfoView");
-            const editForm    = document.getElementById("profileEditForm");
-            const infoActions = document.getElementById("profileInfoActions");
-
-            function enterEdit() {
-                infoView.classList.add("is-hidden");
-                editForm.classList.add("is-active");
-                infoCard.classList.add("is-editing");
-                infoActions.classList.add("is-hidden");
-                document.getElementById("editName").focus();
-            }
-            function exitEdit() {
-                editForm.classList.remove("is-active");
-                infoView.classList.remove("is-hidden");
-                infoCard.classList.remove("is-editing");
-                infoActions.classList.remove("is-hidden");
-            }
-
-            document.querySelectorAll(".profile-edit-trigger").forEach(b => b.addEventListener("click", enterEdit));
-            document.getElementById("cancelEditBtn").addEventListener("click", exitEdit);
-
-            editForm.addEventListener("submit", e => {
-                e.preventDefault();
-                const n  = document.getElementById("editName").value.trim();
-                const u  = document.getElementById("editUsername").value.trim();
-                const lo = document.getElementById("editLocation").value.trim();
-                const em = document.getElementById("editEmail").value.trim();
-                const bi = document.getElementById("editBio").value.trim();
-
-                document.getElementById("infoName").textContent     = n  || "—";
-                document.getElementById("infoUsername").textContent = u  ? "@" + u : "—";
-                document.getElementById("infoLocation").textContent = lo || "—";
-                document.getElementById("infoEmail").textContent    = em || "—";
-                document.getElementById("infoBio").textContent      = bi || "—";
-
-                document.getElementById("profileUsername").textContent = n  || username;
-                document.getElementById("profileHandle").textContent   = u  ? "@" + u : handle;
-                document.getElementById("profileBio").textContent      = bi || bio;
-
-                exitEdit();
-            });
-
-            /* avatar upload */
-            const avatarImg   = document.getElementById("profileAvatarImg");
-            const fileInput   = document.getElementById("avatarFileInput");
-            const uploadBtn   = document.getElementById("avatarUploadBtn");
-
-            const AVATAR_KEY  = "profile_avatar_" + requested;
-
-            const saved = localStorage.getItem(AVATAR_KEY);
-            if (saved) avatarImg.src = saved;
-
-            uploadBtn.addEventListener("click", () => fileInput.click());
-
-            fileInput.addEventListener("change", () => {
-                const file = fileInput.files[0];
-                if (!file || !file.type.startsWith("image/")) return;
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const dataUrl = e.target.result;
-                    avatarImg.src = dataUrl;
-                    try { localStorage.setItem(AVATAR_KEY, dataUrl); } catch (_) {}
-                };
-                reader.readAsDataURL(file);
-                fileInput.value = "";
-            });
-
-            /* collapsible sections */
-            document.querySelectorAll(".pf-collapsible").forEach(section => {
-                const btn = section.querySelector(".pf-toggle-btn");
-                if (!btn) return;
-                const label = btn.querySelector(".pf-toggle-label");
-                btn.addEventListener("click", () => {
-                    const isOpen = section.classList.toggle("is-open");
-                    btn.setAttribute("aria-expanded", isOpen);
-                    label.textContent = isOpen ? "Hide details" : "Show details";
-                });
-            });
-        })();
-    </script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../static/js/ui-common.js"></script>
-</body>
-</html>
+</script>
+{% endblock %}

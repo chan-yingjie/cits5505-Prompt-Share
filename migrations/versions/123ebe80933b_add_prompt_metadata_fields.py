@@ -1,0 +1,32 @@
+"""Add prompt metadata fields
+
+Revision ID: 123ebe80933b
+Revises: f9d00628658a
+Create Date: 2026-05-03 20:09:11.362444
+
+"""
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision = '123ebe80933b'
+down_revision = 'f9d00628658a'
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    with op.batch_alter_table('prompt', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('category', sa.String(length=80), nullable=False))
+        batch_op.add_column(sa.Column('subcategory', sa.String(length=80), nullable=True))
+        batch_op.add_column(sa.Column('output_preview', sa.Text(), nullable=True))
+
+
+
+def downgrade():
+    with op.batch_alter_table('prompt', schema=None) as batch_op:
+        batch_op.drop_column('output_preview')
+        batch_op.drop_column('subcategory')
+        batch_op.drop_column('category')
+

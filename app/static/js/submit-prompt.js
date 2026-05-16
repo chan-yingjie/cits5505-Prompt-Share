@@ -1,7 +1,18 @@
+/**
+ * submit-prompt.js
+ * Client-side behaviour for the prompt submission and edit forms:
+ *   - Category checkbox enforcement (max 3, live counter)
+ *   - Step progress indicator (highlights the current incomplete step)
+ *   - Field focus + shake animation on validation failure
+ *   - "Skip output" shortcut
+ *   - Form validation before submission
+ */
+
 const submitForm     = document.getElementById("submit-prompt-form");
 const categoryInputs = document.querySelectorAll('input[name="categories"]');
 const categoryStatus = document.getElementById("category-status");
 const submitStatus   = document.getElementById("submit-status");
+const categoryField  = document.getElementById("submit-category-field");
 
 const titleInput    = document.getElementById("prompt-title");
 const descInput     = document.getElementById("prompt-description");
@@ -9,7 +20,7 @@ const bodyInput     = document.getElementById("prompt-body");
 const outputInput   = document.getElementById("prompt-output");
 const skipOutputBtn = document.getElementById("skip-output-btn");
 
-// ── Category validation ───────────────────────────────────────────────────
+// Update the "X of 3 selected" counter and disable unchosen boxes when limit is reached.
 function updateCategoryStatus() {
     const selected = Array.from(categoryInputs).filter((i) => i.checked);
     if (categoryStatus) categoryStatus.textContent = `${selected.length} of 3 selected`;
@@ -21,11 +32,38 @@ function updateCategoryStatus() {
 categoryInputs.forEach((input) => input.addEventListener("change", updateCategoryStatus));
 updateCategoryStatus();
 
-// ── Step progress ─────────────────────────────────────────────────────────
+// Step progress sidebar.
 const stepCards  = Array.from(document.querySelectorAll(".submit-tip-card"));
 const stepNums   = ['01', '02', '03', '04', '05'];
 
 let outputSkipped = false;
+
+// Scroll the invalid field into view and briefly flash an error class.
+function focusField(field, targetInput) {
+    const target = targetInput || field;
+
+    if (!target) {
+        return;
+    }
+
+    target.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+    });
+
+    target.classList.remove("is-invalid");
+    window.requestAnimationFrame(() => {
+        target.classList.add("is-invalid");
+    });
+
+    window.setTimeout(() => {
+        target.classList.remove("is-invalid");
+    }, 1800);
+
+    if (targetInput) {
+        targetInput.focus({ preventScroll: true });
+    }
+}
 
 function isStepDone(index) {
     switch (index) {
@@ -38,6 +76,7 @@ function isStepDone(index) {
     return false;
 }
 
+// Mark each step card as done, active (first incomplete), or pending.
 function updateSteps() {
     let foundActive = false;
     stepCards.forEach((card, i) => {
@@ -49,7 +88,6 @@ function updateSteps() {
             card.classList.remove("is-active", "is-pending");
             numEl.textContent = "✓";
         } else if (!foundActive) {
-            // first incomplete step = active
             card.classList.add("is-active");
             card.classList.remove("is-done", "is-pending");
             numEl.textContent = stepNums[i];
@@ -62,7 +100,7 @@ function updateSteps() {
     });
 }
 
-// Trigger re-evaluation on any field change
+// Re-evaluate step progress on any field change.
 titleInput.addEventListener("input",  updateSteps);
 descInput.addEventListener("input",   updateSteps);
 bodyInput.addEventListener("input",   updateSteps);
@@ -82,126 +120,48 @@ if (skipOutputBtn) {
     });
 }
 
-// Initial state: step 01 active
+// Initialise step state on page load.
 updateSteps();
 
-// ── localStorage persistence ──────────────────────────────────────────────
-const LS_KEY = "ps_user_prompts";
-
-function slugify(value) {
-    return String(value).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-}
-
-function savePromptToStorage(title, description, body, exampleOutput, selectedInputs) {
-    const categories = selectedInputs.map((i) => i.value);
-    const mainCat    = categories[0] || "General";
-    const subCat     = categories[1] || mainCat;
-
-    const entry = {
-        id:             "user-" + Date.now(),
-        title,
-        category:       mainCat,
-        categorySlug:   slugify(mainCat),
-        subcategory:    subCat,
-        subcategorySlug: slugify(subCat),
-        author:         "demo_user",
-        authorHandle:   "@demo_user",
-        authorBio:      "Share great prompts and help the community learn together.",
-        authorLink:     "profile.html",
-        submittedAt:    new Date().toISOString(),
-        keywords:       categories.map(slugify),
-        description,
-        prompt:         body,
-        outputPreview:  exampleOutput || null,
-        likes:          0,
-        viewCount:      0,
-        favorites:      0,
-        votes:          0,
-        liked:          false,
-        favorited:      false,
-        comments:       [],
-    };
-
-    try {
-        const existing = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
-        existing.unshift(entry);
-        localStorage.setItem(LS_KEY, JSON.stringify(existing));
-    } catch (_) {}
-}
-
-// ── Celebration overlay ───────────────────────────────────────────────────
-const celOverlay  = document.getElementById("cel-overlay");
-const celConfetti = document.getElementById("cel-confetti");
-const celClose    = document.getElementById("cel-close");
-
-function spawnConfetti() {
-    if (!celConfetti) return;
-    celConfetti.innerHTML = "";
-    const colors = ["#f5a623", "#c96b31", "#ffd166", "#ef8c47", "#ff6b6b", "#4ecdc4", "#ffeaa7"];
-    for (let i = 0; i < 48; i++) {
-        const dot = document.createElement("div");
-        dot.className = "cel-dot";
-        const size = 5 + Math.random() * 8;
-        dot.style.cssText = [
-            `left:${Math.random() * 100}%`,
-            `width:${size}px`,
-            `height:${size * (Math.random() > 0.5 ? 1 : 2.2)}px`,
-            `background:${colors[Math.floor(Math.random() * colors.length)]}`,
-            `animation-delay:${(Math.random() * 0.7).toFixed(2)}s`,
-            `animation-duration:${(0.9 + Math.random() * 0.8).toFixed(2)}s`,
-            `border-radius:${Math.random() > 0.4 ? "50%" : "2px"}`,
-        ].join(";");
-        celConfetti.appendChild(dot);
-    }
-}
-
-function showCelebration() {
-    if (!celOverlay) return;
-    spawnConfetti();
-    celOverlay.removeAttribute("aria-hidden");
-    celOverlay.classList.add("is-visible");
-}
-
-function hideCelebration() {
-    if (!celOverlay) return;
-    celOverlay.classList.remove("is-visible");
-    celOverlay.setAttribute("aria-hidden", "true");
-}
-
-if (celClose) celClose.addEventListener("click", () => {
-    hideCelebration();
-    submitForm.reset();
-});
-
-// ── Submit ────────────────────────────────────────────────────────────────
+// Form submission validation.
 if (submitForm) {
     submitForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-
         const title         = titleInput.value.trim();
         const description   = descInput.value.trim();
         const prompt        = bodyInput.value.trim();
-        const exampleOutput = outputInput ? outputInput.value.trim() : "";
         const selected      = Array.from(categoryInputs).filter((i) => i.checked);
 
         if (!title || !description || !prompt) {
+            event.preventDefault();
             submitStatus.textContent = "Please complete all required fields.";
+            if (!title) {
+                focusField(titleInput.closest(".submit-field"), titleInput);
+                return;
+            }
+            if (!description) {
+                focusField(descInput.closest(".submit-field"), descInput);
+                return;
+            }
+            focusField(bodyInput.closest(".submit-field"), bodyInput);
             return;
         }
         if (selected.length === 0) {
+            event.preventDefault();
             submitStatus.textContent = "Please select at least 1 category.";
+            focusField(categoryField, categoryInputs[0]);
             return;
         }
         if (selected.length > 3) {
+            event.preventDefault();
             submitStatus.textContent = "You can select up to 3 categories only.";
+            focusField(categoryField, categoryInputs[0]);
             return;
         }
 
         submitStatus.textContent = "";
-        savePromptToStorage(title, description, prompt, exampleOutput, selected);
-        showCelebration();
     });
 
+    // Reset skip state and step indicator when the form is cleared.
     submitForm.addEventListener("reset", function () {
         window.setTimeout(() => {
             outputSkipped = false;

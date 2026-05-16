@@ -1,52 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feed | Prompt Share</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/css/ui-pages.css">
-</head>
-<body class="feed-page" id="top">
-    <div class="page-shell">
-        <header class="topbar">
-            <nav class="topnav" aria-label="Primary navigation">
-                <a href="index.html">Home</a>
-                <a class="active" href="feed.html">Feed</a>
-                <a href="submit-prompt.html">Submit Prompt</a>
-                <a href="leaderboard.html">Leaderboard</a>
-                <a href="profile.html">Profile</a>
-                <a href="login.html">Login</a>
-            </nav>
-            <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <a class="brand" href="index.html" aria-label="Prompt Share home">
-                <span>Prompt Share</span>
-                <span class="brand-mark" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
-            </a>
-        </header>
+{# feed.html — Explore page. Displays all prompts with search and category filtering. #}
+{% extends "base.html" %}
 
-        <main class="layout feed-stage">
+{% block title %}Explore | Prompt Share{% endblock %}
+
+{% block body_class %}feed-page{% endblock %}
+
+{% block body_id %} id="top"{% endblock %}
+
+{% block main_class %}layout feed-stage{% endblock %}
+
+{% block content %}
             <section class="feed-minimal-shell">
                 <section class="content-block feed-page-header">
                     <div class="feed-heading-copy">
-                        <p class="eyebrow">Prompt Feed</p>
+                        <p class="eyebrow">Explore</p>
                         <h1>Discover ideas that inspire.</h1>
                         <p class="feed-lead">Search, filter, and compare prompts without changing the feed logic you already built.</p>
                     </div>
                 </section>
 
-                <section class="content-block search-panel feed-search-panel">
+              <section class="content-block search-panel feed-search-panel">
                     <form class="feed-search" id="feed-search-form">
                         <div class="feed-search-heading">
                             <div>
@@ -61,7 +34,9 @@
                             <label class="visually-hidden" for="feed-sort-select">Sort prompts</label>
                             <select class="form-input sort-select" id="feed-sort-select" aria-label="Sort prompts">
                                 <option value="newest">Newest</option>
-                                <option value="upvotes-desc">Most Liked</option>
+                                <option value="comments-desc">Most Commented</option>
+                                <option value="likes-desc">Most Liked</option>
+                                <option value="bookmarks-desc">Most Bookmarked</option>
                             </select>
                             <button class="button-link primary button-submit search-button" type="submit">Search</button>
                             <button class="button-link secondary button-submit search-button" id="clear-search-button" type="button">Clear</button>
@@ -71,9 +46,15 @@
                                 <p class="eyebrow">Tags</p>
                                 <h3 id="category-browser-title">Browse categories</h3>
                             </div>
-                            <div class="category-tabs" id="category-tabs" aria-label="Prompt categories"></div>
-                            <div class="feed-subcategory-row" id="feed-subcategory-row">
-                                <div class="subcategory-chips" id="subcategory-chips" aria-label="Prompt subcategories"></div>
+                            <div class="category-tabs" id="category-tabs" aria-label="Prompt categories">
+                                <button class="category-tab is-active" type="button" data-category="">All</button>
+                                <button class="category-tab" type="button" data-category="education">Education</button>
+                                <button class="category-tab" type="button" data-category="image">Image Generation</button>
+                                <button class="category-tab" type="button" data-category="video">Video Generation</button>
+                                <button class="category-tab" type="button" data-category="writing">Writing</button>
+                                <button class="category-tab" type="button" data-category="coding">Coding</button>
+                                <button class="category-tab" type="button" data-category="marketing">Marketing</button>
+                                <button class="category-tab" type="button" data-category="productivity">Productivity</button>
                             </div>
                         </div>
                     </form>
@@ -87,23 +68,304 @@
                         </div>
                         <p class="filter-status is-hidden" id="filter-status" aria-live="polite"></p>
                     </div>
-                    <div class="prompt-list" id="feed-list" aria-live="polite"></div>
+                <div class="prompt-list" id="feed-list" aria-live="polite">
+
+    {% if prompts %}
+        {% for prompt in prompts %}
+
+       <article class="prompt-card prompt-card-link"
+   data-title="{{ prompt.title|lower }}"
+   data-description="{{ prompt.description|lower }}"
+   data-author="{{ prompt.author.display_label|lower }}"
+   data-category="{{ prompt.category|lower|replace(' ', '-') }}"
+   data-subcategory="{{ (prompt.subcategory or '')|lower|replace(' ', '-') }}"
+   data-created="{{ prompt.created_at.isoformat() if prompt.created_at else '' }}"
+   data-comments="{{ prompt.comments|length }}"
+   data-likes="{{ prompt.likes }}"
+   data-bookmarks="{{ prompt.bookmarks }}">
+
+        <div class="prompt-card-top prompt-card-author-row">
+            <div class="prompt-author">
+            <a class="author-link" href="{{ url_for('main.profile', user=prompt.author.username) }}" aria-label="View {{ prompt.author.display_label }} profile">
+                {% if prompt.author.avatar_filename %}
+                <span class="prompt-author-avatar" aria-hidden="true">
+                    <img src="{{ url_for('static', filename='uploads/avatars/' + prompt.author.avatar_filename) }}" alt="{{ prompt.author.display_label }}">
+                </span>
+                {% else %}
+                <span class="prompt-author-avatar author-tone-warm" aria-hidden="true">{{ prompt.author.display_label[:2]|upper }}</span>
+                {% endif %}
+                <span class="prompt-author-copy">
+                    <span class="prompt-author-name">{{ prompt.author.display_label }}</span>
+                    <span class="author-handle">@{{ prompt.author.username }}</span>
+                </span>
+            </a>
+            </div>
+        </div>
+
+        <div class="card-content">
+            <h3 class="card-title">
+                <a class="card-title-link" href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a>
+            </h3>
+            <p class="card-description">—— {{ prompt.description }}</p>
+            <p class="card-body-preview">{{ prompt.body }}</p>
+        </div>
+
+        <div class="card-stats card-stats-row">
+            <span class="card-stat">
+                <span class="stat-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M2.4 10s2.8-4.6 7.6-4.6S17.6 10 17.6 10s-2.8 4.6-7.6 4.6S2.4 10 2.4 10Z" fill="#E8F1FF" stroke="#5A7FDB" stroke-width="1.5" stroke-linejoin="round"></path>
+                        <circle cx="10" cy="10" r="2.3" fill="#5A7FDB"></circle>
+                        <circle cx="10.8" cy="9.2" r="0.7" fill="#FFFFFF"></circle>
+                    </svg>
+                </span>
+                <strong>{{ prompt.views }}</strong>
+            </span>
+            <span class="card-stat">
+                <span class="stat-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M4.2 5.4h11.6a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8H9l-3.8 2.6v-2.6H4.2a1.8 1.8 0 0 1-1.8-1.8V7.2a1.8 1.8 0 0 1 1.8-1.8Z" fill="#EEF2FF" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+                <strong>{{ prompt.comments|length }}</strong>
+            </span>
+            <span class="card-stat">
+                <span class="stat-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M10 16.2 4.6 11a3.5 3.5 0 0 1 4.9-5l.5.5.5-.5a3.5 3.5 0 0 1 4.9 5L10 16.2Z" fill="#EF5A6F" stroke="#D63C56" stroke-width="0.8"></path>
+                    </svg>
+                </span>
+                <strong>{{ prompt.likes }}</strong>
+            </span>
+            <span class="card-stat">
+                <span class="stat-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="m10 3.1 2 4 4.5.7-3.2 3.1.8 4.5-4.1-2.1-4.1 2.1.8-4.5L3.5 7.8l4.5-.7 2-4Z" fill="#F6C453" stroke="#D89B15" stroke-width="0.8"></path>
+                    </svg>
+                </span>
+                <strong>{{ prompt.bookmarks }}</strong>
+            </span>
+        </div>
+
+        <div class="card-tags">
+            <span class="tag-pill tag-cat-{{ prompt.category|lower|replace(' ', '-') }}">{{ prompt.category }}</span>
+
+        </div>
+
+    </article>
+
+        {% endfor %}
+    {% else %}
+
+        <p>No prompts have been submitted yet.</p>
+
+    {% endif %}
+
+</div>
+
                     <nav class="feed-pagination" id="feed-pagination" aria-label="Page navigation"></nav>
                 </section>
             </section>
-        </main>
+{% endblock %}
 
-        <footer class="site-footer" data-shared-footer aria-labelledby="site-footer-title"></footer>
-    </div>
+{% block scripts %}
+{{ super() }}
+<script>
+    const feedForm = document.getElementById("feed-search-form");
+    const feedList = document.getElementById("feed-list");
+    const searchInput = document.getElementById("feed-search-input");
+    const sortSelect = document.getElementById("feed-sort-select");
+    const clearButton = document.getElementById("clear-search-button");
+    const resetButton = document.getElementById("category-reset-button");
+    const filterStatus = document.getElementById("filter-status");
+    const categoryTabs = Array.from(document.querySelectorAll(".category-tab"));
+    const promptCards = Array.from(document.querySelectorAll(".prompt-card-link"));
 
+    let activeCategory = "";
+    let activeSearch = "";
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 6;
+
+    function normalise(value) {
+        return String(value || "").trim().toLowerCase().replace(/\s+/g, "-");
+    }
+
+    function setActiveButton(buttons, activeButton, activeClass) {
+        buttons.forEach((button) => button.classList.toggle(activeClass, button === activeButton));
+    }
+
+    function sortCards(cards) {
+        const sortMode = sortSelect ? sortSelect.value : "newest";
+        return [...cards].sort((a, b) => {
+            if (sortMode === "comments-desc") {
+                return Number(b.dataset.comments || 0) - Number(a.dataset.comments || 0);
+            }
+            if (sortMode === "likes-desc") {
+                return Number(b.dataset.likes || 0) - Number(a.dataset.likes || 0);
+            }
+            if (sortMode === "bookmarks-desc") {
+                return Number(b.dataset.bookmarks || 0) - Number(a.dataset.bookmarks || 0);
+            }
+            const da = new Date(a.dataset.created || 0);
+            const db_ = new Date(b.dataset.created || 0);
+            return db_ - da;
+        });
+    }
+
+    function applyFeedFilters() {
+        if (!feedList) {
+            return;
+        }
+
+        const query = activeSearch;
+
+        const visibleCards = promptCards.filter((card) => {
+            const matchesCategory = !activeCategory || card.dataset.category === activeCategory;
+            const textEls = card.querySelectorAll(".card-title-link, .card-description, .card-body-preview");
+            const liveText = Array.from(textEls).map((el) => highlightTargets.get(el) || el.textContent).join(" ");
+            const haystack = [
+                card.dataset.title,
+                card.dataset.description,
+                card.dataset.author,
+                card.dataset.category,
+                card.dataset.subcategory,
+                liveText
+            ].join(" ").toLowerCase();
+            const matchesSearch = !query || haystack.includes(query.toLowerCase());
+            return matchesCategory && matchesSearch;
+        });
+
+        const sorted = sortCards(visibleCards);
+        const totalPages = Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE));
+        if (currentPage > totalPages) currentPage = 1;
+
+        const pageStart = (currentPage - 1) * ITEMS_PER_PAGE;
+        const pageEnd = pageStart + ITEMS_PER_PAGE;
+        const pageCards = sorted.slice(pageStart, pageEnd);
+
+        promptCards.forEach((card) => card.classList.add("is-hidden"));
+        pageCards.forEach((card) => {
+            card.classList.remove("is-hidden");
+            feedList.appendChild(card);
+        });
+
+        applyHighlight(query);
+
+        renderPagination(totalPages, sorted.length);
+
+        if (filterStatus) {
+            const total = promptCards.length;
+            const count = visibleCards.length;
+            filterStatus.textContent = count === total ? `${total} prompts shown` : `${count} of ${total} prompts shown`;
+            filterStatus.classList.remove("is-hidden");
+        }
+    }
+
+    function renderPagination(totalPages, totalCount) {
+        const nav = document.getElementById("feed-pagination");
+        if (!nav) return;
+        nav.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        const createBtn = (label, page, disabled, active) => {
+            const btn = document.createElement("button");
+            btn.className = "page-btn" + (active ? " is-active" : "");
+            btn.textContent = label;
+            btn.disabled = disabled;
+            btn.addEventListener("click", () => {
+                currentPage = page;
+                applyFeedFilters();
+                feedList.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            return btn;
+        };
+
+        nav.appendChild(createBtn("←", currentPage - 1, currentPage === 1, false));
+
+        for (let i = 1; i <= totalPages; i++) {
+            nav.appendChild(createBtn(String(i), i, false, i === currentPage));
+        }
+
+        nav.appendChild(createBtn("→", currentPage + 1, currentPage === totalPages, false));
+    }
+
+    categoryTabs.forEach((button) => {
+        button.addEventListener("click", () => {
+            activeCategory = normalise(button.dataset.category);
+            currentPage = 1;
+            setActiveButton(categoryTabs, button, "is-active");
+            applyFeedFilters();
+        });
+    });
+
+    if (feedForm) {
+        feedForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            activeSearch = String(searchInput ? searchInput.value : "").trim();
+            currentPage = 1;
+            applyFeedFilters();
+        });
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener("change", () => { currentPage = 1; applyFeedFilters(); });
+    }
+
+    if (clearButton) {
+        clearButton.addEventListener("click", () => {
+            if (searchInput) {
+                searchInput.value = "";
+            }
+            activeSearch = "";
+            currentPage = 1;
+            applyFeedFilters();
+        });
+    }
+
+    if (resetButton) {
+        resetButton.addEventListener("click", () => {
+            activeCategory = "";
+            if (searchInput) {
+                searchInput.value = "";
+            }
+            activeSearch = "";
+            if (sortSelect) {
+                sortSelect.value = "newest";
+            }
+            setActiveButton(categoryTabs, categoryTabs[0], "is-active");
+            applyFeedFilters();
+        });
+    }
+
+    const highlightTargets = new Map();
+    document.querySelectorAll(".prompt-card").forEach((card) => {
+        card.querySelectorAll(".card-title-link, .card-description, .card-body-preview").forEach((el) => {
+            highlightTargets.set(el, el.textContent);
+        });
+    });
+
+    function applyHighlight(keyword) {
+        highlightTargets.forEach((original, el) => {
+            if (!keyword) { el.textContent = original; return; }
+            const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            el.innerHTML = original.replace(new RegExp(`(${escaped})`, "gi"), "<mark class=\"search-highlight\">$1</mark>");
+        });
+    }
+
+    applyFeedFilters();
+
+    document.querySelectorAll(".card-description, .card-body-preview").forEach((el) => {
+        el.style.cursor = "pointer";
+        el.addEventListener("click", (e) => {
+            const link = el.closest(".prompt-card").querySelector(".card-title-link");
+            if (link) window.location.href = link.href;
+        });
+    });
+</script>
+{% endblock %}
+
+{% block page_shell_extras %}
     <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">
         Top
     </button>
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../static/js/prompt-data.js"></script>
-    <script src="../static/js/feed.js"></script>
-    <script src="../static/js/ui-common.js"></script>
-</body>
-</html>
+{% endblock %}

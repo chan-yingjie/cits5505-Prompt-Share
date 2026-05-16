@@ -1,46 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up | Prompt Share</title>
+{# signup.html — Sign-up page. New account registration form with interest selection. #}
+{% extends "base.html" %}
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../static/css/ui-pages.css">
-</head>
+{% block title %}Sign Up | Prompt Share{% endblock %}
 
-<body class="auth-page signup-page">
+{% block head_vendor %}{% endblock %}
+
+{% block body_class %}auth-page signup-page{% endblock %}
+
+{% block body %}
 <div class="auth-wrapper">
-<header class="topbar">
- <nav class="topnav" aria-label="Primary navigation">
-  <a href="index.html">Home</a>
-  <a href="feed.html">Explore</a>
-  <a href="leaderboard.html">Leaderboard</a>
-  <a href="submit-prompt.html">Submit</a>
-  <a href="profile.html">Profile</a>
-  <a href="login.html">Login</a>
-<a href="signup.html" class="active">Sign Up</a>
-</nav>
-  <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-
-  <a class="brand" href="index.html" aria-label="Prompt Share home">
-    <span>Prompt Share</span>
-    <span class="brand-mark" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
-    </span>
-  </a>
-</header>
+{% include "_partials/site_header.html" %}
   <main class="auth-layout">
 
     <!-- LEFT -->
     <section class="auth-left">
-      
+
 
       <div class="auth-copy">
         <p class="auth-pill">Create Account</p>
@@ -83,93 +57,110 @@
 
       <p class="auth-switch">
         Already have an account?
-        <a href="login.html">Log in</a>
+        <a href="{{ url_for('main.login') }}">Log in</a>
       </p>
 
-      <form id="signup-form">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div id="signup-status" class="auth-status {{ 'is-error' if messages[-1][0] == 'error' else 'is-success' }}">
+        {{ messages[-1][1] }}
+      </div>
+      {% else %}
+      <div id="signup-status" class="auth-status" aria-live="polite"></div>
+      {% endif %}
+      {% endwith %}
+
+      <form id="signup-form" method="post" action="{{ url_for('main.signup') }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="auth-row">
           <div class="auth-field">
-            
-            <label>Full name</label>
+
+            <label for="name">Full name</label>
             <div class="auth-input">
                   <span class="input-icon">👤</span>
-              <input type="text" placeholder="Your full name">
+              <input id="name" name="name" type="text" placeholder="Your full name" value="{{ form_data.name if form_data else '' }}">
             </div>
           </div>
 
           <div class="auth-field">
-            <label>Email address</label>
+            <label for="email">Email address</label>
             <div class="auth-input">
                   <span class="input-icon">✉️</span>
-              <input type="email" placeholder="Email address">
+              <input id="email" name="email" type="email" placeholder="Email address" value="{{ form_data.email if form_data else '' }}">
             </div>
           </div>
         </div>
 
-<div class="auth-input password-input">
-  <span class="input-icon">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <rect x="5" y="11" width="14" height="10" rx="2" stroke="#9aa0a6" stroke-width="1.5"/>
-      <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="#9aa0a6" stroke-width="1.5"/>
-    </svg>
-  </span>
+        <div class="auth-field">
+          <label for="password">Password</label>
+          <div class="auth-input password-input">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="5" y="11" width="14" height="10" rx="2" stroke="#9aa0a6" stroke-width="1.5"/>
+                <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="#9aa0a6" stroke-width="1.5"/>
+              </svg>
+            </span>
 
-  <input id="password" type="password" placeholder="Password">
+            <input id="password" name="password" type="password" placeholder="Password">
 
-  <button type="button" class="password-toggle" data-target="password">
-    <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path d="M3 3l18 18" stroke="#9aa0a6" stroke-width="1.8"/>
-      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" stroke="#9aa0a6" stroke-width="1.8"/>
-      <path d="M3 12s4-7 9-7 9 7 9 7-4 7-9 7-9-7-9-7z" stroke="#9aa0a6" stroke-width="1.8"/>
-    </svg>
+            <button type="button" class="password-toggle" data-target="password" aria-label="Show password">
+              <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 3l18 18" stroke="#9aa0a6" stroke-width="1.8"/>
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" stroke="#9aa0a6" stroke-width="1.8"/>
+                <path d="M3 12s4-7 9-7 9 7 9 7-4 7-9 7-9-7-9-7z" stroke="#9aa0a6" stroke-width="1.8"/>
+              </svg>
 
-    <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" style="display: none;">
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#9aa0a6" stroke-width="1.8"/>
-      <circle cx="12" cy="12" r="3" stroke="#9aa0a6" stroke-width="1.8"/>
-    </svg>
-  </button>
-</div>
+              <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" style="display: none;" aria-hidden="true">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#9aa0a6" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3" stroke="#9aa0a6" stroke-width="1.8"/>
+              </svg>
+            </button>
+          </div>
+        </div>
 
-<div class="auth-input password-input">
-  <span class="input-icon">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <rect x="5" y="11" width="14" height="10" rx="2" stroke="#9aa0a6" stroke-width="1.5"/>
-      <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="#9aa0a6" stroke-width="1.5"/>
-    </svg>
-  </span>
+        <div class="auth-field">
+          <label for="confirm">Confirm password</label>
+          <div class="auth-input password-input">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="5" y="11" width="14" height="10" rx="2" stroke="#9aa0a6" stroke-width="1.5"/>
+                <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="#9aa0a6" stroke-width="1.5"/>
+              </svg>
+            </span>
 
-  <input id="confirm" type="password" placeholder="Confirm password">
+            <input id="confirm" name="confirm" type="password" placeholder="Confirm password">
 
-  <button type="button" class="password-toggle" data-target="confirm">
-    <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path d="M3 3l18 18" stroke="#9aa0a6" stroke-width="1.8"/>
-      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" stroke="#9aa0a6" stroke-width="1.8"/>
-      <path d="M3 12s4-7 9-7 9 7 9 7-4 7-9 7-9-7-9-7z" stroke="#9aa0a6" stroke-width="1.8"/>
-    </svg>
+            <button type="button" class="password-toggle" data-target="confirm" aria-label="Show confirmation password">
+              <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 3l18 18" stroke="#9aa0a6" stroke-width="1.8"/>
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" stroke="#9aa0a6" stroke-width="1.8"/>
+                <path d="M3 12s4-7 9-7 9 7 9 7-4 7-9 7-9-7-9-7z" stroke="#9aa0a6" stroke-width="1.8"/>
+              </svg>
 
-    <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" style="display: none;">
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#9aa0a6" stroke-width="1.8"/>
-      <circle cx="12" cy="12" r="3" stroke="#9aa0a6" stroke-width="1.8"/>
-    </svg>
-  </button>
-</div>
+              <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" style="display: none;" aria-hidden="true">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#9aa0a6" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3" stroke="#9aa0a6" stroke-width="1.8"/>
+              </svg>
+            </button>
+          </div>
+        </div>
 
 
         <p class="auth-section-title">Interests (select up to 3)</p>
 <div class="interest-pills">
-  <label><input type="checkbox" name="interests" value="All"><span>All</span></label>
-  <label><input type="checkbox" name="interests"  value="Coding"><span>Coding</span></label>
-  <label><input type="checkbox" name="interests"  value="Education"><span>Education</span></label>
-  <label><input type="checkbox" name="interests" value="Image Generation"><span>Image Generation</span></label>
-  <label><input type="checkbox" name="interests" value="Marketing"><span>Marketing</span></label>
-  <label><input type="checkbox" name="interests" value="Productivity"><span>Productivity</span></label>
-  <label><input type="checkbox" name="interests" value="Video Generation"><span>Video Generation</span></label>
-  <label><input type="checkbox" name="interests" value="Writing"><span>Writing</span></label>
-  <label><input type="checkbox" name="interests" value="Other"><span>Other</span></label>
+  <label for="interest-all"><input id="interest-all" type="checkbox" name="interests" value="All" {% if form_data and 'All' in form_data.interests %}checked{% endif %}><span>All</span></label>
+  <label for="interest-coding"><input id="interest-coding" type="checkbox" name="interests" value="Coding" {% if form_data and 'Coding' in form_data.interests %}checked{% endif %}><span>Coding</span></label>
+  <label for="interest-education"><input id="interest-education" type="checkbox" name="interests" value="Education" {% if form_data and 'Education' in form_data.interests %}checked{% endif %}><span>Education</span></label>
+  <label for="interest-image-generation"><input id="interest-image-generation" type="checkbox" name="interests" value="Image Generation" {% if form_data and 'Image Generation' in form_data.interests %}checked{% endif %}><span>Image Generation</span></label>
+  <label for="interest-marketing"><input id="interest-marketing" type="checkbox" name="interests" value="Marketing" {% if form_data and 'Marketing' in form_data.interests %}checked{% endif %}><span>Marketing</span></label>
+  <label for="interest-productivity"><input id="interest-productivity" type="checkbox" name="interests" value="Productivity" {% if form_data and 'Productivity' in form_data.interests %}checked{% endif %}><span>Productivity</span></label>
+  <label for="interest-video-generation"><input id="interest-video-generation" type="checkbox" name="interests" value="Video Generation" {% if form_data and 'Video Generation' in form_data.interests %}checked{% endif %}><span>Video Generation</span></label>
+  <label for="interest-writing"><input id="interest-writing" type="checkbox" name="interests" value="Writing" {% if form_data and 'Writing' in form_data.interests %}checked{% endif %}><span>Writing</span></label>
+  <label for="interest-other"><input id="interest-other" type="checkbox" name="interests" value="Other" {% if form_data and 'Other' in form_data.interests %}checked{% endif %}><span>Other</span></label>
 </div>
 
-        <button class="auth-main-btn">Create your account</button>
+        <button class="auth-main-btn" type="submit">Create your account</button>
 
         <p class="auth-terms">
           By creating an account, you agree to our
@@ -182,8 +173,9 @@
 
   </main>
 </div>
+{% endblock %}
 
-<script src="../static/js/signup.js"></script>
-<script src="../static/js/ui-common.js"></script>
-</body>
-</html>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/signup.js') }}?v=3"></script>
+<script src="{{ url_for('static', filename='js/ui-common.js') }}?v=2"></script>
+{% endblock %}

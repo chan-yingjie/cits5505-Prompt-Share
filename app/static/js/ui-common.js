@@ -1,3 +1,14 @@
+/**
+ * ui-common.js
+ * Shared UI behaviours loaded on every page:
+ *   - Shared footer markup generation
+ *   - Back-to-top button visibility
+ *   - Mobile author popover toggling
+ *   - Responsive navigation menu (open/close)
+ *   - Output preview panel toggle (prompt detail page)
+ *   - Profile collapsible section toggles
+ */
+
 function buildSharedFooterMarkup() {
     const navItems = [
         {
@@ -72,16 +83,25 @@ function buildSharedFooterMarkup() {
         </div>
         <div class="site-footer-bottom">
             <span>&copy; 2026 Prompt Share. All rights reserved.</span>
-            <span class="site-footer-bottom-badge">CITS5505 · UWA</span>
+            <a
+                class="site-footer-bottom-badge"
+                href="https://www.handbooks.uwa.edu.au/unitdetails?code=CITS5505"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                CITS5505 · UWA
+            </a>
             <span>Built for a better prompt-sharing workflow.</span>
         </div>
     `;
 }
 
+// Inject footer HTML into every element marked with [data-shared-footer].
 document.querySelectorAll("[data-shared-footer]").forEach((footer) => {
     footer.innerHTML = buildSharedFooterMarkup();
 });
 
+// Back-to-top button: show when scrolled past 280 px, smooth-scroll on click.
 const backToTopButton = document.getElementById("back-to-top");
 
 if (backToTopButton) {
@@ -106,6 +126,7 @@ if (backToTopButton) {
     syncBackToTopVisibility();
 }
 
+// On mobile, tapping an author avatar opens a popover instead of navigating.
 const mobileQuery = window.matchMedia("(max-width: 860px)");
 
 function closeAuthorPopovers(exceptLink) {
@@ -138,6 +159,7 @@ document.addEventListener("click", (event) => {
     closeAuthorPopovers();
 });
 
+// Responsive navigation: hamburger toggle open/close with outside-click dismissal.
 document.querySelectorAll(".topbar").forEach((topbar) => {
     const toggle = topbar.querySelector(".nav-toggle");
     const nav = topbar.querySelector(".topnav");
@@ -171,6 +193,10 @@ document.querySelectorAll(".topbar").forEach((topbar) => {
         link.addEventListener("click", closeNav);
     });
 
+    nav.querySelectorAll(".topnav-logout-btn").forEach((btn) => {
+        btn.addEventListener("click", closeNav);
+    });
+
     document.addEventListener("click", (event) => {
         if (!topbar.contains(event.target)) {
             closeNav();
@@ -180,6 +206,45 @@ document.querySelectorAll(".topbar").forEach((topbar) => {
     window.addEventListener("resize", () => {
         if (window.innerWidth > 860) {
             closeNav();
+        }
+    });
+});
+
+// Prompt detail: toggle the example output preview panel.
+const outputToggleButton = document.getElementById("output-toggle-button");
+const outputPreviewPanel = document.getElementById("detail-output-preview");
+
+if (outputToggleButton && outputPreviewPanel) {
+    const outputToggleLabel = outputToggleButton.querySelector(".output-toggle-label");
+
+    outputToggleButton.addEventListener("click", () => {
+        const isExpanded = outputToggleButton.getAttribute("aria-expanded") === "true";
+        const nextExpanded = !isExpanded;
+
+        outputToggleButton.setAttribute("aria-expanded", String(nextExpanded));
+        outputPreviewPanel.classList.toggle("is-hidden", !nextExpanded);
+
+        if (outputToggleLabel) {
+            outputToggleLabel.textContent = nextExpanded ? "Hide example output" : "Show example output";
+        }
+    });
+}
+
+// Profile page: collapsible sections (activity, submitted prompts, etc.).
+document.querySelectorAll(".pf-collapsible").forEach((section) => {
+    const button = section.querySelector(".pf-toggle-btn");
+    const label = section.querySelector(".pf-toggle-label");
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener("click", () => {
+        const isOpen = section.classList.toggle("is-open");
+        button.setAttribute("aria-expanded", String(isOpen));
+
+        if (label) {
+            label.textContent = isOpen ? "Hide details" : "Show details";
         }
     });
 });

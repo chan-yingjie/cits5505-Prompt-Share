@@ -1,47 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Prompt Share</title>
+{# login.html — Login page. Email and password authentication form. #}
+{% extends "base.html" %}
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../static/css/ui-pages.css">
-</head>
+{% block title %}Login | Prompt Share{% endblock %}
 
-<body class="auth-page login-page">
+{% block head_vendor %}{% endblock %}
+
+{% block body_class %}auth-page login-page{% endblock %}
+
+{% block body %}
 <div class="auth-wrapper">
 
-<header class="topbar">
-  <nav class="topnav" aria-label="Primary navigation">
-    <a href="index.html">Home</a>
-    <a href="feed.html">Feed</a>
-    <a href="leaderboard.html">Leaderboard</a>
-    <a href="submit-prompt.html">Submit Prompt</a>
-    <a href="profile.html">Profile</a>
-    <a class="active" href="login.html">Login</a>
-<a href="signup.html">Sign Up</a>
-  </nav>
-  <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-
-  <a class="brand" href="index.html" aria-label="Prompt Share home">
-    <span>Prompt Share</span>
-    <span class="brand-mark" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
-    </span>
-  </a>
-</header>
+{% include "_partials/site_header.html" %}
   <main class="auth-layout">
 
     <!-- LEFT -->
     <section class="auth-left">
-    
+
 
       <div class="auth-copy">
         <p class="auth-pill">Welcome Back</p>
@@ -83,52 +57,60 @@
       <h2>Log In</h2>
 
       <p class="auth-switch">
-        No account? <a href="signup.html">Sign up</a>
+        No account? <a href="{{ url_for('main.signup') }}">Sign up</a>
       </p>
 
-      <form id="login-form">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div id="login-status" class="auth-status {{ 'is-error' if messages[-1][0] == 'error' else 'is-success' }}">
+        {{ messages[-1][1] }}
+      </div>
+      {% else %}
+      <div id="login-status" class="auth-status" aria-live="polite"></div>
+      {% endif %}
+      {% endwith %}
+
+      <form id="login-form" method="post" action="{{ url_for('main.login') }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ form_data.next if form_data else '' }}">
 
         <div class="auth-field">
-          <label>Email address</label>
+          <label for="email">Email address</label>
           <div class="auth-input">
-            <input type="email" placeholder="Email address">
+            <input id="email" name="email" type="email" placeholder="Email address" value="{{ form_data.email if form_data else '' }}">
           </div>
         </div>
 
-<div class="auth-input password-input">
-  <span class="input-icon">
-    <!-- lock svg -->
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <rect x="5" y="11" width="14" height="10" rx="2" stroke="#9aa0a6" stroke-width="1.5"/>
-      <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="#9aa0a6" stroke-width="1.5"/>
-    </svg>
-  </span>
+        <div class="auth-field">
+          <label for="password">Password</label>
+          <div class="auth-input password-input">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="5" y="11" width="14" height="10" rx="2" stroke="#9aa0a6" stroke-width="1.5"/>
+                <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="#9aa0a6" stroke-width="1.5"/>
+              </svg>
+            </span>
 
-  <input type="password" placeholder="Password">
+            <input id="password" name="password" type="password" placeholder="Password">
 
-  <button type="button" class="password-toggle">
-    <!-- eye-off -->
-    <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path d="M3 3l18 18" stroke="#9aa0a6" stroke-width="1.5"/>
-      <path d="M10.6 10.6a2 2 0 002.8 2.8" stroke="#9aa0a6" stroke-width="1.5"/>
-      <path d="M3 12s4-7 9-7 9 7 9 7-4 7-9 7S3 12 3 12z" stroke="#9aa0a6" stroke-width="1.5"/>
-    </svg>
+            <button type="button" class="password-toggle" aria-label="Show password">
+              <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 3l18 18" stroke="#9aa0a6" stroke-width="1.5"/>
+                <path d="M10.6 10.6a2 2 0 002.8 2.8" stroke="#9aa0a6" stroke-width="1.5"/>
+                <path d="M3 12s4-7 9-7 9 7 9 7-4 7-9 7S3 12 3 12z" stroke="#9aa0a6" stroke-width="1.5"/>
+              </svg>
 
-    <!-- eye -->
-    <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" style="display:none;">
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#9aa0a6" stroke-width="1.5"/>
-      <circle cx="12" cy="12" r="3" stroke="#9aa0a6" stroke-width="1.5"/>
-    </svg>
-  </button>
-</div>
-<button type="button" class="forgot-link" id="forgot-password-btn">
-  Forgot password?
-</button>
-
-        <button class="auth-main-btn">Log In</button>
+              <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" style="display:none;" aria-hidden="true">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#9aa0a6" stroke-width="1.5"/>
+                <circle cx="12" cy="12" r="3" stroke="#9aa0a6" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button class="auth-main-btn" type="submit">Log In</button>
 
 
-      
+
 
         <p class="auth-terms">
           By continuing, you agree to our
@@ -142,30 +124,9 @@
   </main>
 </div>
 
+{% endblock %}
 
-
-
-<div class="modal-overlay" id="reset-modal">
-  <div class="reset-modal">
-    <button type="button" class="modal-close" id="close-reset-modal">×</button>
-
-    <h2>Reset password</h2>
-    <p>Enter your email address and we will send you a reset code.</p>
-
-    <label for="reset-email">Email address</label>
-    <div class="auth-input">
-      <input id="reset-email" type="email" placeholder="Email address">
-    </div>
-
-    <button type="button" class="auth-main-btn" id="send-code-btn">
-      Send code
-    </button>
-
-    <p class="auth-status" id="reset-status"></p>
-  </div>
-</div>
-
-<script src="../static/js/login.js"></script>
-<script src="../static/js/ui-common.js"></script>
-</body>
-</html>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/login.js') }}?v=3"></script>
+<script src="{{ url_for('static', filename='js/ui-common.js') }}?v=2"></script>
+{% endblock %}
