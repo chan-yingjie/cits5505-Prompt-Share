@@ -1,6 +1,7 @@
 from io import BytesIO
 from datetime import datetime
 from urllib.parse import unquote
+from uuid import uuid4
 
 from tests.conftest import assert_message_in_response, login, signup
 from app.extensions import db
@@ -8,7 +9,7 @@ from app.models import Comment, Prompt, User
 
 
 def _create_user(name, email):
-    user = User(username=name, email=email, password_hash="hash")
+    user = User(username=f"user-{uuid4().hex[:8]}", display_name=name, email=email, password_hash="hash")
     db.session.add(user)
     db.session.commit()
     return user
@@ -99,7 +100,7 @@ def test_older_profile_shows_join_month(auth_client):
     older_user.created_at = datetime(2024, 1, 15)
     db.session.commit()
 
-    response = auth_client.get("/profile/Older User")
+    response = auth_client.get(f"/profile/{older_user.username}")
 
     assert response.status_code == 200
     assert b"Joined Jan 2024" in response.data
@@ -141,11 +142,12 @@ def test_avatar_upload_rejects_invalid_file_type(auth_client, registered_user):
 
 
 def test_user_can_update_profile_information(auth_client, registered_user):
+    original_user_code = registered_user.username
+
     response = auth_client.post(
         "/profile/update",
         data={
             "display_name": "Updated Name",
-            "username": "updated-user",
             "email": "updated@example.com",
             "location": "Perth, Australia",
             "bio": "Sharing practical prompts.",
@@ -156,16 +158,16 @@ def test_user_can_update_profile_information(auth_client, registered_user):
     db.session.refresh(registered_user)
 
     assert response.status_code == 302
-    assert "/profile/updated-user" in unquote(response.location)
+    assert f"/profile/{original_user_code}" in unquote(response.location)
     assert registered_user.display_name == "Updated Name"
-    assert registered_user.username == "updated-user"
+    assert registered_user.username == original_user_code
     assert registered_user.email == "updated@example.com"
     assert registered_user.location == "Perth, Australia"
     assert registered_user.bio == "Sharing practical prompts."
 
-    profile_response = auth_client.get("/profile/updated-user")
+    profile_response = auth_client.get(f"/profile/{original_user_code}")
     assert b"Updated Name" in profile_response.data
-    assert b"@updated-user" in profile_response.data
+    assert f"@{original_user_code}".encode() in profile_response.data
 
 
 def test_profile_header_shows_saved_bio(auth_client, registered_user):
@@ -186,7 +188,6 @@ def test_profile_update_rejects_duplicate_email(auth_client, registered_user):
         "/profile/update",
         data={
             "display_name": registered_user.display_label,
-            "username": registered_user.username,
             "email": "other@example.com",
             "location": "",
             "bio": "",

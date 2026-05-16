@@ -6171,7 +6171,7 @@ body.profile-page .page-shell {
 /* Info grid — same column width as stat cards for precise alignment */
 .profile-info-grid {
     display: grid;
-    grid-template-columns: repeat(4, 210px);
+    grid-template-columns: repeat(3, 185px) 275px;
     gap: 10px;
     justify-content: start;
 }
@@ -6180,9 +6180,10 @@ body.profile-page .page-shell {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    padding: 13px 16px;
+    padding: 11px 14px;
     background: #f9f8f6;
     border-radius: 10px;
+    min-width: 0;
 }
 
 /* Bio spans all 4 columns — exactly flush with the row above */
@@ -6228,6 +6229,9 @@ body.profile-page .page-shell {
     color: #aaaaaa;
     text-transform: uppercase;
     letter-spacing: 0.09em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .info-value {
@@ -6235,7 +6239,15 @@ body.profile-page .page-shell {
     font-weight: 500;
     color: #222222;
     line-height: 1.5;
-    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: normal;
+}
+
+.profile-info-field-email .info-label-optional {
+    font-weight: 400;
+    text-transform: none;
 }
 
 /* ─── Edit form ─── */

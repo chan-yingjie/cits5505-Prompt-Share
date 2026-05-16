@@ -142,7 +142,7 @@
                                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="9.5" cy="7.5" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M13 11v1.5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
                             </div>
                             <div class="field-content">
-                                <span class="info-label">Username</span>
+                                <span class="info-label">User ID</span>
                                 <span class="info-value" id="infoUsername">@{{ profile_user.username }}</span>
                             </div>
                         </div>
@@ -155,12 +155,12 @@
                                 <span class="info-value" id="infoLocation">{{ profile_user.location or "—" }}</span>
                             </div>
                         </div>
-                        <div class="profile-info-field">
+                        <div class="profile-info-field profile-info-field-email">
                             <div class="field-icon-wrap">
                                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M1 5l7 5 7-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
                             </div>
                             <div class="field-content">
-                                <span class="info-label">Email <span style="font-weight:400;text-transform:none;">(optional)</span></span>
+                                <span class="info-label">Email <span class="info-label-optional">(optional)</span></span>
                                 <span class="info-value" id="infoEmail">
     {% if current_user.is_authenticated and current_user.id == profile_user.id %}
         {{ profile_user.email }}
@@ -190,8 +190,8 @@
                                 <input class="profile-input" id="editName" name="display_name" type="text" placeholder="Your name" autocomplete="name" value="{{ profile_user.display_label }}" required>
                             </div>
                             <div class="profile-edit-field">
-                                <label class="info-label" for="editUsername">Username</label>
-                                <input class="profile-input" id="editUsername" name="username" type="text" placeholder="username" autocomplete="username" value="{{ profile_user.username }}" required>
+                                <label class="info-label" for="editUsername">User ID</label>
+                                <input class="profile-input" id="editUsername" type="text" value="@{{ profile_user.username }}" readonly aria-readonly="true">
                             </div>
                             <div class="profile-edit-field">
                                 <label class="info-label" for="editLocation">Location</label>
@@ -403,7 +403,6 @@
     const profileInfoView = document.getElementById("profileInfoView");
     const profileEditForm = document.getElementById("profileEditForm");
     const editNameInput = document.getElementById("editName");
-    const editUsernameInput = document.getElementById("editUsername");
 
     function setProfileEditMode(isEditing) {
         if (!profileInfoCard || !profileInfoView || !profileEditForm) {
@@ -414,8 +413,8 @@
         profileInfoView.style.display = isEditing ? "none" : "";
         profileEditForm.classList.toggle("is-active", isEditing);
 
-        if (isEditing && editUsernameInput) {
-            editUsernameInput.focus();
+        if (isEditing && editNameInput) {
+            editNameInput.focus();
         }
     }
 
@@ -427,12 +426,5 @@
         cancelEditButton.addEventListener("click", () => setProfileEditMode(false));
     }
 
-    if (editNameInput && editUsernameInput) {
-        editNameInput.addEventListener("input", () => {
-            if (editUsernameInput.value.trim() === "") {
-                editUsernameInput.value = editNameInput.value.trim();
-            }
-        });
-    }
 </script>
 {% endblock %}

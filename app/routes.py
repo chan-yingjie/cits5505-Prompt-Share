@@ -92,6 +92,13 @@ def _allowed_avatar_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_AVATAR_EXTENSIONS
 
 
+def _generate_user_code():
+    while True:
+        user_code = f"user-{uuid4().hex[:8]}"
+        if User.query.filter_by(username=user_code).first() is None:
+            return user_code
+
+
 @main_bp.route("/")
 @main_bp.route("/index.html")
 def index():
@@ -184,13 +191,11 @@ def signup():
             flash("Please select at least one interest.", "error")
         elif len(interests) > 3 and "All" not in interests:
             flash("You can select up to 3 interests only.", "error")
-        elif User.query.filter_by(username=name).first():
-            flash("That username is already registered. Please use a different one.", "error")
         elif User.query.filter_by(email=email).first():
             flash("That email is already registered. Please log in instead.", "error")
         else:
             user = User(
-                username=name,
+                username=_generate_user_code(),
                 display_name=name,
                 email=email,
                 password_hash=generate_password_hash(password, method="pbkdf2:sha256"),
@@ -258,22 +263,16 @@ def update_avatar():
 @login_required
 def update_profile():
     display_name = request.form.get("display_name", "").strip()
-    username = request.form.get("username", "").strip()
     email = request.form.get("email", "").strip().lower()
     location = request.form.get("location", "").strip()
     bio = request.form.get("bio", "").strip()
 
-    if not display_name or not username or not email:
+    if not display_name or not email:
         flash("Name and email are required.", "error")
         return redirect(url_for("main.profile", user=current_user.username))
 
     if not EMAIL_PATTERN.match(email):
         flash("Please enter a valid email address.", "error")
-        return redirect(url_for("main.profile", user=current_user.username))
-
-    username_owner = User.query.filter(User.username == username, User.id != current_user.id).first()
-    if username_owner is not None:
-        flash("That username is already registered. Please use a different one.", "error")
         return redirect(url_for("main.profile", user=current_user.username))
 
     email_owner = User.query.filter(User.email == email, User.id != current_user.id).first()
@@ -282,7 +281,6 @@ def update_profile():
         return redirect(url_for("main.profile", user=current_user.username))
 
     current_user.display_name = display_name
-    current_user.username = username
     current_user.email = email
     current_user.location = location or None
     current_user.bio = bio or None

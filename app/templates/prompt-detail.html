@@ -26,7 +26,7 @@
                                 <div class="detail-author-avatar author-tone-warm" id="detail-author-avatar" aria-hidden="true">AU</div>
                                 <div class="detail-author-stack">
                                     <div class="detail-author-name-row">
-                                        <div id="detail-author">{{ prompt.author.username }}</div>
+                                        <div id="detail-author">{{ prompt.author.display_label }}</div>
                                         <p class="detail-member-note">Member since Apr 2026</p>
                                     </div>
                                 </div>
@@ -182,7 +182,7 @@
 
             <div class="comment-item">
 
-                <strong>{{ comment.author.username }}</strong>
+                <strong>{{ comment.author.display_label }}</strong>
 
                 <p>{{ comment.body }}</p>
 
