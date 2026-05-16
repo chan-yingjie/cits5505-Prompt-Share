@@ -1,6 +1,9 @@
 .DS_Store
 venv/
 
+# Environment variables — never commit real secrets
+.env
+
 # Python
 __pycache__/
 *.py[cod]

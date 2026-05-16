@@ -4,3 +4,5 @@ Flask-Migrate
 Flask-SQLAlchemy
 Flask-WTF
 pytest
+selenium
+webdriver-manager

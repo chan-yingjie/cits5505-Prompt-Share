@@ -1,3 +1,10 @@
+"""Route handlers for the PromptShare application.
+
+All routes are registered on the ``main_bp`` Blueprint. Helper functions are
+prefixed with ``_`` and contain the non-trivial business logic so that route
+functions stay thin and readable.
+"""
+
 import re
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -7,92 +14,124 @@ from flask import Blueprint, current_app, flash, jsonify, redirect, render_templ
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from .models import Comment, Prompt, User, UserBookmark, UserLike
-from .extensions import db
 
+from .extensions import db
+from .models import Comment, Prompt, User, UserBookmark, UserLike
 
 
 main_bp = Blueprint("main", __name__)
 
-EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+# ---------------------------------------------------------------------------
+# Module-level constants
+# ---------------------------------------------------------------------------
+
+EMAIL_PATTERN            = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 ALLOWED_AVATAR_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
+# Maximum number of categories a prompt may belong to.
+MAX_PROMPT_CATEGORIES = 3
+# Maximum number of interests a user may select at sign-up.
+MAX_SIGNUP_INTERESTS  = 3
+# Threshold for labelling an account "New user" vs "Member".
+NEW_USER_THRESHOLD_DAYS = 30
+# Maximum rows returned by leaderboard queries.
+LEADERBOARD_MAX_ROWS = 20
+# Maximum activity items shown on the profile page.
+ACTIVITY_MAX_ITEMS = 12
+
+
+# ---------------------------------------------------------------------------
+# Prompt form helpers
+# ---------------------------------------------------------------------------
 
 def _prompt_form_data_from_request():
+    """Extract and normalise prompt fields from the current POST request."""
     return {
-        "title": request.form.get("prompt-title", "").strip(),
-        "categories": request.form.getlist("categories"),
-        "description": request.form.get("prompt-description", "").strip(),
-        "body": request.form.get("prompt-body", "").strip(),
-        "output_preview": request.form.get("prompt-output", "").strip(),
+        "title":          request.form.get("prompt-title",       "").strip(),
+        "categories":     request.form.getlist("categories"),
+        "description":    request.form.get("prompt-description", "").strip(),
+        "body":           request.form.get("prompt-body",        "").strip(),
+        "output_preview": request.form.get("prompt-output",      "").strip(),
     }
 
 
 def _prompt_form_data_from_prompt(prompt):
+    """Build the form-data dict pre-populated with an existing prompt's values."""
     categories = [prompt.category]
     if prompt.subcategory:
         categories.append(prompt.subcategory)
 
     return {
-        "title": prompt.title,
-        "categories": categories,
-        "description": prompt.description,
-        "body": prompt.body,
+        "title":          prompt.title,
+        "categories":     categories,
+        "description":    prompt.description,
+        "body":           prompt.body,
         "output_preview": prompt.output_preview or "",
     }
 
 
 def _validate_prompt_form(form_data):
+    """Return an error string if form_data is invalid, or None when valid."""
     if not form_data["title"] or not form_data["description"] or not form_data["body"]:
         return "Please complete all required fields."
     if not form_data["categories"]:
         return "Please select at least 1 category."
-    if len(form_data["categories"]) > 3:
-        return "You can select up to 3 categories only."
+    if len(form_data["categories"]) > MAX_PROMPT_CATEGORIES:
+        return f"You can select up to {MAX_PROMPT_CATEGORIES} categories only."
     return None
 
 
+# ---------------------------------------------------------------------------
+# Authorisation helpers
+# ---------------------------------------------------------------------------
+
 def _current_user_owns_prompt(prompt):
+    """Return True if the logged-in user is the author of *prompt*."""
     return current_user.is_authenticated and prompt.author_id == current_user.id
 
 
 def _current_user_owns_comment(comment):
+    """Return True if the logged-in user is the author of *comment*."""
     return current_user.is_authenticated and comment.user_id == current_user.id
 
 
+# ---------------------------------------------------------------------------
+# Profile display helpers
+# ---------------------------------------------------------------------------
+
 def _profile_join_label(user):
+    """Return a human-readable string describing when the user joined."""
     if user.created_at is None:
         return "Joined recently"
-
-    if datetime.now() - user.created_at <= timedelta(days=30):
+    if datetime.now() - user.created_at <= timedelta(days=NEW_USER_THRESHOLD_DAYS):
         return "Joined recently"
-
     return f"Joined {user.created_at.strftime('%b %Y')}"
 
 
 def _profile_badge_label(user):
+    """Return 'New user' for accounts younger than NEW_USER_THRESHOLD_DAYS, else 'Member'."""
     if user.created_at is None:
         return "New user"
-
-    if datetime.now() - user.created_at <= timedelta(days=30):
+    if datetime.now() - user.created_at <= timedelta(days=NEW_USER_THRESHOLD_DAYS):
         return "New user"
-
     return "Member"
 
 
 def _avatar_static_path(user):
+    """Return the static-relative path for *user*'s avatar, or the default image."""
     if user.avatar_filename:
         static_prefix = current_app.config.get("AVATAR_STATIC_PREFIX", "uploads/avatars")
         return f"{static_prefix}/{user.avatar_filename}"
-
     return "images/pic3.png"
 
 
 def _allowed_avatar_file(filename):
+    """Return True if *filename* has an extension in ALLOWED_AVATAR_EXTENSIONS."""
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_AVATAR_EXTENSIONS
 
 
 def _generate_user_code():
+    """Generate a unique internal username of the form 'user-XXXXXXXX' using UUID4."""
     while True:
         user_code = f"user-{uuid4().hex[:8]}"
         if User.query.filter_by(username=user_code).first() is None:
@@ -100,6 +139,7 @@ def _generate_user_code():
 
 
 def _relative_time_label(timestamp):
+    """Convert *timestamp* to a human-readable relative string such as '3 hours ago'."""
     if timestamp is None:
         return "Recently"
 
@@ -130,46 +170,65 @@ def _relative_time_label(timestamp):
 
 
 def _profile_activity_items(user, prompts):
+    """Return a merged, time-sorted list of prompt submissions and comments for *user*.
+
+    The list is capped at ACTIVITY_MAX_ITEMS entries.  Each entry is a dict with
+    keys: kind, verb, prompt, timestamp, category, time_label.
+    """
     activities = []
 
     for prompt in prompts:
         activities.append({
-            "kind": "submitted",
-            "verb": "Submitted",
-            "prompt": prompt,
+            "kind":      "submitted",
+            "verb":      "Submitted",
+            "prompt":    prompt,
             "timestamp": prompt.created_at,
-            "category": prompt.category,
+            "category":  prompt.category,
         })
 
-    comments = Comment.query.filter_by(user_id=user.id).order_by(Comment.created_at.desc()).all()
+    comments = (
+        Comment.query
+        .filter_by(user_id=user.id)
+        .order_by(Comment.created_at.desc())
+        .all()
+    )
     for comment in comments:
         if comment.prompt is None:
             continue
-
         activities.append({
-            "kind": "comment",
-            "verb": "Commented on",
-            "prompt": comment.prompt,
+            "kind":      "comment",
+            "verb":      "Commented on",
+            "prompt":    comment.prompt,
             "timestamp": comment.created_at,
-            "category": comment.prompt.category,
+            "category":  comment.prompt.category,
         })
 
-    activities.sort(key=lambda activity: activity["timestamp"] or datetime.min, reverse=True)
+    activities.sort(key=lambda a: a["timestamp"] or datetime.min, reverse=True)
 
     for activity in activities:
         activity["time_label"] = _relative_time_label(activity["timestamp"])
 
-    return activities[:12]
+    return activities[:ACTIVITY_MAX_ITEMS]
 
+
+# ---------------------------------------------------------------------------
+# Leaderboard helpers
+# ---------------------------------------------------------------------------
 
 def _leaderboard_prompt_rows(metric):
+    """Return up to LEADERBOARD_MAX_ROWS prompt rows scored by *metric*.
+
+    For the 'recent' metric rows are ordered by creation date and the score
+    field contains a relative-time string.  For all other metrics rows are
+    sorted numerically descending.
+    """
     prompts = Prompt.query.order_by(Prompt.created_at.desc()).all()
 
     _score_map = {
-        "likes":     (lambda p: p.likes,              "likes"),
-        "bookmarks": (lambda p: p.bookmarks,          "bookmarks"),
-        "views":     (lambda p: p.views,              "views"),
-        "comments":  (lambda p: len(p.comments),      "comments"),
+        "likes":     (lambda p: p.likes,         "likes"),
+        "bookmarks": (lambda p: p.bookmarks,      "bookmarks"),
+        "views":     (lambda p: p.views,          "views"),
+        "comments":  (lambda p: len(p.comments),  "comments"),
     }
 
     rows = []
@@ -181,16 +240,16 @@ def _leaderboard_prompt_rows(metric):
             score = len(prompt.comments)
             label = "comments"
         rows.append({
-            "prompt": prompt,
-            "score": score,
+            "prompt":       prompt,
+            "score":        score,
             "metric_label": label,
-            "created_at": prompt.created_at,
+            "created_at":   prompt.created_at,
         })
 
     if metric == "recent":
         rows.sort(key=lambda row: row["created_at"] or datetime.min, reverse=True)
         for row in rows:
-            row["score"] = _relative_time_label(row["created_at"])
+            row["score"]        = _relative_time_label(row["created_at"])
             row["metric_label"] = "published"
     else:
         rows.sort(
@@ -198,10 +257,15 @@ def _leaderboard_prompt_rows(metric):
             reverse=True,
         )
 
-    return rows[:20]
+    return rows[:LEADERBOARD_MAX_ROWS]
 
 
 def _leaderboard_user_rows(metric):
+    """Return up to LEADERBOARD_MAX_ROWS user rows aggregated by *metric*.
+
+    Aggregations (total likes, bookmarks, views) are computed in Python from
+    the already-loaded prompt relationships.
+    """
     users = User.query.order_by(User.created_at.desc()).all()
 
     _metric_map = {
@@ -213,7 +277,7 @@ def _leaderboard_user_rows(metric):
 
     rows = []
     for user in users:
-        prompt_count  = len(user.prompts)
+        prompt_count    = len(user.prompts)
         total_likes     = sum(p.likes     for p in user.prompts)
         total_bookmarks = sum(p.bookmarks for p in user.prompts)
         total_views     = sum(p.views     for p in user.prompts)
@@ -228,31 +292,41 @@ def _leaderboard_user_rows(metric):
         )
 
         rows.append({
-            "user": user,
+            "user":            user,
             "prompt_count":    prompt_count,
             "total_likes":     total_likes,
             "total_bookmarks": total_bookmarks,
             "total_views":     total_views,
-            "score": score,
-            "metric_label": label,
+            "score":           score,
+            "metric_label":    label,
         })
 
     rows.sort(
-        key=lambda row: (int(row["score"]), int(row["prompt_count"]), row["user"].created_at or datetime.min),
+        key=lambda row: (
+            int(row["score"]),
+            int(row["prompt_count"]),
+            row["user"].created_at or datetime.min,
+        ),
         reverse=True,
     )
-    return rows[:20]
+    return rows[:LEADERBOARD_MAX_ROWS]
 
+
+# ---------------------------------------------------------------------------
+# Public pages
+# ---------------------------------------------------------------------------
 
 @main_bp.route("/")
 @main_bp.route("/index.html")
 def index():
+    """Landing page."""
     return render_template("index.html")
 
 
 @main_bp.route("/feed")
 @main_bp.route("/feed.html")
 def feed():
+    """Browse all prompts, newest first."""
     prompts = Prompt.query.order_by(Prompt.created_at.desc()).all()
     return render_template("feed.html", prompts=prompts)
 
@@ -260,6 +334,12 @@ def feed():
 @main_bp.route("/leaderboard")
 @main_bp.route("/leaderboard.html")
 def leaderboard():
+    """Ranked list of top prompts or top users, controlled by query-string parameters.
+
+    Query params:
+        mode   — 'prompts' (default) or 'users'
+        metric — sort metric; valid values depend on mode
+    """
     mode = request.args.get("mode", "prompts")
     if mode not in {"prompts", "users"}:
         mode = "prompts"
@@ -296,24 +376,34 @@ def leaderboard():
     )
 
 
+# ---------------------------------------------------------------------------
+# Authentication
+# ---------------------------------------------------------------------------
+
 @main_bp.route("/login", methods=["GET", "POST"])
 @main_bp.route("/login.html", methods=["GET", "POST"])
 def login():
+    """Authenticate an existing user with email and password.
+
+    On success the user is redirected to their profile page (or the ``next``
+    parameter if it is a local path).  A single generic error message is used
+    for both wrong email and wrong password to prevent user enumeration.
+    """
     if current_user.is_authenticated:
         return redirect(url_for("main.profile", user=current_user.username))
 
     form_data = {
         "email": "",
-        "next": request.args.get("next", ""),
+        "next":  request.args.get("next", ""),
     }
 
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-        next_page = request.form.get("next", "").strip()
+        email     = request.form.get("email",    "").strip().lower()
+        password  = request.form.get("password", "")
+        next_page = request.form.get("next",     "").strip()
 
         form_data["email"] = email
-        form_data["next"] = next_page
+        form_data["next"]  = next_page
 
         if not email or not password:
             flash("Please enter both email and password.", "error")
@@ -327,6 +417,7 @@ def login():
             else:
                 login_user(user)
                 flash("Logged in successfully.", "success")
+                # Only follow local redirects to prevent open-redirect attacks.
                 if next_page.startswith("/"):
                     return redirect(next_page)
                 return redirect(url_for("main.profile", user=user.username))
@@ -337,27 +428,29 @@ def login():
 @main_bp.route("/signup", methods=["GET", "POST"])
 @main_bp.route("/signup.html", methods=["GET", "POST"])
 def signup():
+    """Register a new account.
+
+    The username is auto-generated as an opaque code (user-XXXXXXXX); the
+    display_name given at sign-up is what appears in the UI.  Passwords are
+    hashed with pbkdf2:sha256 via werkzeug before storage.
+    """
     if current_user.is_authenticated:
         return redirect(url_for("main.profile", user=current_user.username))
 
     form_data = {
-        "name": "",
-        "email": "",
+        "name":      "",
+        "email":     "",
         "interests": [],
     }
 
     if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-        confirm = request.form.get("confirm", "")
+        name      = request.form.get("name",     "").strip()
+        email     = request.form.get("email",    "").strip().lower()
+        password  = request.form.get("password", "")
+        confirm   = request.form.get("confirm",  "")
         interests = request.form.getlist("interests")
 
-        form_data = {
-            "name": name,
-            "email": email,
-            "interests": interests,
-        }
+        form_data = {"name": name, "email": email, "interests": interests}
 
         if not name or not email or not password or not confirm:
             flash("Please fill all fields.", "error")
@@ -367,8 +460,8 @@ def signup():
             flash("Passwords do not match.", "error")
         elif not interests:
             flash("Please select at least one interest.", "error")
-        elif len(interests) > 3 and "All" not in interests:
-            flash("You can select up to 3 interests only.", "error")
+        elif len(interests) > MAX_SIGNUP_INTERESTS and "All" not in interests:
+            flash(f"You can select up to {MAX_SIGNUP_INTERESTS} interests only.", "error")
         elif User.query.filter_by(email=email).first():
             flash("That email is already registered. Please log in instead.", "error")
         else:
@@ -385,18 +478,34 @@ def signup():
 
     return render_template("signup.html", form_data=form_data)
 
+
+@main_bp.route("/logout", methods=["POST"])
+def logout():
+    """Log the current user out and redirect to the login page."""
+    logout_user()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("main.login"))
+
+
+# ---------------------------------------------------------------------------
+# Profile
+# ---------------------------------------------------------------------------
+
 @main_bp.route("/profile/<string:user>")
 @login_required
 def profile(user):
-
+    """Display a user's public profile, submitted prompts, and recent activity."""
     profile_user = User.query.filter_by(username=user).first_or_404()
 
-    prompts = Prompt.query.filter_by(author=profile_user)\
-        .order_by(Prompt.created_at.desc())\
+    prompts = (
+        Prompt.query
+        .filter_by(author=profile_user)
+        .order_by(Prompt.created_at.desc())
         .all()
+    )
 
-    total_likes = sum(p.likes for p in prompts)
-    total_views = sum(p.views for p in prompts)
+    total_likes     = sum(p.likes     for p in prompts)
+    total_views     = sum(p.views     for p in prompts)
     total_bookmarks = sum(p.bookmarks for p in prompts)
 
     return render_template(
@@ -416,6 +525,11 @@ def profile(user):
 @main_bp.route("/profile/avatar", methods=["POST"])
 @login_required
 def update_avatar():
+    """Replace the current user's avatar with an uploaded image file.
+
+    The old file is deleted from disk if it exists.  The new filename is
+    prefixed with the user id to prevent collisions.
+    """
     avatar = request.files.get("avatar")
 
     if avatar is None or not avatar.filename:
@@ -428,7 +542,7 @@ def update_avatar():
         return redirect(url_for("main.profile", user=current_user.username))
 
     extension = original_filename.rsplit(".", 1)[1].lower()
-    filename = f"user-{current_user.id}-{uuid4().hex}.{extension}"
+    filename  = f"user-{current_user.id}-{uuid4().hex}.{extension}"
     upload_folder = Path(current_app.config["AVATAR_UPLOAD_FOLDER"])
     upload_folder.mkdir(parents=True, exist_ok=True)
     avatar.save(upload_folder / filename)
@@ -448,10 +562,11 @@ def update_avatar():
 @main_bp.route("/profile/update", methods=["POST"])
 @login_required
 def update_profile():
+    """Update the current user's display name, email, location, and bio."""
     display_name = request.form.get("display_name", "").strip()
-    email = request.form.get("email", "").strip().lower()
-    location = request.form.get("location", "").strip()
-    bio = request.form.get("bio", "").strip()
+    email        = request.form.get("email",        "").strip().lower()
+    location     = request.form.get("location",     "").strip()
+    bio          = request.form.get("bio",          "").strip()
 
     if not display_name or not email:
         flash("Name and email are required.", "error")
@@ -467,9 +582,9 @@ def update_profile():
         return redirect(url_for("main.profile", user=current_user.username))
 
     current_user.display_name = display_name
-    current_user.email = email
-    current_user.location = location or None
-    current_user.bio = bio or None
+    current_user.email        = email
+    current_user.location     = location or None
+    current_user.bio          = bio or None
     db.session.commit()
 
     flash("Profile updated successfully.", "success")
@@ -480,31 +595,51 @@ def update_profile():
 @main_bp.route("/profile.html")
 @login_required
 def profile_redirect():
+    """Redirect /profile (with optional ?user=) to the canonical profile URL."""
     username = request.args.get("user") or current_user.username
     return redirect(url_for("main.profile", user=username))
 
 
+# ---------------------------------------------------------------------------
+# Prompt detail and legacy redirect
+# ---------------------------------------------------------------------------
+
 @main_bp.route("/prompt-detail")
 @main_bp.route("/prompt-detail.html")
 def prompt_detail_redirect():
+    """Redirect the legacy query-string URL to the canonical /prompt/<id> route."""
     prompt_id = request.args.get("prompt", type=int)
-
     if prompt_id is None:
         return redirect(url_for("main.feed"))
-
     return redirect(url_for("main.prompt_detail", prompt_id=prompt_id))
+
 
 @main_bp.route("/prompt/<int:prompt_id>")
 def prompt_detail(prompt_id):
+    """Show a single prompt with its comments and the current user's like/bookmark state."""
     prompt = db.get_or_404(Prompt, prompt_id)
     prompt.views += 1
     db.session.commit()
-    comments = Comment.query.filter_by(prompt_id=prompt.id, parent_id=None).order_by(Comment.created_at.asc()).all()
-    user_has_liked = False
+
+    comments = (
+        Comment.query
+        .filter_by(prompt_id=prompt.id, parent_id=None)
+        .order_by(Comment.created_at.asc())
+        .all()
+    )
+
+    user_has_liked     = False
     user_has_bookmarked = False
     if current_user.is_authenticated:
-        user_has_liked = UserLike.query.filter_by(user_id=current_user.id, prompt_id=prompt.id).first() is not None
-        user_has_bookmarked = UserBookmark.query.filter_by(user_id=current_user.id, prompt_id=prompt.id).first() is not None
+        user_has_liked = (
+            UserLike.query.filter_by(user_id=current_user.id, prompt_id=prompt.id).first()
+            is not None
+        )
+        user_has_bookmarked = (
+            UserBookmark.query.filter_by(user_id=current_user.id, prompt_id=prompt.id).first()
+            is not None
+        )
+
     return render_template(
         "prompt-detail.html",
         prompt=prompt,
@@ -514,11 +649,21 @@ def prompt_detail(prompt_id):
     )
 
 
+# ---------------------------------------------------------------------------
+# Prompt interactions (like, bookmark, comment)
+# ---------------------------------------------------------------------------
+
 @main_bp.route("/prompt/<int:prompt_id>/like", methods=["POST"])
 @login_required
 def toggle_like(prompt_id):
-    prompt = db.get_or_404(Prompt, prompt_id)
+    """Toggle a like on *prompt_id* for the current user.
+
+    Keeps the denormalised ``prompt.likes`` counter in sync with the UserLike
+    join table.  Returns JSON with the new state and count.
+    """
+    prompt   = db.get_or_404(Prompt, prompt_id)
     existing = UserLike.query.filter_by(user_id=current_user.id, prompt_id=prompt_id).first()
+
     if existing:
         db.session.delete(existing)
         prompt.likes = max(0, prompt.likes - 1)
@@ -527,6 +672,7 @@ def toggle_like(prompt_id):
         db.session.add(UserLike(user_id=current_user.id, prompt_id=prompt_id))
         prompt.likes += 1
         liked = True
+
     db.session.commit()
     return jsonify({"liked": liked, "likes": prompt.likes})
 
@@ -534,8 +680,14 @@ def toggle_like(prompt_id):
 @main_bp.route("/prompt/<int:prompt_id>/bookmark", methods=["POST"])
 @login_required
 def toggle_bookmark(prompt_id):
-    prompt = db.get_or_404(Prompt, prompt_id)
+    """Toggle a bookmark on *prompt_id* for the current user.
+
+    Mirrors toggle_like — keeps the denormalised counter in sync.
+    Returns JSON with the new state and count.
+    """
+    prompt   = db.get_or_404(Prompt, prompt_id)
     existing = UserBookmark.query.filter_by(user_id=current_user.id, prompt_id=prompt_id).first()
+
     if existing:
         db.session.delete(existing)
         prompt.bookmarks = max(0, prompt.bookmarks - 1)
@@ -544,14 +696,21 @@ def toggle_bookmark(prompt_id):
         db.session.add(UserBookmark(user_id=current_user.id, prompt_id=prompt_id))
         prompt.bookmarks += 1
         bookmarked = True
+
     db.session.commit()
     return jsonify({"bookmarked": bookmarked, "bookmarks": prompt.bookmarks})
+
 
 @main_bp.route("/prompt/<int:prompt_id>/comment", methods=["POST"])
 @login_required
 def add_comment(prompt_id):
-    prompt = db.get_or_404(Prompt, prompt_id)
-    body = request.form.get("comment", "").strip()
+    """Post a new comment (or reply) on a prompt.
+
+    Accepts both HTML form submissions and JSON-capable clients.  The
+    ``parent_id`` field enables threaded replies.
+    """
+    prompt     = db.get_or_404(Prompt, prompt_id)
+    body       = request.form.get("comment", "").strip()
     wants_json = request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html
 
     if not body:
@@ -561,17 +720,17 @@ def add_comment(prompt_id):
         return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
 
     parent_id = request.form.get("parent_id", type=int)
-    comment = Comment(body=body, author=current_user, prompt=prompt, parent_id=parent_id)
+    comment   = Comment(body=body, author=current_user, prompt=prompt, parent_id=parent_id)
     db.session.add(comment)
     db.session.commit()
 
     if wants_json:
         return jsonify({
-            "id": comment.id,
-            "body": comment.body,
-            "author": current_user.display_label,
+            "id":         comment.id,
+            "body":       comment.body,
+            "author":     current_user.display_label,
             "created_at": comment.created_at.strftime("%d %b %Y"),
-            "parent_id": comment.parent_id,
+            "parent_id":  comment.parent_id,
         }), 201
 
     flash("Comment added successfully.", "success")
@@ -581,7 +740,8 @@ def add_comment(prompt_id):
 @main_bp.route("/comment/<int:comment_id>/edit", methods=["POST"])
 @login_required
 def edit_comment(comment_id):
-    comment = db.get_or_404(Comment, comment_id)
+    """Update the body of a comment. Only the comment's author may edit it."""
+    comment    = db.get_or_404(Comment, comment_id)
     wants_json = request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html
 
     if not _current_user_owns_comment(comment):
@@ -611,8 +771,9 @@ def edit_comment(comment_id):
 @main_bp.route("/comment/<int:comment_id>/delete", methods=["POST"])
 @login_required
 def delete_comment(comment_id):
-    comment = db.get_or_404(Comment, comment_id)
-    prompt_id = comment.prompt_id
+    """Permanently delete a comment. Only the comment's author may delete it."""
+    comment    = db.get_or_404(Comment, comment_id)
+    prompt_id  = comment.prompt_id
     wants_json = request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html
 
     if not _current_user_owns_comment(comment):
@@ -630,20 +791,26 @@ def delete_comment(comment_id):
     flash("Comment deleted successfully.", "success")
     return redirect(url_for("main.prompt_detail", prompt_id=prompt_id))
 
+
+# ---------------------------------------------------------------------------
+# Prompt submit / edit / delete
+# ---------------------------------------------------------------------------
+
 @main_bp.route("/submit-prompt", methods=["GET", "POST"])
 @main_bp.route("/submit-prompt.html", methods=["GET", "POST"])
 @login_required
 def submit_prompt():
+    """Render and handle the new-prompt submission form."""
     form_data = {
-        "title": "",
-        "categories": [],
-        "description": "",
-        "body": "",
+        "title":          "",
+        "categories":     [],
+        "description":    "",
+        "body":           "",
         "output_preview": "",
     }
 
     if request.method == "POST":
-        form_data = _prompt_form_data_from_request()
+        form_data        = _prompt_form_data_from_request()
         validation_error = _validate_prompt_form(form_data)
 
         if validation_error:
@@ -669,6 +836,7 @@ def submit_prompt():
 @main_bp.route("/prompt/<int:prompt_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_prompt(prompt_id):
+    """Render and handle the prompt-editing form. Only the author may edit."""
     prompt = db.get_or_404(Prompt, prompt_id)
 
     if not _current_user_owns_prompt(prompt):
@@ -678,17 +846,17 @@ def edit_prompt(prompt_id):
     form_data = _prompt_form_data_from_prompt(prompt)
 
     if request.method == "POST":
-        form_data = _prompt_form_data_from_request()
+        form_data        = _prompt_form_data_from_request()
         validation_error = _validate_prompt_form(form_data)
 
         if validation_error:
             flash(validation_error, "error")
         else:
-            prompt.title = form_data["title"]
-            prompt.category = form_data["categories"][0]
+            prompt.title       = form_data["title"]
+            prompt.category    = form_data["categories"][0]
             prompt.subcategory = form_data["categories"][1] if len(form_data["categories"]) > 1 else None
             prompt.description = form_data["description"]
-            prompt.body = form_data["body"]
+            prompt.body        = form_data["body"]
             prompt.output_preview = form_data["output_preview"] or None
             db.session.commit()
 
@@ -708,6 +876,12 @@ def edit_prompt(prompt_id):
 @main_bp.route("/prompt/<int:prompt_id>/delete", methods=["POST"])
 @login_required
 def delete_prompt(prompt_id):
+    """Permanently delete a prompt and all its likes/bookmarks.
+
+    Associated comments are removed via the cascade rule on Prompt.comments.
+    Likes and bookmarks are deleted explicitly because their cascade is not
+    configured at the ORM level.
+    """
     prompt = db.get_or_404(Prompt, prompt_id)
 
     if not _current_user_owns_prompt(prompt):
@@ -721,13 +895,7 @@ def delete_prompt(prompt_id):
 
     flash("Prompt deleted successfully.", "success")
     next_url = request.form.get("next", "").strip()
+    # Only follow local redirects to prevent open-redirect attacks.
     if next_url.startswith("/") and not next_url.startswith("//"):
         return redirect(next_url)
     return redirect(url_for("main.feed"))
-
-
-@main_bp.route("/logout", methods=["POST"])
-def logout():
-    logout_user()
-    flash("You have been logged out.", "success")
-    return redirect(url_for("main.login"))
