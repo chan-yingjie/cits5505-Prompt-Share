@@ -33,6 +33,9 @@ class Prompt(db.Model):
     output_preview = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    views = db.Column(db.Integer, nullable=False, default=0)
+    likes = db.Column(db.Integer, nullable=False, default=0)
+    bookmarks = db.Column(db.Integer, nullable=False, default=0)
 
     author = db.relationship("User", back_populates="prompts")
     comments = db.relationship("Comment", back_populates="prompt", cascade="all, delete-orphan")

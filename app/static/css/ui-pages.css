@@ -836,6 +836,14 @@ p {
     font-weight: 800;
     box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
     transition: transform 0.18s ease, box-shadow 0.18s ease;
+    overflow: hidden;
+}
+
+.prompt-author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .prompt-author-avatar:hover,
@@ -3526,8 +3534,13 @@ body.modal-open {
 }
 
 .feed-page .sort-select {
-    padding-right: 18px;
+    padding-right: 32px;
     color: #111111;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
 }
 
 .feed-page .button-link,
@@ -3721,6 +3734,34 @@ body.modal-open {
     box-shadow: inset 0 0 0 1px rgba(201, 107, 49, 0.12);
 }
 
+/* Category tab colours — Morandi palette */
+.feed-page .category-tab[data-category="coding"] { border-color: #b4c0cc; color: #48606e; }
+.feed-page .category-tab[data-category="coding"].is-active { background: #e4e9ee; border-color: #b4c0cc; color: #48606e; font-weight: 600; }
+
+.feed-page .category-tab[data-category="writing"] { border-color: #ccb4b4; color: #6e4848; }
+.feed-page .category-tab[data-category="writing"].is-active { background: #ede6e6; border-color: #ccb4b4; color: #6e4848; font-weight: 600; }
+
+.feed-page .category-tab[data-category="education"] { border-color: #b0c4b4; color: #486050; }
+.feed-page .category-tab[data-category="education"].is-active { background: #e4ece6; border-color: #b0c4b4; color: #486050; font-weight: 600; }
+
+.feed-page .category-tab[data-category="productivity"] { border-color: #c0b4cc; color: #584870; }
+.feed-page .category-tab[data-category="productivity"].is-active { background: #eae6ee; border-color: #c0b4cc; color: #584870; font-weight: 600; }
+
+.feed-page .category-tab[data-category="marketing"] { border-color: #ccc0a8; color: #6e5840; }
+.feed-page .category-tab[data-category="marketing"].is-active { background: #eeeae4; border-color: #ccc0a8; color: #6e5840; font-weight: 600; }
+
+.feed-page .category-tab[data-category="research"] { border-color: #a8c4c4; color: #406060; }
+.feed-page .category-tab[data-category="research"].is-active { background: #e4eeee; border-color: #a8c4c4; color: #406060; font-weight: 600; }
+
+.feed-page .category-tab[data-category="career"] { border-color: #c8c0a0; color: #605840; }
+.feed-page .category-tab[data-category="career"].is-active { background: #eeeae0; border-color: #c8c0a0; color: #605840; font-weight: 600; }
+
+.feed-page .category-tab[data-category="image"] { border-color: #b8b4c8; color: #504868; }
+.feed-page .category-tab[data-category="image"].is-active { background: #eae8f0; border-color: #b8b4c8; color: #504868; font-weight: 600; }
+
+.feed-page .category-tab[data-category="video"] { border-color: #c8b4b4; color: #684848; }
+.feed-page .category-tab[data-category="video"].is-active { background: #eee4e4; border-color: #c8b4b4; color: #684848; font-weight: 600; }
+
 .feed-page .subcategory-chip.is-active {
     border-color: var(--accent);
     background: var(--accent);
@@ -3837,7 +3878,14 @@ body.modal-open {
 }
 
 .feed-page .prompt-card .card-tags {
-    margin-top: 2px;
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+    max-width: 45%;
 }
 
 .feed-page .prompt-card h3::after {
@@ -3962,12 +4010,60 @@ body.modal-open {
     opacity: 0.76;
 }
 
+.feed-page .card-content {
+    display: grid;
+    row-gap: 4px;
+}
+
 .feed-page .card-description {
-    color: #555555;
-    font-size: 0.95rem;
-    line-height: 1.72;
-    -webkit-line-clamp: 4;
-    max-height: calc(1.72em * 4);
+    margin-bottom: 8px;
+}
+
+.feed-page .card-description {
+    display: block;
+    overflow: visible;
+    color: #333333;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0;
+    font-style: italic;
+}
+
+.feed-page .card-body-preview {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    color: #777777;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+    font-style: normal;
+}
+
+.feed-page .card-stats-row {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.feed-page .card-stats-row .card-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #888;
+    font-size: 0.82rem;
+}
+
+.feed-page .card-stats-row .stat-icon svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+.feed-page .card-stats-row .card-stat strong {
+    font-weight: 500;
+    color: #555;
 }
 
 .feed-page .preview-box {
@@ -3998,6 +4094,90 @@ body.modal-open {
     background: #ffffff;
     border-color: #ead9cc;
     color: #6a584c;
+}
+
+/* Category colours — Morandi palette (higher specificity to override tag-pill base) */
+.feed-page .tag-pill.tag-cat-coding {
+    background: #e4e9ee;
+    border-color: #b4c0cc;
+    color: #48606e;
+}
+.feed-page .tag-pill.tag-cat-coding.tag-sub {
+    background: #edf0f4;
+    border-color: #c8d0d8;
+    color: #5a7080;
+}
+
+.feed-page .tag-pill.tag-cat-writing {
+    background: #ede6e6;
+    border-color: #ccb4b4;
+    color: #6e4848;
+}
+.feed-page .tag-pill.tag-cat-writing.tag-sub {
+    background: #f2ecec;
+    border-color: #d8c4c4;
+    color: #805858;
+}
+
+.feed-page .tag-pill.tag-cat-education {
+    background: #e4ece6;
+    border-color: #b0c4b4;
+    color: #486050;
+}
+.feed-page .tag-pill.tag-cat-education.tag-sub {
+    background: #ecf2ee;
+    border-color: #c4d4c8;
+    color: #587060;
+}
+
+.feed-page .tag-pill.tag-cat-productivity {
+    background: #eae6ee;
+    border-color: #c0b4cc;
+    color: #584870;
+}
+.feed-page .tag-pill.tag-cat-productivity.tag-sub {
+    background: #f0ecf4;
+    border-color: #d0c8d8;
+    color: #685880;
+}
+
+.feed-page .tag-pill.tag-cat-marketing {
+    background: #eeeae4;
+    border-color: #ccc0a8;
+    color: #6e5840;
+}
+.feed-page .tag-pill.tag-cat-marketing.tag-sub {
+    background: #f4f0ea;
+    border-color: #d8ccb8;
+    color: #806850;
+}
+
+.feed-page .tag-pill.tag-cat-research {
+    background: #e4eeee;
+    border-color: #a8c4c4;
+    color: #406060;
+}
+.feed-page .tag-pill.tag-cat-research.tag-sub {
+    background: #ecf4f4;
+    border-color: #c0d4d4;
+    color: #507070;
+}
+
+.feed-page .tag-pill.tag-cat-career {
+    background: #eeeae0;
+    border-color: #c8c0a0;
+    color: #605840;
+}
+.feed-page .tag-pill.tag-cat-career.tag-sub {
+    background: #f4f0e8;
+    border-color: #d8d0b4;
+    color: #706850;
+}
+
+.search-highlight {
+    background: none;
+    color: #c2601a;
+    font-weight: 700;
 }
 
 .feed-page .filter-status {

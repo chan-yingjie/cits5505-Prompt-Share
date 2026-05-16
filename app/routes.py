@@ -457,6 +457,8 @@ def prompt_detail_redirect():
 @main_bp.route("/prompt/<int:prompt_id>")
 def prompt_detail(prompt_id):
     prompt = db.get_or_404(Prompt, prompt_id)
+    prompt.views += 1
+    db.session.commit()
     comments = Comment.query.filter_by(prompt_id=prompt.id).order_by(Comment.created_at.asc()).all()
     return render_template("prompt-detail.html", prompt=prompt, comments=comments)
 
