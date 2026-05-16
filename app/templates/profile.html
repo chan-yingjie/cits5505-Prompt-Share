@@ -50,14 +50,14 @@
 
                     <div class="profile-identity-text">
                         <div class="profile-name-row">
-                            <span class="profile-name" id="profileUsername">{{ profile_user.username }}</span>
+                            <span class="profile-name" id="profileUsername">{{ profile_user.display_label }}</span>
                             <span class="profile-badge">
                                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 1l1.12 2.26L9 3.64 7 5.58l.47 2.74L5 7.1l-2.47 1.22L3 5.58 1 3.64l2.88-.38L5 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
                                 {{ badge_label }}
                             </span>
                         </div>
                         <span class="profile-handle" id="profileHandle">@{{ profile_user.username }}</span>
-                        <p class="profile-bio-text profile-bio-placeholder" id="profileBio">Add a bio to introduce yourself.</p>
+                        <p class="profile-bio-text{% if not profile_user.bio %} profile-bio-placeholder{% endif %}" id="profileBio">{{ profile_user.bio or "Add a bio to introduce yourself." }}</p>
                         <div class="profile-meta-row">
                             <span class="profile-meta-item">
                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 5h10M4 1v2M8 1v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -115,10 +115,12 @@
                             <div class="pf-title-action-row">
                                 <h2>Personal information</h2>
                                 <div id="profileInfoActions">
-<button class="button-link primary pf-btn profile-edit-trigger" id="editInfoBtn" type="button">
+                                    {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+                                    <button class="button-link primary pf-btn profile-edit-trigger" id="editInfoBtn" type="button">
                                         <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5 5 11H3V9l6.5-6.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
                                         Edit Profile
                                     </button>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -132,7 +134,7 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Name</span>
-                                <span class="info-value" id="infoName">{{ profile_user.username }}</span>
+                                <span class="info-value" id="infoName">{{ profile_user.display_label }}</span>
                             </div>
                         </div>
                         <div class="profile-info-field">
@@ -150,7 +152,7 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Location</span>
-                                <span class="info-value" id="infoLocation">—</span>
+                                <span class="info-value" id="infoLocation">{{ profile_user.location or "—" }}</span>
                             </div>
                         </div>
                         <div class="profile-info-field">
@@ -174,33 +176,34 @@
                             </div>
                             <div class="field-content">
                                 <span class="info-label">Bio</span>
-                                <span class="info-value" id="infoBio">—</span>
+                                <span class="info-value" id="infoBio">{{ profile_user.bio or "—" }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Edit mode: inline form -->
-                    <form class="profile-edit-form" id="profileEditForm" novalidate>
+                    <form class="profile-edit-form" id="profileEditForm" action="{{ url_for('main.update_profile') }}" method="post" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="profile-edit-grid">
                             <div class="profile-edit-field">
                                 <label class="info-label" for="editName">Name</label>
-                                <input class="profile-input" id="editName" type="text" placeholder="Your name" autocomplete="name">
+                                <input class="profile-input" id="editName" name="display_name" type="text" placeholder="Your name" autocomplete="name" value="{{ profile_user.display_label }}" required>
                             </div>
                             <div class="profile-edit-field">
                                 <label class="info-label" for="editUsername">Username</label>
-                                <input class="profile-input" id="editUsername" type="text" placeholder="username" autocomplete="username">
+                                <input class="profile-input" id="editUsername" name="username" type="text" placeholder="username" autocomplete="username" value="{{ profile_user.username }}" required>
                             </div>
                             <div class="profile-edit-field">
                                 <label class="info-label" for="editLocation">Location</label>
-                                <input class="profile-input" id="editLocation" type="text" placeholder="City, Country">
+                                <input class="profile-input" id="editLocation" name="location" type="text" placeholder="City, Country" value="{{ profile_user.location or '' }}">
                             </div>
                             <div class="profile-edit-field">
                                 <label class="info-label" for="editEmail">Email <span style="font-weight:400;text-transform:none">(optional)</span></label>
-                                <input class="profile-input" id="editEmail" type="email" placeholder="you@example.com" autocomplete="email">
+                                <input class="profile-input" id="editEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" value="{{ profile_user.email }}" required>
                             </div>
                             <div class="profile-edit-field profile-edit-field-full">
                                 <label class="info-label" for="editBio">Bio</label>
-                                <textarea class="profile-input profile-textarea" id="editBio" rows="3" placeholder="Tell the community about yourself…"></textarea>
+                                <textarea class="profile-input profile-textarea" id="editBio" name="bio" rows="3" placeholder="Tell the community about yourself…">{{ profile_user.bio or '' }}</textarea>
                             </div>
                         </div>
                         <div class="profile-edit-actions">
@@ -390,6 +393,44 @@
         avatarInput.addEventListener("change", () => {
             if (avatarInput.files.length > 0) {
                 avatarForm.submit();
+            }
+        });
+    }
+
+    const editInfoButton = document.getElementById("editInfoBtn");
+    const cancelEditButton = document.getElementById("cancelEditBtn");
+    const profileInfoCard = document.getElementById("personalInfoCard");
+    const profileInfoView = document.getElementById("profileInfoView");
+    const profileEditForm = document.getElementById("profileEditForm");
+    const editNameInput = document.getElementById("editName");
+    const editUsernameInput = document.getElementById("editUsername");
+
+    function setProfileEditMode(isEditing) {
+        if (!profileInfoCard || !profileInfoView || !profileEditForm) {
+            return;
+        }
+
+        profileInfoCard.classList.toggle("is-editing", isEditing);
+        profileInfoView.style.display = isEditing ? "none" : "";
+        profileEditForm.classList.toggle("is-active", isEditing);
+
+        if (isEditing && editUsernameInput) {
+            editUsernameInput.focus();
+        }
+    }
+
+    if (editInfoButton) {
+        editInfoButton.addEventListener("click", () => setProfileEditMode(true));
+    }
+
+    if (cancelEditButton) {
+        cancelEditButton.addEventListener("click", () => setProfileEditMode(false));
+    }
+
+    if (editNameInput && editUsernameInput) {
+        editNameInput.addEventListener("input", () => {
+            if (editUsernameInput.value.trim() === "") {
+                editUsernameInput.value = editNameInput.value.trim();
             }
         });
     }

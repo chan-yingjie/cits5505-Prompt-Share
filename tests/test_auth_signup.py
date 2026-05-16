@@ -11,6 +11,7 @@ def test_signup_success_creates_user_and_redirects_to_login(client):
 
     user = User.query.filter_by(email="ada@example.com").one()
     assert user.username == "Ada Lovelace"
+    assert user.display_name == "Ada Lovelace"
     assert user.password_hash
     assert user.password_hash != "password123"
 

@@ -140,6 +140,66 @@ def test_avatar_upload_rejects_invalid_file_type(auth_client, registered_user):
     assert registered_user.avatar_filename is None
 
 
+def test_user_can_update_profile_information(auth_client, registered_user):
+    response = auth_client.post(
+        "/profile/update",
+        data={
+            "display_name": "Updated Name",
+            "username": "updated-user",
+            "email": "updated@example.com",
+            "location": "Perth, Australia",
+            "bio": "Sharing practical prompts.",
+        },
+        follow_redirects=False,
+    )
+
+    db.session.refresh(registered_user)
+
+    assert response.status_code == 302
+    assert "/profile/updated-user" in unquote(response.location)
+    assert registered_user.display_name == "Updated Name"
+    assert registered_user.username == "updated-user"
+    assert registered_user.email == "updated@example.com"
+    assert registered_user.location == "Perth, Australia"
+    assert registered_user.bio == "Sharing practical prompts."
+
+    profile_response = auth_client.get("/profile/updated-user")
+    assert b"Updated Name" in profile_response.data
+    assert b"@updated-user" in profile_response.data
+
+
+def test_profile_header_shows_saved_bio(auth_client, registered_user):
+    registered_user.bio = "Sharing practical prompts."
+    db.session.commit()
+
+    response = auth_client.get(f"/profile/{registered_user.username}")
+
+    assert response.status_code == 200
+    assert b"Sharing practical prompts." in response.data
+    assert b"Add a bio to introduce yourself." not in response.data
+
+
+def test_profile_update_rejects_duplicate_email(auth_client, registered_user):
+    _create_user("Other User", "other@example.com")
+
+    response = auth_client.post(
+        "/profile/update",
+        data={
+            "display_name": registered_user.display_label,
+            "username": registered_user.username,
+            "email": "other@example.com",
+            "location": "",
+            "bio": "",
+        },
+        follow_redirects=False,
+    )
+
+    db.session.refresh(registered_user)
+
+    assert response.status_code == 302
+    assert registered_user.email == "test@example.com"
+
+
 def test_prompt_edit_requires_login(client, registered_user):
     prompt = _create_prompt(registered_user)
 
