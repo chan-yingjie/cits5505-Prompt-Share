@@ -162,6 +162,59 @@ def _profile_activity_items(user, prompts):
     return activities[:12]
 
 
+def _leaderboard_prompt_rows(metric):
+    prompts = Prompt.query.order_by(Prompt.created_at.desc()).all()
+    rows = []
+
+    for prompt in prompts:
+        rows.append({
+            "prompt": prompt,
+            "score": len(prompt.comments),
+            "metric_label": "comments",
+            "created_at": prompt.created_at,
+        })
+
+    if metric == "recent":
+        rows.sort(key=lambda row: row["created_at"] or datetime.min, reverse=True)
+        for row in rows:
+            row["score"] = _relative_time_label(row["created_at"])
+            row["metric_label"] = "published"
+    else:
+        rows.sort(
+            key=lambda row: (int(row["score"]), row["created_at"] or datetime.min),
+            reverse=True,
+        )
+
+    return rows[:20]
+
+
+def _leaderboard_user_rows(metric):
+    users = User.query.order_by(User.created_at.desc()).all()
+    rows = []
+
+    for user in users:
+        prompt_count = len(user.prompts)
+        comment_count = len(user.comments)
+        score = comment_count if metric == "comments" else prompt_count
+        rows.append({
+            "user": user,
+            "prompt_count": prompt_count,
+            "comment_count": comment_count,
+            "score": score,
+            "metric_label": "comments" if metric == "comments" else "prompts",
+        })
+
+    rows.sort(
+        key=lambda row: (
+            int(row["score"]),
+            int(row["prompt_count"]),
+            row["user"].created_at or datetime.min,
+        ),
+        reverse=True,
+    )
+    return rows[:20]
+
+
 @main_bp.route("/")
 @main_bp.route("/index.html")
 def index():
@@ -178,7 +231,36 @@ def feed():
 @main_bp.route("/leaderboard")
 @main_bp.route("/leaderboard.html")
 def leaderboard():
-    return render_template("leaderboard.html")
+    mode = request.args.get("mode", "prompts")
+    if mode not in {"prompts", "users"}:
+        mode = "prompts"
+
+    metric = request.args.get("metric")
+    if mode == "users":
+        metric_options = [
+            ("prompts", "Prompts"),
+            ("comments", "Comments"),
+        ]
+        if metric not in {"prompts", "comments"}:
+            metric = "prompts"
+        rows = _leaderboard_user_rows(metric)
+    else:
+        metric_options = [
+            ("comments", "Comments"),
+            ("recent", "Newest"),
+        ]
+        if metric not in {"comments", "recent"}:
+            metric = "comments"
+        rows = _leaderboard_prompt_rows(metric)
+
+    return render_template(
+        "leaderboard.html",
+        mode=mode,
+        metric=metric,
+        metric_options=metric_options,
+        podium_rows=rows[:3],
+        list_rows=rows[3:],
+    )
 
 
 @main_bp.route("/login", methods=["GET", "POST"])

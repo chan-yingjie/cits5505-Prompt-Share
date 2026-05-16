@@ -6889,6 +6889,7 @@ body.profile-page .page-shell {
     cursor: pointer;
     transition: background 0.2s, color 0.2s, box-shadow 0.2s;
     white-space: nowrap;
+    text-decoration: none;
 }
 
 .lb-tab:hover {

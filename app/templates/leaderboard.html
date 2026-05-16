@@ -8,391 +8,169 @@
 
 {% block main_class %}lb-layout{% endblock %}
 
-{% block content %}
+{% macro initials(name) -%}
+    {%- set parts = (name or "U").replace(".", " ").replace("-", " ").replace("_", " ").split() -%}
+    {%- if parts|length >= 2 -%}
+        {{ parts[0][0] ~ parts[1][0] }}
+    {%- else -%}
+        {{ (parts[0] if parts else "U")[:2] }}
+    {%- endif -%}
+{%- endmacro %}
 
-            <!-- ── Hero ── -->
+{% macro rank_label(index) -%}
+    {%- if index == 0 -%}1{%- elif index == 1 -%}2{%- elif index == 2 -%}3{%- else -%}{{ index + 1 }}{%- endif -%}
+{%- endmacro %}
+
+{% macro rank_class(index) -%}
+    {%- if index == 0 -%}lb-rank-gold{%- elif index == 1 -%}lb-rank-silver{%- elif index == 2 -%}lb-rank-bronze{%- endif -%}
+{%- endmacro %}
+
+{% block content %}
             <section class="lb-hero" aria-label="Leaderboard hero">
                 <div class="lb-hero-image" aria-hidden="true">
                     <img src="{{ url_for('static', filename='images/pic7-transparent.png') }}" alt="">
                 </div>
                 <div class="lb-hero-text">
                     <p class="lb-hero-eyebrow">&#9733; Community Rankings</p>
-                    <h1 class="lb-hero-title">The Prompts<br><em class="lb-hero-accent">Everyone Loves</em></h1>
-                    <p class="lb-hero-sub">Most liked, saved &amp; viewed — curated entirely by the community.</p>
+                    <h1 class="lb-hero-title">The Prompts<br><em class="lb-hero-accent">People Discuss</em></h1>
+                    <p class="lb-hero-sub">Ranked from real prompts, comments, and contributors in the database.</p>
                 </div>
             </section>
 
-            <!-- ── Controls ── -->
             <section class="content-block lb-controls-block" aria-label="Leaderboard filters">
                 <div class="lb-controls">
                     <div class="lb-tab-group" role="tablist" aria-label="Leaderboard mode">
-                        <button class="lb-tab is-active" id="mode-prompts" type="button" role="tab" aria-selected="true">
+                        <a class="lb-tab{% if mode == 'prompts' %} is-active{% endif %}" id="mode-prompts" href="{{ url_for('main.leaderboard', mode='prompts', metric='comments') }}" role="tab" aria-selected="{{ 'true' if mode == 'prompts' else 'false' }}">
                             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1.5" y="1" width="9" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M4 4.5h4M4 7h4M4 9.5h2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9 1v3h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             Prompts
-                        </button>
-                        <button class="lb-tab" id="mode-users" type="button" role="tab" aria-selected="false">
+                        </a>
+                        <a class="lb-tab{% if mode == 'users' %} is-active{% endif %}" id="mode-users" href="{{ url_for('main.leaderboard', mode='users', metric='prompts') }}" role="tab" aria-selected="{{ 'true' if mode == 'users' else 'false' }}">
                             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 12c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
                             Users
-                        </button>
+                        </a>
                     </div>
 
-                    <div class="lb-filters">
+                    <form class="lb-filters" method="get" action="{{ url_for('main.leaderboard') }}">
+                        <input type="hidden" name="mode" value="{{ mode }}">
                         <label class="lb-filter-label" for="metric-select">Sort by</label>
-                        <select class="lb-select" id="metric-select" aria-label="Sort by metric">
-                            <option value="views">Views</option>
-                            <option value="likes">Likes</option>
-                            <option value="favorites">Favorites</option>
+                        <select class="lb-select" id="metric-select" name="metric" aria-label="Sort by metric" onchange="this.form.submit()">
+                            {% for value, label in metric_options %}
+                            <option value="{{ value }}" {% if metric == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
                         </select>
-                    </div>
+                    </form>
                 </div>
             </section>
 
-            <!-- ── Podium (top 3, rendered by JS) ── -->
             <div class="lb-podium-section" aria-label="Top 3">
-                <div class="lb-podium" id="lb-podium"></div>
+                <div class="lb-podium" id="lb-podium">
+                    {% for row in podium_rows %}
+                        {% set rank_index = loop.index0 %}
+                        {% if mode == "prompts" %}
+                            {% set prompt = row.prompt %}
+                            <article class="lb-podium-card{% if rank_index == 0 %} is-first{% endif %}" data-rank="{{ loop.index }}">
+                                <div class="lb-podium-rank-row">
+                                    <div class="lb-podium-rank {{ rank_class(rank_index) }}">{{ rank_label(rank_index) }}</div>
+                                    <span class="lb-podium-rank-label">{{ loop.index }}{{ 'st' if loop.index == 1 else 'nd' if loop.index == 2 else 'rd' if loop.index == 3 else 'th' }} Place</span>
+                                </div>
+                                <h3 class="lb-podium-title"><a href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a></h3>
+                                <a class="lb-podium-author" href="{{ url_for('main.profile', user=prompt.author.username) }}">
+                                    <div class="lb-podium-avatar">{{ initials(prompt.author.display_label)|upper }}</div>
+                                    <div>
+                                        <span class="lb-podium-name">{{ prompt.author.display_label }}</span>
+                                        <span class="lb-podium-handle">@{{ prompt.author.username }}</span>
+                                    </div>
+                                </a>
+                                <p class="lb-podium-desc">{{ prompt.description }}</p>
+                                <div class="lb-podium-stats">
+                                    <span class="lb-stat"><strong>{{ prompt.comments|length }}</strong> comments</span>
+                                    <span class="lb-stat">{{ prompt.category }}</span>
+                                    <span class="lb-stat lb-stat-primary"><strong>{{ row.score }}</strong> {{ row.metric_label }}</span>
+                                </div>
+                            </article>
+                        {% else %}
+                            {% set ranked_user = row.user %}
+                            <article class="lb-podium-card{% if rank_index == 0 %} is-first{% endif %}" data-rank="{{ loop.index }}">
+                                <div class="lb-podium-rank-row">
+                                    <div class="lb-podium-rank {{ rank_class(rank_index) }}">{{ rank_label(rank_index) }}</div>
+                                    <span class="lb-podium-rank-label">{{ loop.index }}{{ 'st' if loop.index == 1 else 'nd' if loop.index == 2 else 'rd' if loop.index == 3 else 'th' }} Place</span>
+                                </div>
+                                <a class="lb-podium-author lb-podium-author-center" href="{{ url_for('main.profile', user=ranked_user.username) }}">
+                                    <div class="lb-podium-avatar lb-podium-avatar-lg">{{ initials(ranked_user.display_label)|upper }}</div>
+                                    <div>
+                                        <span class="lb-podium-name">{{ ranked_user.display_label }}</span>
+                                        <span class="lb-podium-handle">@{{ ranked_user.username }}</span>
+                                    </div>
+                                </a>
+                                {% if ranked_user.bio %}
+                                <p class="lb-podium-desc">{{ ranked_user.bio }}</p>
+                                {% endif %}
+                                <div class="lb-podium-stats">
+                                    <span class="lb-stat"><strong>{{ row.prompt_count }}</strong> prompts</span>
+                                    <span class="lb-stat"><strong>{{ row.comment_count }}</strong> comments</span>
+                                    <span class="lb-stat lb-stat-primary"><strong>{{ row.score }}</strong> {{ row.metric_label }}</span>
+                                </div>
+                            </article>
+                        {% endif %}
+                    {% else %}
+                        <p class="lb-empty">Leaderboard data will appear once prompts are published.</p>
+                    {% endfor %}
+                </div>
             </div>
 
-            <!-- ── Ranking List (4th onwards) ── -->
             <section class="content-block lb-list-block" aria-label="Full rankings">
                 <div class="lb-list-header">
                     <div>
-                        <p class="eyebrow" id="results-eyebrow">Prompts</p>
-                        <h2 id="results-title">Rankings</h2>
+                        <p class="eyebrow" id="results-eyebrow">{{ "Prompts" if mode == "prompts" else "Users" }}</p>
+                        <h2 id="results-title">{{ "Full rankings" if mode == "prompts" else "All users" }}</h2>
                     </div>
-                    <a class="category-link" href="{{ url_for('main.feed') }}">Browse Explore →</a>
+                    <a class="category-link" href="{{ url_for('main.feed') }}">Browse Explore -&gt;</a>
                 </div>
-                <div class="lb-list" id="leaderboard-list" aria-live="polite"></div>
+                <div class="lb-list" id="leaderboard-list" aria-live="polite">
+                    {% for row in list_rows %}
+                        {% set rank = loop.index + 3 %}
+                        {% if mode == "prompts" %}
+                            {% set prompt = row.prompt %}
+                            <article class="lb-row">
+                                <span class="lb-row-rank">{{ rank }}</span>
+                                <div class="lb-row-avatar">{{ initials(prompt.author.display_label)|upper }}</div>
+                                <div class="lb-row-info">
+                                    <a class="lb-row-title" href="{{ url_for('main.prompt_detail', prompt_id=prompt.id) }}">{{ prompt.title }}</a>
+                                    <a class="lb-row-author" href="{{ url_for('main.profile', user=prompt.author.username) }}">{{ prompt.author.display_label }} <span>@{{ prompt.author.username }}</span></a>
+                                </div>
+                                <div class="lb-row-stats">
+                                    <span><strong>{{ prompt.comments|length }}</strong> comments</span>
+                                    <span>{{ prompt.category }}</span>
+                                    <span><strong>{{ row.score }}</strong> {{ row.metric_label }}</span>
+                                </div>
+                            </article>
+                        {% else %}
+                            {% set ranked_user = row.user %}
+                            <article class="lb-row">
+                                <span class="lb-row-rank">{{ rank }}</span>
+                                <div class="lb-row-avatar">{{ initials(ranked_user.display_label)|upper }}</div>
+                                <div class="lb-row-info">
+                                    <a class="lb-row-title" href="{{ url_for('main.profile', user=ranked_user.username) }}">{{ ranked_user.display_label }}</a>
+                                    <span class="lb-row-author">@{{ ranked_user.username }}</span>
+                                </div>
+                                <div class="lb-row-stats">
+                                    <span><strong>{{ row.prompt_count }}</strong> prompts</span>
+                                    <span><strong>{{ row.comment_count }}</strong> comments</span>
+                                    <span><strong>{{ row.score }}</strong> {{ row.metric_label }}</span>
+                                </div>
+                            </article>
+                        {% endif %}
+                    {% else %}
+                        {% if podium_rows %}
+                        <p class="lb-empty">No more entries.</p>
+                        {% else %}
+                        <p class="lb-empty">Leaderboard data will appear once the community has activity.</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </section>
 {% endblock %}
 
 {% block page_shell_extras %}
     <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">Top</button>
-{% endblock %}
-
-{% block scripts %}
-    <script src="{{ url_for('static', filename='js/prompt-data.js') }}"></script>
-    {{ super() }}
-    <script>
-    (function () {
-        const podiumEl  = document.getElementById("lb-podium");
-        const listEl    = document.getElementById("leaderboard-list");
-        const metricSel = document.getElementById("metric-select");
-        const tabPrompts = document.getElementById("mode-prompts");
-        const tabUsers   = document.getElementById("mode-users");
-        const eyebrowEl  = document.getElementById("results-eyebrow");
-        const titleEl    = document.getElementById("results-title");
-
-        const dataset = Array.isArray(window.promptFeedData) ? window.promptFeedData : [];
-        let mode = "prompts";
-
-        /* ── Helpers ── */
-        function metricVal(item, m) {
-            if (m === "likes")     return Number(item.likes     || 0);
-            if (m === "favorites") return Number(item.favorites || 0);
-            if (m === "views")     return Number(item.viewCount || 0);
-            if (m === "votes")     return Number(item.votes     || 0);
-            return 0;
-        }
-
-        function initials(name) {
-            return String(name || "").split(/[\s._-]+/).filter(Boolean)
-                .slice(0, 2).map(p => p[0].toUpperCase()).join("") || "U";
-        }
-
-        function esc(v) {
-            return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;")
-                .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
-        }
-
-        function truncate(t, n) {
-            t = String(t || "");
-            return t.length <= n ? t : t.slice(0, n - 1).trimEnd() + "…";
-        }
-
-        /* pseudo-stable trend for demo: hash title to -9..+18 */
-        function trendVal(str) {
-            let h = 0;
-            for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
-            return (Math.abs(h) % 28) - 9;
-        }
-
-        /* ── Fireworks for 1st place ── */
-        let fwTimers = [];
-
-        function clearFireworks() {
-            fwTimers.forEach(clearTimeout);
-            fwTimers = [];
-            const card = podiumEl.querySelector('[data-rank="1"]');
-            if (card) card.querySelectorAll('.lb-fw-rocket,.lb-fw-particle,.lb-fw-flash').forEach(el => el.remove());
-        }
-
-        function launchFirework(card) {
-            const w = card.offsetWidth;
-            const h = card.offsetHeight;
-            const x      = 18 + Math.random() * (w - 36);
-            const burstY = 14 + Math.random() * (h * 0.55);
-            const startY = h - 4;
-            const dy     = burstY - startY;
-
-            const rocket = document.createElement('span');
-            rocket.className = 'lb-fw-rocket';
-            rocket.style.cssText = `left:${x.toFixed(0)}px;top:${startY}px;--dy:${dy.toFixed(0)}px`;
-            card.appendChild(rocket);
-
-            const tBurst = setTimeout(() => {
-                rocket.remove();
-
-                /* flash at burst point */
-                const flash = document.createElement('span');
-                flash.className = 'lb-fw-flash';
-                flash.style.cssText = `left:${x.toFixed(0)}px;top:${burstY.toFixed(0)}px`;
-                card.appendChild(flash);
-                fwTimers.push(setTimeout(() => flash.remove(), 400));
-
-                /* particles */
-                const palette = ['#ff6b6b','#fbbf24','#4ecdc4','#a78bfa','#34d399','#fb923c','#f472b6','#60a5fa','#fff176','#ff9ff3'];
-                const n = 24 + Math.floor(Math.random() * 10);
-                for (let i = 0; i < n; i++) {
-                    const angle = (i / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
-                    const dist  = 50 + Math.random() * 65;
-                    const color = palette[i % palette.length];
-                    const size  = (5 + Math.random() * 5).toFixed(1);
-                    const p = document.createElement('span');
-                    p.className = 'lb-fw-particle';
-                    p.style.cssText = [
-                        `left:${x.toFixed(0)}px`,
-                        `top:${burstY.toFixed(0)}px`,
-                        `background:${color}`,
-                        `box-shadow:0 0 5px 2px ${color}`,
-                        `width:${size}px`,
-                        `height:${size}px`,
-                        `--tx:${(Math.cos(angle) * dist).toFixed(1)}px`,
-                        `--ty:${(Math.sin(angle) * dist).toFixed(1)}px`,
-                        `animation-duration:${(0.9 + Math.random() * 0.65).toFixed(2)}s`
-                    ].join(';');
-                    card.appendChild(p);
-                    fwTimers.push(setTimeout(() => p.remove(), 1800));
-                }
-            }, 420);
-            fwTimers.push(tBurst);
-            fwTimers.push(setTimeout(() => rocket.remove(), 500));
-        }
-
-        function initFireworks() {
-            const card = podiumEl.querySelector('[data-rank="1"]');
-            if (!card) return;
-            /* opening salvo: 4 quick bursts */
-            [0, 280, 560, 900].forEach(d =>
-                fwTimers.push(setTimeout(() => launchFirework(card), d))
-            );
-            /* continuous barrage */
-            function next() {
-                launchFirework(card);
-                /* occasionally double-launch */
-                if (Math.random() > 0.65)
-                    fwTimers.push(setTimeout(() => launchFirework(card), 180));
-                fwTimers.push(setTimeout(next, 400 + Math.random() * 700));
-            }
-            fwTimers.push(setTimeout(next, 1300));
-        }
-
-        function trendHtml(str) {
-            const v = trendVal(str);
-            if (v > 0)  return `<span class="lb-trend lb-trend-up">↑${v}</span>`;
-            if (v < 0)  return `<span class="lb-trend lb-trend-down">↓${Math.abs(v)}</span>`;
-            return `<span class="lb-trend lb-trend-flat">—</span>`;
-        }
-
-        function rankBadgeClass(i) {
-            if (i === 0) return "lb-rank-gold";
-            if (i === 1) return "lb-rank-silver";
-            if (i === 2) return "lb-rank-bronze";
-            return "";
-        }
-
-        function rankLabel(i) {
-            return ["🥇","🥈","🥉"][i] || String(i + 1);
-        }
-
-        /* ── Podium (top 3) ── */
-        function renderPodiumPrompts(items, metric) {
-            if (items.length < 1) { podiumEl.innerHTML = ""; return; }
-
-            /* visual order: 2nd, 1st, 3rd */
-            const order = [items[1], items[0], items[2]].filter(Boolean);
-
-            podiumEl.innerHTML = order.map(p => {
-                const origIdx = items.indexOf(p);
-                const href    = `prompt-detail.html?prompt=${encodeURIComponent(p.id || "")}`;
-                const aHref   = `profile.html?user=${encodeURIComponent(p.author || "")}`;
-                const isFirst = origIdx === 0;
-                return `
-                <article class="lb-podium-card${isFirst ? " is-first" : ""}" data-rank="${origIdx + 1}">
-                    <div class="lb-podium-rank-row">
-                        <div class="lb-podium-rank ${rankBadgeClass(origIdx)}">${rankLabel(origIdx)}</div>
-                        <span class="lb-podium-rank-label">${["1st Place","2nd Place","3rd Place"][origIdx]}</span>
-                    </div>
-                    <h3 class="lb-podium-title"><a href="${href}">${esc(truncate(p.title || "Untitled", 60))}</a></h3>
-                    <a class="lb-podium-author" href="${aHref}">
-                        <div class="lb-podium-avatar">${esc(initials(p.author))}</div>
-                        <div>
-                            <span class="lb-podium-name">${esc(p.author || "Unknown")}</span>
-                            <span class="lb-podium-handle">${esc(p.authorHandle || "")}</span>
-                        </div>
-                    </a>
-                    <p class="lb-podium-desc">${esc(truncate(p.prompt || "", 110))}</p>
-                    <div class="lb-podium-stats">
-                        <span class="lb-stat">
-                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 12 2 7.2a3 3 0 0 1 4.2-4.3l.8.8.8-.8A3 3 0 0 1 12 7.2L7 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-                            ${Number(p.likes || 0)}
-                        </span>
-                        <span class="lb-stat">
-                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 7s2.5-4.5 6-4.5S13 7 13 7s-2.5 4.5-6 4.5S1 7 1 7Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.8" stroke="currentColor" stroke-width="1.4"/></svg>
-                            ${Number(p.viewCount || 0)}
-                        </span>
-                        <span class="lb-stat lb-stat-primary"><strong>${metricVal(p, metric)}</strong> ${esc(metric)}</span>
-                    </div>
-                </article>`;
-            }).join("");
-        }
-
-        function renderPodiumUsers(items, metric) {
-            if (items.length < 1) { podiumEl.innerHTML = ""; return; }
-            const order = [items[1], items[0], items[2]].filter(Boolean);
-
-            podiumEl.innerHTML = order.map(u => {
-                const origIdx = items.indexOf(u);
-                const href    = `profile.html?user=${encodeURIComponent(u.author)}`;
-                const isFirst = origIdx === 0;
-                return `
-                <article class="lb-podium-card${isFirst ? " is-first" : ""}" data-rank="${origIdx + 1}">
-                    <div class="lb-podium-rank-row">
-                        <div class="lb-podium-rank ${rankBadgeClass(origIdx)}">${rankLabel(origIdx)}</div>
-                        <span class="lb-podium-rank-label">${["1st Place","2nd Place","3rd Place"][origIdx]}</span>
-                    </div>
-                    <a class="lb-podium-author lb-podium-author-center" href="${href}">
-                        <div class="lb-podium-avatar lb-podium-avatar-lg">${esc(initials(u.author))}</div>
-                        <div>
-                            <span class="lb-podium-name">${esc(u.author)}</span>
-                            <span class="lb-podium-handle">${esc(u.handle)}</span>
-                        </div>
-                    </a>
-                    ${u.bio ? `<p class="lb-podium-desc">${esc(truncate(u.bio, 100))}</p>` : ""}
-                    <div class="lb-podium-stats">
-                        <span class="lb-stat"><strong>${u.prompts}</strong> prompts</span>
-                        <span class="lb-stat">
-                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 12 2 7.2a3 3 0 0 1 4.2-4.3l.8.8.8-.8A3 3 0 0 1 12 7.2L7 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-                            ${u.likes}
-                        </span>
-                        <span class="lb-stat lb-stat-primary"><strong>${Number(u[metric] || 0)}</strong> ${esc(metric)}</span>
-                    </div>
-                </article>`;
-            }).join("");
-        }
-
-        /* ── Ranking list (4th onwards) ── */
-        function renderListPrompts(rows, metric) {
-            if (!rows.length) { listEl.innerHTML = `<p class="lb-empty">No more entries.</p>`; return; }
-            listEl.innerHTML = rows.map((p, i) => {
-                const rank   = i + 4;
-                const href   = `prompt-detail.html?prompt=${encodeURIComponent(p.id || "")}`;
-                const aHref  = `profile.html?user=${encodeURIComponent(p.author || "")}`;
-                return `
-                <article class="lb-row">
-                    <span class="lb-row-rank">${rank}</span>
-                    <div class="lb-row-avatar">${esc(initials(p.author))}</div>
-                    <div class="lb-row-info">
-                        <a class="lb-row-title" href="${href}">${esc(truncate(p.title || "Untitled", 55))}</a>
-                        <a class="lb-row-author" href="${aHref}">${esc(p.author || "")} <span>${esc(p.authorHandle || "")}</span></a>
-                    </div>
-                    <div class="lb-row-stats">
-                        <span>
-                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 12 2 7.2a3 3 0 0 1 4.2-4.3l.8.8.8-.8A3 3 0 0 1 12 7.2L7 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-                            ${Number(p.likes || 0)}
-                        </span>
-                        <span>
-                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 7s2.5-4.5 6-4.5S13 7 13 7s-2.5 4.5-6 4.5S1 7 1 7Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.8" stroke="currentColor" stroke-width="1.4"/></svg>
-                            ${Number(p.viewCount || 0)}
-                        </span>
-                    </div>
-                    ${trendHtml(p.title || String(rank))}
-                </article>`;
-            }).join("");
-        }
-
-        function renderListUsers(rows, metric) {
-            if (!rows.length) { listEl.innerHTML = `<p class="lb-empty">No more entries.</p>`; return; }
-            listEl.innerHTML = rows.map((u, i) => {
-                const rank  = i + 4;
-                const href  = `profile.html?user=${encodeURIComponent(u.author)}`;
-                return `
-                <article class="lb-row">
-                    <span class="lb-row-rank">${rank}</span>
-                    <div class="lb-row-avatar">${esc(initials(u.author))}</div>
-                    <div class="lb-row-info">
-                        <a class="lb-row-title" href="${href}">${esc(u.author)}</a>
-                        <span class="lb-row-author">${esc(u.handle)}</span>
-                    </div>
-                    <div class="lb-row-stats">
-                        <span><strong>${u.prompts}</strong> prompts</span>
-                        <span>
-                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 12 2 7.2a3 3 0 0 1 4.2-4.3l.8.8.8-.8A3 3 0 0 1 12 7.2L7 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-                            ${u.likes}
-                        </span>
-                    </div>
-                    ${trendHtml(u.author)}
-                </article>`;
-            }).join("");
-        }
-
-        /* ── Main render ── */
-        function render() {
-            const metric    = metricSel.value;
-            const direction = -1;
-
-            if (!dataset.length) {
-                podiumEl.innerHTML = "";
-                listEl.innerHTML   = `<p class="lb-empty">Leaderboard data will appear once the backend is connected.</p>`;
-                return;
-            }
-
-            if (mode === "prompts") {
-                const sorted = [...dataset].sort((a, b) => direction * (metricVal(a, metric) - metricVal(b, metric))).slice(0, 20);
-                renderPodiumPrompts(sorted.slice(0, 3), metric);
-                renderListPrompts(sorted.slice(3), metric);
-            } else {
-                const userMap = new Map();
-                dataset.forEach(p => {
-                    const key = String(p.author || "Unknown");
-                    const e   = userMap.get(key) || { author: key, handle: p.authorHandle || "@" + key, bio: p.authorBio || "", prompts: 0, likes: 0, favorites: 0, views: 0, votes: 0 };
-                    e.prompts++; e.likes += Number(p.likes||0); e.favorites += Number(p.favorites||0); e.views += Number(p.viewCount||0); e.votes += Number(p.votes||0);
-                    userMap.set(key, e);
-                });
-                const sorted = [...userMap.values()].sort((a, b) => direction * (Number(a[metric]||0) - Number(b[metric]||0))).slice(0, 20);
-                renderPodiumUsers(sorted.slice(0, 3), metric);
-                renderListUsers(sorted.slice(3), metric);
-            }
-            clearFireworks();
-            initFireworks();
-        }
-
-        function setMode(next) {
-            mode = next;
-            tabPrompts.classList.toggle("is-active", mode === "prompts");
-            tabUsers.classList.toggle("is-active", mode === "users");
-            tabPrompts.setAttribute("aria-selected", mode === "prompts");
-            tabUsers.setAttribute("aria-selected", mode === "users");
-            eyebrowEl.textContent = mode === "prompts" ? "Prompts" : "Users";
-            titleEl.textContent   = mode === "prompts" ? "Full rankings" : "All users";
-            render();
-        }
-
-        tabPrompts.addEventListener("click", () => setMode("prompts"));
-        tabUsers.addEventListener("click",   () => setMode("users"));
-        metricSel.addEventListener("change", render);
-
-        setMode("prompts");
-
-    })();
-    </script>
 {% endblock %}
