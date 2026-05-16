@@ -1,5 +1,5 @@
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import unquote
 from uuid import uuid4
 
@@ -179,6 +179,33 @@ def test_profile_header_shows_saved_bio(auth_client, registered_user):
     assert response.status_code == 200
     assert b"Sharing practical prompts." in response.data
     assert b"Add a bio to introduce yourself." not in response.data
+
+
+def test_profile_activity_shows_real_prompt_and_comment_activity(auth_client, registered_user):
+    own_prompt = _create_prompt(registered_user, title="Real Submitted Prompt")
+    own_prompt.created_at = datetime.now() - timedelta(days=2)
+    other_user = _create_user("Other User", "other@example.com")
+    other_prompt = _create_prompt(other_user, title="Real Commented Prompt")
+    comment = _create_comment(registered_user, other_prompt)
+    comment.created_at = datetime.now() - timedelta(days=1)
+    db.session.commit()
+
+    response = auth_client.get(f"/profile/{registered_user.username}")
+
+    assert response.status_code == 200
+    assert b"Submitted" in response.data
+    assert b"Real Submitted Prompt" in response.data
+    assert b"Commented on" in response.data
+    assert b"Real Commented Prompt" in response.data
+    assert b"Debug assistant for Python" not in response.data
+
+
+def test_profile_activity_shows_empty_state_when_no_activity(auth_client, registered_user):
+    response = auth_client.get(f"/profile/{registered_user.username}")
+
+    assert response.status_code == 200
+    assert b"No activity yet." in response.data
+    assert b"Turn raw meeting notes into a structured summary" not in response.data
 
 
 def test_profile_update_rejects_duplicate_email(auth_client, registered_user):

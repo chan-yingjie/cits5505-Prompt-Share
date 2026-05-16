@@ -99,6 +99,69 @@ def _generate_user_code():
             return user_code
 
 
+def _relative_time_label(timestamp):
+    if timestamp is None:
+        return "Recently"
+
+    elapsed = datetime.now() - timestamp
+    seconds = max(0, int(elapsed.total_seconds()))
+
+    if seconds < 60:
+        return "Just now"
+
+    minutes = seconds // 60
+    if minutes < 60:
+        return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+
+    hours = minutes // 60
+    if hours < 24:
+        return f"{hours} hour{'s' if hours != 1 else ''} ago"
+
+    days = hours // 24
+    if days < 30:
+        return f"{days} day{'s' if days != 1 else ''} ago"
+
+    months = days // 30
+    if months < 12:
+        return f"{months} month{'s' if months != 1 else ''} ago"
+
+    years = days // 365
+    return f"{years} year{'s' if years != 1 else ''} ago"
+
+
+def _profile_activity_items(user, prompts):
+    activities = []
+
+    for prompt in prompts:
+        activities.append({
+            "kind": "submitted",
+            "verb": "Submitted",
+            "prompt": prompt,
+            "timestamp": prompt.created_at,
+            "category": prompt.category,
+        })
+
+    comments = Comment.query.filter_by(user_id=user.id).order_by(Comment.created_at.desc()).all()
+    for comment in comments:
+        if comment.prompt is None:
+            continue
+
+        activities.append({
+            "kind": "comment",
+            "verb": "Commented on",
+            "prompt": comment.prompt,
+            "timestamp": comment.created_at,
+            "category": comment.prompt.category,
+        })
+
+    activities.sort(key=lambda activity: activity["timestamp"] or datetime.min, reverse=True)
+
+    for activity in activities:
+        activity["time_label"] = _relative_time_label(activity["timestamp"])
+
+    return activities[:12]
+
+
 @main_bp.route("/")
 @main_bp.route("/index.html")
 def index():
@@ -221,6 +284,7 @@ def profile(user):
         "profile.html",
         profile_user=profile_user,
         prompts=prompts,
+        activity_items=_profile_activity_items(profile_user, prompts),
         join_label=_profile_join_label(profile_user),
         badge_label=_profile_badge_label(profile_user),
         avatar_static_path=_avatar_static_path(profile_user),

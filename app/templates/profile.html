@@ -274,104 +274,33 @@
                     </div>
                     <div id="activityBody" class="pf-collapse-body">
                     <div class="pf-collapse-inner">
+                    {% if activity_items %}
                     <ul class="pf-activity-list">
+                        {% for activity in activity_items %}
                         <li class="pf-activity-item">
-                            <div class="pf-activity-icon" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 5h4M5 7.5h4M5 10h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 1v3h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Submitted <strong>Turn raw meeting notes into a structured summary</strong></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">6 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Productivity</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-like" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13 3.2 8.5a3 3 0 0 1 4.2-4.3l.6.6.6-.6A3 3 0 0 1 12.8 8.5L8 13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Liked <strong>Debug assistant for Python</strong> by <a href="profile.html?user=kai.dev">kai.dev</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">8 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Coding</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 5h4M5 7.5h4M5 10h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 1v3h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Submitted <strong>Code review checklist for pull requests</strong></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">9 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Coding</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-comment" aria-hidden="true">
+                            <div class="pf-activity-icon{% if activity.kind == 'comment' %} act-comment{% endif %}" aria-hidden="true">
+                                {% if activity.kind == 'comment' %}
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 2.5H2.5a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1H5l3 3 3-3h2.5a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Commented on <strong>Summarise an article into sharp takeaways</strong> by <a href="profile.html?user=Armin312">Armin312</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">11 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Writing</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-star" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.5 3 3.3.5-2.4 2.3.6 3.3L8 9l-3 1.6.6-3.3L3.2 5l3.3-.5L8 1.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Saved <strong>Rewrite an email for a professional escalation</strong> by <a href="profile.html?user=chinmaiii">chinmaiii</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">13 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Writing</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon" aria-hidden="true">
+                                {% else %}
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 5h4M5 7.5h4M5 10h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 1v3h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                {% endif %}
                             </div>
                             <div class="pf-activity-body">
-                                <p class="pf-activity-text">Submitted <strong>Personal writing coach for academic essays</strong></p>
+                                <p class="pf-activity-text">
+                                    {{ activity.verb }}
+                                    <a href="{{ url_for('main.prompt_detail', prompt_id=activity.prompt.id) }}"><strong>{{ activity.prompt.title }}</strong></a>
+                                </p>
                                 <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">16 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Writing</span>
+                                    <span class="pf-activity-time">{{ activity.time_label }}</span>
+                                    <span class="tag-pill tag-pill-secondary">{{ activity.category }}</span>
                                 </div>
                             </div>
                         </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-like" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13 3.2 8.5a3 3 0 0 1 4.2-4.3l.6.6.6-.6A3 3 0 0 1 12.8 8.5L8 13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Liked <strong>Study question generator for exam prep</strong> by <a href="profile.html?user=chan-yingjie">chan-yingjie</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">18 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Education</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="pf-activity-item">
-                            <div class="pf-activity-icon act-view" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
-                            </div>
-                            <div class="pf-activity-body">
-                                <p class="pf-activity-text">Viewed <strong>Marketing launch campaign brief</strong> by <a href="profile.html?user=luna.market">luna.market</a></p>
-                                <div class="pf-activity-meta">
-                                    <span class="pf-activity-time">21 days ago</span>
-                                    <span class="tag-pill tag-pill-secondary">Marketing</span>
-                                </div>
-                            </div>
-                        </li>
+                        {% endfor %}
                     </ul>
+                    {% else %}
+                    <p class="pf-empty-text">No activity yet.</p>
+                    {% endif %}
                     </div><!-- /.pf-collapse-inner -->
                     </div><!-- /#activityBody -->
                 </section>
