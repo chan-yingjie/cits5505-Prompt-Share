@@ -8070,6 +8070,7 @@ body.profile-page .page-shell {
     line-height: 1.55;
     margin: 0;
     flex: 1;
+    text-align: center;
 }
 
 .lb-podium-stats {
