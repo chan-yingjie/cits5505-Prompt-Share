@@ -461,12 +461,18 @@ a {
     width: auto;
 }
 
-.topnav .topnav-link:hover,
-.topnav .topnav-link.active {
+.topnav .topnav-link:hover {
     color: #111111;
     background: #f3e8df;
     transform: none;
     font-weight: 500;
+}
+
+.topnav .topnav-link.active {
+    color: #111111;
+    background: #f3e8df;
+    box-shadow: inset 0 0 0 1px rgba(201, 107, 49, 0.24);
+    font-weight: 600;
 }
 
 @media (max-width: 860px) {

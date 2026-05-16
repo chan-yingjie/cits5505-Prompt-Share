@@ -1,22 +1,30 @@
 <header class="topbar">
+    {% set current_endpoint = request.endpoint or '' %}
+    {% set is_home = current_endpoint == 'main.index' %}
+    {% set is_explore = current_endpoint in ['main.feed', 'main.prompt_detail', 'main.prompt_detail_redirect'] %}
+    {% set is_submit = current_endpoint in ['main.submit_prompt', 'main.edit_prompt'] %}
+    {% set is_leaderboard = current_endpoint == 'main.leaderboard' %}
+    {% set is_profile = current_endpoint in ['main.profile', 'main.profile_redirect', 'main.update_profile', 'main.update_avatar'] %}
+    {% set is_login = current_endpoint == 'main.login' %}
+    {% set is_signup = current_endpoint == 'main.signup' %}
     <nav class="topnav" aria-label="Primary navigation">
-        <a class="topnav-link topnav-link--home" href="{{ url_for('main.index') }}">Home</a>
-        <a class="topnav-link topnav-link--explore" href="{{ url_for('main.feed') }}">Explore</a>
+        <a class="topnav-link topnav-link--home{% if is_home %} active{% endif %}" href="{{ url_for('main.index') }}"{% if is_home %} aria-current="page"{% endif %}>Home</a>
+        <a class="topnav-link topnav-link--explore{% if is_explore %} active{% endif %}" href="{{ url_for('main.feed') }}"{% if is_explore %} aria-current="page"{% endif %}>Explore</a>
         {% if current_user.is_authenticated %}
-            <a class="topnav-link topnav-link--submit" href="{{ url_for('main.submit_prompt') }}">Submit Prompt</a>
+            <a class="topnav-link topnav-link--submit{% if is_submit %} active{% endif %}" href="{{ url_for('main.submit_prompt') }}"{% if is_submit %} aria-current="page"{% endif %}>Submit Prompt</a>
         {% else %}
-            <a class="topnav-link topnav-link--submit" href="{{ url_for('main.login', next=url_for('main.submit_prompt')) }}" title="Log in to submit a prompt">Submit Prompt</a>
+            <a class="topnav-link topnav-link--submit{% if is_submit %} active{% endif %}" href="{{ url_for('main.login', next=url_for('main.submit_prompt')) }}" title="Log in to submit a prompt"{% if is_submit %} aria-current="page"{% endif %}>Submit Prompt</a>
         {% endif %}
-        <a class="topnav-link topnav-link--leaderboard" href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
+        <a class="topnav-link topnav-link--leaderboard{% if is_leaderboard %} active{% endif %}" href="{{ url_for('main.leaderboard') }}"{% if is_leaderboard %} aria-current="page"{% endif %}>Leaderboard</a>
         {% if current_user.is_authenticated %}
-            <a class="topnav-link topnav-link--account" href="{{ url_for('main.profile', user=current_user.username) }}">Profile</a>
+            <a class="topnav-link topnav-link--account{% if is_profile %} active{% endif %}" href="{{ url_for('main.profile', user=current_user.username) }}"{% if is_profile %} aria-current="page"{% endif %}>Profile</a>
             <form class="topnav-logout-form" method="post" action="{{ url_for('main.logout') }}" aria-label="Log out">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="topnav-link topnav-logout-btn">Log out</button>
             </form>
         {% else %}
-            <a class="topnav-link topnav-link--account" href="{{ url_for('main.login') }}">Login</a>
-            <a class="topnav-link topnav-link--signup" href="{{ url_for('main.signup') }}">Sign up</a>
+            <a class="topnav-link topnav-link--account{% if is_login %} active{% endif %}" href="{{ url_for('main.login') }}"{% if is_login %} aria-current="page"{% endif %}>Login</a>
+            <a class="topnav-link topnav-link--signup{% if is_signup %} active{% endif %}" href="{{ url_for('main.signup') }}"{% if is_signup %} aria-current="page"{% endif %}>Sign up</a>
         {% endif %}
     </nav>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
