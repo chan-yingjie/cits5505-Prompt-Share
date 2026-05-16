@@ -714,10 +714,15 @@ def delete_prompt(prompt_id):
         flash("You can only delete your own prompts.", "error")
         return redirect(url_for("main.prompt_detail", prompt_id=prompt.id))
 
+    UserLike.query.filter_by(prompt_id=prompt.id).delete(synchronize_session=False)
+    UserBookmark.query.filter_by(prompt_id=prompt.id).delete(synchronize_session=False)
     db.session.delete(prompt)
     db.session.commit()
 
     flash("Prompt deleted successfully.", "success")
+    next_url = request.form.get("next", "").strip()
+    if next_url.startswith("/") and not next_url.startswith("//"):
+        return redirect(next_url)
     return redirect(url_for("main.feed"))
 
 

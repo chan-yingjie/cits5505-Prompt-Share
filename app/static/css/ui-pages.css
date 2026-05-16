@@ -2616,6 +2616,7 @@ p {
     font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     color: #111111;
     background: #f7f7f5;
+    overflow-x: hidden;
 }
 
 .detail-page .page-shell {
@@ -2638,7 +2639,7 @@ p {
 
 .detail-page .detail-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(440px, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 400px);
     gap: 28px;
     align-items: start;
 }
@@ -2777,6 +2778,31 @@ p {
     display: inline-flex;
     align-items: center;
     gap: 12px;
+}
+
+.detail-page .prompt-delete-form {
+    margin: 0;
+}
+
+.detail-page .prompt-delete-button {
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid #f0c7c1;
+    border-radius: 999px;
+    background: #fff7f6;
+    color: #b42318;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.detail-page .prompt-delete-button:hover {
+    transform: translateY(-1px);
+    border-color: #e79b91;
+    background: #fff1ef;
+    color: #991b1b;
 }
 
 .detail-page .detail-submitted,
@@ -3123,11 +3149,13 @@ p {
 .detail-page .comment-author-name {
     display: block;
     font-size: 0.875rem;
+    font-weight: 600;
     margin-bottom: 2px;
 }
 
 .detail-page .comment-body-text {
     font-size: 0.875rem;
+    font-weight: 400;
     color: #444;
     margin: 0 0 6px;
     line-height: 1.55;
@@ -3167,6 +3195,7 @@ p {
 .detail-page .comment-date {
     color: #999;
     font-size: 0.75rem;
+    font-weight: 400;
 }
 
 .detail-page .comment-action-btn {
@@ -3175,6 +3204,7 @@ p {
     padding: 2px 6px;
     border-radius: 6px;
     font-size: 0.75rem;
+    font-weight: 400;
     cursor: pointer;
     color: #888;
     transition: color 0.15s, background 0.15s;
@@ -3576,6 +3606,83 @@ body.modal-open {
 }
 
 .detail-page .detail-confirm-delete-button:hover {
+    border-color: #7f1d1d;
+    background: #7f1d1d;
+}
+
+.prompt-delete-confirm-overlay {
+    padding: 24px;
+    background: rgba(17, 17, 17, 0.42);
+    backdrop-filter: blur(10px);
+}
+
+.prompt-delete-confirm-modal {
+    width: min(440px, 100%);
+    padding: 30px 30px 24px;
+    border: 1px solid rgba(229, 231, 235, 0.9);
+    border-radius: 28px;
+    background:
+        radial-gradient(circle at top right, rgba(243, 232, 223, 0.9), transparent 42%),
+        #ffffff;
+    box-shadow: 0 28px 60px rgba(17, 17, 17, 0.16);
+}
+
+.prompt-delete-confirm-close {
+    top: 18px;
+    right: 18px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #4b5563;
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.prompt-delete-confirm-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 18px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fff4f4 0%, #fde7e7 100%);
+    color: #991b1b;
+}
+
+.prompt-delete-confirm-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.prompt-delete-confirm-modal h2 {
+    margin: 0 0 10px;
+    color: #111111;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.prompt-delete-confirm-modal p {
+    margin: 0;
+    color: #6b7280;
+    line-height: 1.7;
+}
+
+.prompt-delete-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.prompt-delete-confirm-delete-button {
+    border-color: #991b1b;
+    background: #991b1b;
+}
+
+.prompt-delete-confirm-delete-button:hover {
     border-color: #7f1d1d;
     background: #7f1d1d;
 }
@@ -4542,6 +4649,51 @@ body.modal-open {
     box-shadow: 0 16px 26px rgba(201, 107, 49, 0.2);
 }
 
+@media (max-width: 1180px) {
+    .detail-page .page-shell {
+        width: min(100% - 24px, 100%);
+    }
+
+    .detail-page .detail-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+        gap: 22px;
+    }
+
+    .detail-page .detail-main,
+    .detail-page .detail-side {
+        padding: 24px;
+    }
+
+    .detail-page .detail-main::after,
+    .detail-page .detail-main::before,
+    .detail-page .detail-side::after {
+        opacity: 0.28;
+    }
+
+    .detail-page .prompt-editor {
+        min-height: 340px;
+    }
+
+    .detail-page .button-group {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 980px) {
+    .detail-page .detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-page .detail-main,
+    .detail-page .detail-side {
+        position: static;
+    }
+
+    .detail-page .detail-side {
+        min-height: auto;
+    }
+}
+
 @media (max-width: 860px) {
     .detail-page .detail-layout {
         grid-template-columns: 1fr;
@@ -4554,6 +4706,12 @@ body.modal-open {
 
     .detail-page .detail-main {
         overflow: hidden;
+    }
+
+    .detail-page .detail-main::after,
+    .detail-page .detail-main::before,
+    .detail-page .detail-side::after {
+        display: none;
     }
 
     .detail-page .detail-copy-section {
@@ -4571,7 +4729,14 @@ body.modal-open {
     }
 
     .detail-page .comment-bar {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr) 42px;
+        align-items: start;
+    }
+
+    .detail-page .comment-actions-wrap {
+        grid-column: 1 / -1;
+        width: 100%;
+        justify-content: flex-start;
     }
 
     .detail-page .button-group {
@@ -4753,20 +4918,108 @@ body.modal-open {
 
     .detail-page .detail-main,
     .detail-page .detail-side {
-        padding: 20px;
+        padding: 18px;
+        border-radius: 18px;
     }
 
     .detail-page .detail-header h1 {
         font-size: 2rem;
     }
 
+    .detail-page .detail-main .detail-card-title {
+        font-size: 1.16rem;
+        line-height: 1.28;
+    }
+
+    .detail-page .detail-top-row,
+    .detail-page .detail-header-tools,
+    .detail-page .detail-side-header,
+    .detail-page .comment-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .detail-page .detail-identity {
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .detail-page .detail-author-avatar {
+        width: 46px;
+        height: 46px;
+    }
+
+    .detail-page .detail-main .detail-card-stats,
+    .detail-page .detail-main .detail-card-stats .detail-category-pills {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .detail-page .tag-pill {
+        max-width: 100%;
+        white-space: normal;
+    }
+
     .detail-page .detail-header-tools {
-        align-items: center;
+        align-items: flex-start;
+    }
+
+    .detail-page .comment-bar {
+        grid-template-columns: minmax(0, 1fr) 42px;
+        gap: 8px;
+    }
+
+    .detail-page .comment-input {
+        min-height: 48px;
+        height: 48px;
+        border-radius: 24px;
     }
 
     .detail-page .comment-actions-wrap {
         width: 100%;
         justify-content: flex-start;
+    }
+
+    .detail-page .comment-actions-inline {
+        flex-wrap: wrap;
+    }
+
+    .detail-page .comment-footer-left,
+    .detail-page .comment-footer-right,
+    .detail-page .delete-confirm-inline,
+    .detail-page .inline-reply-actions {
+        justify-content: flex-start;
+    }
+
+    .detail-page .comment-item-reply {
+        margin-left: 24px;
+    }
+
+    .detail-page .inline-reply-form.is-shown {
+        display: grid;
+        grid-template-columns: 28px minmax(0, 1fr);
+    }
+
+    .detail-page .inline-reply-form .comment-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.68rem;
+    }
+
+    .detail-page .prompt-editor {
+        min-height: 280px;
+        border-radius: 14px;
+    }
+
+    .detail-page .button-group,
+    .detail-page .btn-secondary,
+    .detail-page .btn-primary {
+        width: 100%;
+    }
+
+    .detail-page .btn-secondary,
+    .detail-page .btn-primary {
+        justify-content: center;
     }
 
     .page-shell {
@@ -9260,6 +9513,13 @@ background: #fff;
     display: block;
 }
 
+.profile-page .pf-prompt-card .prompt-card-author-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
 .profile-page .pf-prompt-card .author-link {
     display: grid;
     grid-template-columns: 42px minmax(0, 1fr);
@@ -9291,6 +9551,32 @@ background: #fff;
 
 .profile-page .pf-prompt-card .author-handle {
     display: none;
+}
+
+.profile-page .pf-prompt-delete-form {
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+.profile-page .pf-prompt-delete-button {
+    min-height: 30px;
+    padding: 0 10px;
+    border: 1px solid #f0c7c1;
+    border-radius: 999px;
+    background: #fff7f6;
+    color: #b42318;
+    font: inherit;
+    font-size: 0.74rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.profile-page .pf-prompt-delete-button:hover {
+    transform: translateY(-1px);
+    border-color: #e79b91;
+    background: #fff1ef;
+    color: #991b1b;
 }
 
 .profile-page .pf-prompt-card .card-content {
@@ -9364,5 +9650,9 @@ background: #fff;
 @media (max-width: 640px) {
     .profile-page .pf-prompt-grid {
         grid-template-columns: 1fr;
+    }
+
+    .profile-page .pf-prompt-card .prompt-card-author-row {
+        align-items: flex-start;
     }
 }

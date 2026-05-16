@@ -299,6 +299,43 @@ def test_non_owner_cannot_edit_prompt(auth_client, registered_user):
     assert unchanged_prompt.author_id == other_user.id
 
 
+def test_prompt_delete_button_only_shows_for_owner(auth_client, registered_user):
+    own_prompt = _create_prompt(registered_user, title="Own deletable prompt")
+    other_user = _create_user("Other User", "other@example.com")
+    other_prompt = _create_prompt(other_user, title="Hidden delete prompt")
+
+    own_response = auth_client.get(f"/prompt/{own_prompt.id}")
+    other_response = auth_client.get(f"/prompt/{other_prompt.id}")
+
+    assert own_response.status_code == 200
+    assert "Delete Prompt" in own_response.get_data(as_text=True)
+    assert f"/prompt/{own_prompt.id}/delete" in own_response.get_data(as_text=True)
+
+    assert other_response.status_code == 200
+    assert "Delete Prompt" not in other_response.get_data(as_text=True)
+    assert f"/prompt/{other_prompt.id}/delete" not in other_response.get_data(as_text=True)
+
+
+def test_profile_prompt_delete_button_only_shows_for_owner(auth_client, registered_user):
+    own_prompt = _create_prompt(registered_user, title="Own profile prompt")
+    other_user = _create_user("Other User", "other@example.com")
+    other_prompt = _create_prompt(other_user, title="Other profile prompt")
+
+    own_response = auth_client.get(f"/profile/{registered_user.username}")
+    other_response = auth_client.get(f"/profile/{other_user.username}")
+
+    own_body = own_response.get_data(as_text=True)
+    other_body = other_response.get_data(as_text=True)
+
+    assert own_response.status_code == 200
+    assert "Own profile prompt" in own_body
+    assert f"/prompt/{own_prompt.id}/delete" in own_body
+
+    assert other_response.status_code == 200
+    assert "Other profile prompt" in other_body
+    assert f"/prompt/{other_prompt.id}/delete" not in other_body
+
+
 def test_prompt_owner_can_delete_prompt(auth_client, registered_user):
     prompt = _create_prompt(registered_user)
 
@@ -309,6 +346,20 @@ def test_prompt_owner_can_delete_prompt(auth_client, registered_user):
 
     assert response.status_code == 302
     assert "/feed" in response.location
+    assert db.session.get(Prompt, prompt.id) is None
+
+
+def test_profile_prompt_delete_redirects_back_to_profile(auth_client, registered_user):
+    prompt = _create_prompt(registered_user)
+
+    response = auth_client.post(
+        f"/prompt/{prompt.id}/delete",
+        data={"next": f"/profile/{registered_user.username}"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert f"/profile/{registered_user.username}" in response.location
     assert db.session.get(Prompt, prompt.id) is None
 
 
